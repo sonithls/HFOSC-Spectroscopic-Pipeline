@@ -247,12 +247,6 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     task(input='@' + pathloc, output=str(master_bias), combine = 'median', reject = 'avsigclip',
          ccdtype = '', process = 'no', delete = 'no', rdnoise = float(read_noise),gain = float(ccd_gain))
 
-
-    pathloc = os.path.join(PATH,'Backup')
-    os.makedirs(pathloc)
-    print ("copying master-bias to "+PATH+"/Backup")
-    shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
-
     task = iraf.images.imutil.imarith
     task.unlearn()
 
@@ -268,5 +262,9 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     for file_name in bias_list:
         remove_file(str(os.path.join(location, file_name))) #removing the older bias files
 
+    pathloc = os.path.join(PATH,'Backup')
+    os.makedirs(pathloc)
+    print ("copying master-bias to "+PATH+"/Backup")
+    shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
 
 bias_correction (bias_list, passing_list, PATH)
