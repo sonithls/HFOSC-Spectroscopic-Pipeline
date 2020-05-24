@@ -99,7 +99,8 @@ def spec_or_phot (file_list, location, func=''):
 
     spec_list = []
     phot_list = []
-
+    spec_list_fullname = []
+    phot_list_fullname = []
     for file in file_list :
         file_name = os.path.join(location,file)
         hdul = fits.open(file_name) #HDU_List
@@ -110,14 +111,16 @@ def spec_or_phot (file_list, location, func=''):
         value = AXIS2/AXIS1
         if value > 2 :
             spec_list.append(file)
+            spec_list_fullname.append(file_name)
         elif value <= 2 :
             phot_list.append(file)
+            phot_list_fullname.append(file_name)
 
     if func == 'spec':
         try:
             pathloc = os.path.join(location,'phot')
             os.mkdir(pathloc)
-            for file in phot_list:
+            for file in phot_list_fullname:
                 shutil.move (file,pathloc)
 
         except OSError as error:
@@ -127,7 +130,7 @@ def spec_or_phot (file_list, location, func=''):
         try:
             pathloc = os.path.join(location,'spec')
             os.mkdir(pathloc)
-            for file in phot_list:
+            for file in spec_list_fullname:
                 shutil.move (file,pathloc)
 
         except OSError as error:
