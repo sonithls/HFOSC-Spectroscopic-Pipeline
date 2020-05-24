@@ -14,6 +14,8 @@
 import os
 import glob
 import shutil
+import re
+from astropy.io import fits
 
 try:
     from pyraf import iraf
@@ -23,7 +25,13 @@ except ImportError as error:
 BACKUP= "HFOSC_PIPELINE_DataBackup"
 
 def Backup(BACKUPDIR):
-    """ Copies all the files in present directory to the  Backup"""
+    """
+    Copies all the files in present directory to the  Backup
+    Argument:
+        BACKUPDIR : Name of the backup directory
+    Returns :
+        none
+    """
     os.makedirs('../'+BACKUPDIR)
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
@@ -33,15 +41,14 @@ Backup (BACKUP)
 
 
 def search_files (location='', keyword=''):
-
-    """ This function generate filelist from assigned folder with specific keyword in it.
-    Arguments:
-        location: location of the files if it is not in the working directory
-        keyword : keyword in the name of the file eg: "*.fits"
-    Returns:
-
     """
-
+    This function generate filelist from assigned folder with specific keyword in it.
+    Arguments:
+        location : location of the files if it is not in the working directory
+        keyword  : keyword in the name of the file eg: "*.fits"
+    Returns:
+        file_list: List of files with the input keyword.
+    """
     if location != '':                                                #change -- location
         pathloc = os.path.join(os.getcwd(), location)
 
@@ -53,8 +60,8 @@ def search_files (location='', keyword=''):
 
 
 def list_subdir ():
-
-    """This function list all sub directories.
+    """
+    This function list all sub directories.
     Arguments:
         none
     Returns:
@@ -167,7 +174,6 @@ bias_list, passing_list = list_bias (speclist, PATH)
 # print (bias_list)
 # print (passing_list)
 
-
 from pyraf import iraf
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
@@ -193,6 +199,10 @@ data_max = 55000
 def remove_file(file_name):
     """
     Removing a file from the directory
+    Argument:
+        file_name: file name of the file to remove from directory
+    Returns :
+        none
     """
     try:
         os.remove(file_name)
@@ -205,7 +215,7 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     From the imput bias_list make master-bias, do bias correction to rest of files in the
     directory, remove all past files and backup master-bias file
     Arguments:
-        bias_list    : List of bias files to make master bias. 
+        bias_list    : List of bias files to make master bias.
         list_file    : List of files which need to do bias correction.
         location     : location of the files if it is not in the working directory
         prefix_string: prefix which add after doing bias correction to files.
@@ -254,7 +264,6 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
 
     for file_name in bias_list:
         remove_file(str(os.path.join(location, file_name))) #removing the older bias files
-
 
 
 bias_correction (bias_list, passing_list, PATH)
