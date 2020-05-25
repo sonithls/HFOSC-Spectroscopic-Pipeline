@@ -39,7 +39,6 @@ def Backup(BACKUPDIR):
 Backup (BACKUP)
 
 
-
 def search_files (location='', keyword=''):
     """
     This function generate filelist from assigned folder with specific keyword in it.
@@ -56,7 +55,6 @@ def search_files (location='', keyword=''):
         file_list = glob.glob1(pathloc, keyword)
 
     return file_list
-
 
 
 def list_subdir ():
@@ -146,13 +144,15 @@ speclist, photlist = spec_or_phot (list_files, PATH, 'spec')
 
 def list_bias (file_list, location=''):
     """
-    Identify bias files from file_list provided by looking the header keyword in the files
+    Identify bias files from file_list provided by looking the header keyword in the
+    files.
     Arguments:
-        file_list   : List of all files in the directory from which files need to identify
-        location    : location of the files if it is not in the working directory
+        file_list   : List of all files in the directory from which files need to
+                      identify.
+        location    : location of the files if it is not in the working directory.
     Returns:
-        bias_list   : List of bias files from the file_list provided
-        passing_list: Remaining files after removing bias files from the file_list
+        bias_list   : List of bias files from the file_list provided.
+        passing_list: Remaining files after removing bias files from the file_list.
     """
 
     bias_list = []
@@ -203,7 +203,7 @@ def remove_file(file_name):
     """
     Removing a file from the directory
     Argument:
-        file_name: file name of the file to remove from directory
+        file_name: file name of the file to remove from directory.
     Returns :
         none
     """
@@ -220,10 +220,11 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     Arguments:
         bias_list    : List of bias files to make master bias.
         list_file    : List of files which need to do bias correction.
-        location     : location of the files if it is not in the working directory
+        location     : location of the files if it is not in the working directory.
         prefix_string: prefix which add after doing bias correction to files.
     Returns:
         none
+        save bias_list in the location provided.
     """
 
     if location != '':                                                #change -- location
@@ -268,3 +269,75 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
 
 bias_correction (bias_list, passing_list, PATH)
+
+
+def make_filelist (location='', keyword='*.fits'):
+    """
+    This function create a file list with a keyword in it and write it in a text file and
+    save it in the same folder.
+    Arguments:
+        location : location of the files if it is not in the working directory
+        keyword  : keyword in the name of the file eg: "*.fits"
+    Returns:
+        file_list: List of files with the input keyword.
+    """
+    if location != '':                                                #change -- location
+        pathloc = os.path.join(os.getcwd(), location)
+
+    if keyword != '':
+        file_list = glob.glob1(pathloc, keyword)
+
+    return file_list
+
+list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+
+
+def cosmicray_correction (file_list, location=''):
+    """
+    This function is to correct cosmicray hits in the images.
+    Arguments:
+        file_list: List of files which need to do cosmicray correction.
+        location : location of the files if it is not in the working directory.
+    Returns
+        none
+    """
+    if location != '':                                                #change -- location
+        pathloc = os.path.join(os.getcwd(), location, 'cosmic_correct_list')
+
+
+
+def list_flat (file_list, location=''):
+    """
+    From the file_list provided, sperate files into flat files, object files and lamp files
+    and further speperate them into grism7 and grism8 files.
+    Arguments:
+        file_list: List of files which need to do cosmicray correction.
+        location : location of the files if it is not in the working directory.
+    Returns:
+        passing_list:
+    """
+
+    flat_list = []
+    for file in file_list :
+        file_name = os.path.join(location,file)
+        hdul = fits.open(file_name) #HDU_List
+        hdr = hdul[0].header        #Primary HDU header
+        OBJECT = hdr['OBJECT']
+        grism = hdr[]
+
+        if OBJECT == "Halogen" :
+            flat_list.append(file)
+        elif OBJECT == "halogen" :
+            flat_list.append(file)
+        elif OBJECT == "flat" :
+            flat_list.append(file)
+
+
+    passing_list = list(set(file_list).difference(bias_list))
+    passing_list.sort()
+    return bias_list, passing_list
+
+
+bias_list, passing_list = list_bias (speclist, PATH)
+print (bias_list)
+print (passing_list)
