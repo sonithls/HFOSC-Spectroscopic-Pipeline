@@ -227,7 +227,7 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
         save bias_list in the location provided.
     """
 
-    if location != '':                                                #change -- location
+    if location != '':                                                #change location
         pathloc = os.path.join(os.getcwd(), location, 'bias_list')
         master_bias = os.path.join(location, 'master-bias')
     else :
@@ -269,27 +269,125 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
 
 bias_correction (bias_list, passing_list, PATH)
+# -------------------------------------------------------------------------------------------------------------------- #
 
-
-def make_filelist (location='', keyword='*.fits'):
+def write_list (file_list, file_name, location='', keyword='*.fits'):
     """
-    This function create a file list with a keyword in it and write it in a text file and
-    save it in the same folder.
+    This function write a text file in the destination provided using the python list
+    provided.
     Arguments:
+        file_list: List of files need to write into a text file.
         location : location of the files if it is not in the working directory
         keyword  : keyword in the name of the file eg: "*.fits"
     Returns:
-        file_list: List of files with the input keyword.
+        none
+        file list with file name given form in the given location with file names in it.
     """
-    if location != '':                                                #change -- location
-        pathloc = os.path.join(os.getcwd(), location)
+    if location != '':
+        pathloc = os.path.join(os.getcwd(), location, file_name)
 
-    if keyword != '':
-        file_list = glob.glob1(pathloc, keyword)
+    if len(file_list) != 0:
+        with open(pathloc, 'w') as f:
+            for file in file_list :
+                f.write(file+ '\n')
 
-    return file_list
 
 list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+
+
+def list_flat (file_list, location=''):
+    """
+    From the file_list provided, sperate files into flat files and further speperate them
+    into grism7 and grism8 files.
+    Arguments:
+        file_list: List of files need to speperate.
+        location : location of the files if it is not in the working directory.
+    Returns:
+        flat_list_gr7: List of gr7 flat files.
+        flat_list_gr8: List of gr8 flat files.
+        passing_list : List of rest of the files in filelist.
+    """
+    flat_list_gr7= []
+    flat_list_gr8= []
+
+    for file in file_list :
+        file_name = os.path.join(location,file)
+        hdul = fits.open(file_name) #HDU_List
+        hdr = hdul[0].header        #Primary HDU header
+        OBJECT = hdr['OBJECT']
+        GRISM = hdr['GRISM']
+
+        if (OBJECT == "Halogen") or (OBJECT == "halogen") or (OBJECT == "flat") :
+            if GRISM == "4 Grism 7" :
+                flat_list_gr7.append(file)
+            elif GRISM == "3 Grism 8" :
+                flat_list_gr8.append(file)
+
+    passing_list = list(set(file_list).difference(flat_list_gr7).difference(flat_list_gr8))
+    return flat_list_gr7, flat_list_gr8, passing_list
+
+
+def list_lamp (file_list, location=''):
+    """
+    From the file_list provided, sperate files into lamp files and further speperate them
+    into grism7 and grism8 files.
+    Arguments:
+        file_list: List of files need to speperate.
+        location : location of the files if it is not in the working directory.
+    Returns:
+        lamp_list_gr7: List of gr7 lamp files.
+        lamp_list_gr8: List of gr8 lamp files.
+        passing_list : List of rest of the files in filelist.
+    """
+    lamp_list_gr7= []
+    lamp_list_gr8= []
+
+    for file in file_list :
+        file_name = os.path.join(location,file)
+        hdul = fits.open(file_name) #HDU_List
+        hdr = hdul[0].header        #Primary HDU header
+        OBJECT = hdr['OBJECT']
+        GRISM = hdr['GRISM']
+
+        if (OBJECT == "FeAr"):
+            lamp_list_gr7.append(file)
+        elif (OBJECT == "FeNe"):
+            lamp_list_gr8.append(file)
+
+    passing_list = list(set(file_list).difference(lamp_list_gr7).difference(lamp_list_gr8))
+    return lamp_list_gr7, lamp_list_gr8, passing_list
+
+
+def list_object (file_list, location=''):
+    """
+    From the file_list provided, sperate files into object files and further speperate them
+    into grism7 and grism8 files.
+    Arguments:
+        file_list: List of files need to speperate.
+        location : location of the files if it is not in the working directory.
+    Returns:
+        obj_list_gr7: List of gr7 object files.
+        obj_list_gr8: List of gr8 object files.
+        passing_list : List of rest of the files in filelist.
+    """
+    obj_list_gr7= []
+    obj_list_gr8= []
+
+    for file in file_list :
+        file_name = os.path.join(location,file)
+        hdul = fits.open(file_name) #HDU_List
+        hdr = hdul[0].header        #Primary HDU header
+        OBJECT = hdr['OBJECT']
+        GRISM = hdr['GRISM']
+
+        if (OBJECT != "FeAr") or (OBJECT != "FeNe") or (OBJECT != "Halogen") (OBJECT != "Bias_Snspec"):
+            if GRISM == "4 Grism 7" :
+                obj_list_gr7.append(file)
+            elif GRISM == "3 Grism 8" :
+                obj_list_gr8.append(file)
+
+    passing_list = list(set(file_list).difference(lamp_list_gr7).difference(lamp_list_gr8))
+    return obj_list_gr7, obj_list_gr8, passing_list
 
 
 def cosmicray_correction (file_list, location=''):
@@ -301,43 +399,26 @@ def cosmicray_correction (file_list, location=''):
     Returns
         none
     """
-    if location != '':                                                #change -- location
+    if location != '':
         pathloc = os.path.join(os.getcwd(), location, 'cosmic_correct_list')
 
 
-
-def list_flat (file_list, location=''):
+def flat_correction (file_list, location='') :
     """
-    From the file_list provided, sperate files into flat files, object files and lamp files
-    and further speperate them into grism7 and grism8 files.
+    This fuction do flat correction to object files.
     Arguments:
-        file_list: List of files which need to do cosmicray correction.
+        file_list: List of files which need to do flat correction.
         location : location of the files if it is not in the working directory.
-    Returns:
-        passing_list:
     """
+    if location != '':
+        pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list')
 
-    flat_list = []
-    for file in file_list :
-        file_name = os.path.join(location,file)
-        hdul = fits.open(file_name) #HDU_List
-        hdr = hdul[0].header        #Primary HDU header
-        OBJECT = hdr['OBJECT']
-        grism = hdr[]
-
-        if OBJECT == "Halogen" :
-            flat_list.append(file)
-        elif OBJECT == "halogen" :
-            flat_list.append(file)
-        elif OBJECT == "flat" :
-            flat_list.append(file)
-
-
-    passing_list = list(set(file_list).difference(bias_list))
-    passing_list.sort()
-    return bias_list, passing_list
-
-
-bias_list, passing_list = list_bias (speclist, PATH)
-print (bias_list)
-print (passing_list)
+def spectral_extraction (file_list, location=''):
+    """
+    This fuction do spectral extraction and calibration of wavelength.
+    Arguments:
+        file_list: List of files which need to do spectral extraction
+        location : location of the files if it is not in the working directory.
+    """
+    if location != '':
+        pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list')
