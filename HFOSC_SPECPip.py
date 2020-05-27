@@ -303,12 +303,15 @@ def list_flat (file_list, location=''):
         file_list: List of files need to speperate.
         location : location of the files if it is not in the working directory.
     Returns:
+        flat_list    : List of all flat files.
         flat_list_gr7: List of gr7 flat files.
         flat_list_gr8: List of gr8 flat files.
         passing_list : List of rest of the files in filelist.
     """
+    flat_list = []
     flat_list_gr7= []
     flat_list_gr8= []
+    passing_list= []
 
     for file in file_list :
         file_name = os.path.join(location,file)
@@ -318,13 +321,19 @@ def list_flat (file_list, location=''):
         GRISM = hdr['GRISM']
 
         if (OBJECT == "Halogen") or (OBJECT == "halogen") or (OBJECT == "flat") :
+            flat_list.append(file)
             if GRISM == "4 Grism 7" :
                 flat_list_gr7.append(file)
             elif GRISM == "3 Grism 8" :
                 flat_list_gr8.append(file)
+            else :
+                print (file)
+                print ("There is error in header term : GRISM")
 
-    passing_list = list(set(file_list).difference(flat_list_gr7).difference(flat_list_gr8))
-    return flat_list_gr7, flat_list_gr8, passing_list
+        else :
+            passing_list.append(file)
+
+    return flat_list, flat_list_gr7, flat_list_gr8, passing_list
 
 
 def list_lamp (file_list, location=''):
