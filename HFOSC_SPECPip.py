@@ -271,17 +271,17 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
 bias_correction (bias_list, passing_list, PATH)
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def write_list (file_list, file_name, location='', keyword='*.fits'):
+def write_list (file_list, file_name, location=''):
     """
-    This function write a text file in the destination provided using the python list
-    provided.
+    This function write file names with complete path in a text file in the destination
+    provided, using the input file_list.
     Arguments:
         file_list: List of files need to write into a text file.
+        file_name: Name of the text file.
         location : location of the files if it is not in the working directory
-        keyword  : keyword in the name of the file eg: "*.fits"
     Returns:
         none
-        file list with file name given form in the given location with file names in it.
+        file list with file_file in the given location with file names in it.
     """
     if location != '':
         pathloc = os.path.join(os.getcwd(), location, file_name)
@@ -289,10 +289,8 @@ def write_list (file_list, file_name, location='', keyword='*.fits'):
     if len(file_list) != 0:
         with open(pathloc, 'w') as f:
             for file in file_list :
+                file = os.path.join(os.getcwd(), location, file)
                 f.write(file+ '\n')
-
-
-list_files = search_files(location=list_subdir()[0], keyword='*.fits')
 
 
 def list_flat (file_list, location=''):
@@ -426,6 +424,7 @@ obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
 comic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
 print len(cosmic_curr_list)
+write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
 
 
 def flat_correction (file_list, location='') :
