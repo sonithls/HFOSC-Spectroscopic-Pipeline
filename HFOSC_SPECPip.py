@@ -366,13 +366,15 @@ def list_object (file_list, location=''):
         file_list: List of files need to speperate.
         location : location of the files if it is not in the working directory.
     Returns:
+        obj_list    : List of all objects.
         obj_list_gr7: List of gr7 object files.
         obj_list_gr8: List of gr8 object files.
         passing_list : List of rest of the files in filelist.
     """
+    obj_list = []
     obj_list_gr7= []
     obj_list_gr8= []
-
+    passing_list= []
     for file in file_list :
         file_name = os.path.join(location,file)
         hdul = fits.open(file_name) #HDU_List
@@ -380,14 +382,20 @@ def list_object (file_list, location=''):
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
-        if (OBJECT != "FeAr") or (OBJECT != "FeNe") or (OBJECT != "Halogen") (OBJECT != "Bias_Snspec"):
-            if GRISM == "4 Grism 7" :
+        if ((OBJECT != "FeAr") and (OBJECT != "FeNe") and (OBJECT != "Halogen") and (OBJECT != "Bias_Snspec")):
+            obj_list.append(file)
+            if (GRISM == "4 Grism 7") or (GRISM == "Grism 7") or (GRISM == "gr7") or (GRISM == "grism 7") :
                 obj_list_gr7.append(file)
-            elif GRISM == "3 Grism 8" :
+            elif (GRISM == "3 Grism 8") or (GRISM == "Grism 8") or (GRISM == "gr8") or (GRISM == "grism 8") :
                 obj_list_gr8.append(file)
+            else :
+                print (file)
+                print ("There is error in header term : GRISM")
+        else :
+            passing_list.append(file)
 
-    passing_list = list(set(file_list).difference(lamp_list_gr7).difference(lamp_list_gr8))
-    return obj_list_gr7, obj_list_gr8, passing_list
+    #passing_list = list(set(file_list).difference(obj_list_gr7).difference(obj_list_gr8))
+    return obj_list, obj_list_gr7, obj_list_gr8, passing_list
 
 
 def cosmicray_correction (file_list, location=''):
