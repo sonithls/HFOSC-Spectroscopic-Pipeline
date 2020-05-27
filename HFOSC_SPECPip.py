@@ -420,6 +420,14 @@ def cosmicray_correction (file_list, location=''):
         pathloc = os.path.join(os.getcwd(), location, 'cosmic_correct_list')
 
 
+list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+# print list_files
+obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+comic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
+print len(cosmic_curr_list)
+
+
 def flat_correction (file_list, location='') :
     """
     This fuction do flat correction to object files.
