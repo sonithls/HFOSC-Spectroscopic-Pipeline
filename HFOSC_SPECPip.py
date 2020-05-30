@@ -405,17 +405,58 @@ def list_object (file_list, location=''):
     return obj_list, obj_list_gr7, obj_list_gr8, passing_list
 
 
-def cosmicray_correction (file_list, location=''):
+def cosmic_correction (cosmic_curr_list, location='', prefix_string='c'):
     """
-    This function is to correct cosmicray hits in the images.
-    Arguments:
-        file_list: List of files which need to do cosmicray correction.
-        location : location of the files if it is not in the working directory.
-    Returns
-        none
+    Corrects for cosmic rays in the OBJECT image.
+    Args:
+        cosmic_curr_list: List of files which need to do cosmicray correction.
+        location        : Location of the files if it is not in the working directory.
+        prefix_string   : Prefix to distinguish FITS file from the original FITS file
+    Returns:
+        None
     """
-    if location != '':
-        pathloc = os.path.join(os.getcwd(), location, 'cosmic_correct_list')
+#     if location != '':
+#         pathloc = os.path.join(os.getcwd(), location, 'cosmic_curr_list')
+#     else :
+#         pathloc = os.path.join(os.getcwd(), 'cosmic_curr_list')
+
+#     cosmic_curr_list.sort()
+#     if len(cosmic_curr_list) != 0:
+#         with open(pathloc, 'w') as f:
+#             for file in cosmic_curr_list:
+#                 if location != '':                  #importent change, check with other functions
+#                     f.write(location+"/"+file+'\n')
+#                 else :
+#                     f.write(file+'\n')
+
+
+    task = iraf.noao.imred.crutil.cosmicrays
+    task.unlearn()
+
+    cr_currected_list = []
+    for file_name in cosmic_curr_list:
+
+        output_file_name = str(prefix_string) + str(file_name)
+        output_file_name = os.path.join(location, output_file_name)
+        file_name = os.path.join(location, file_name)
+        remove_file(output_file_name)
+
+        task(input=file_name, output=output_file_name, interac='no', train='no')
+        cr_currected_list.append(output_file_name)
+
+    task = iraf.images.imutil.imarith
+    task.unlearn()
+
+    for file_name in cosmic_curr_list:
+
+        output_file_name = str(prefix_string) + str(file_name)
+        cr_check_file_name = str('chk_') + output_file_name
+        output_file_name2 = os.path.join(location, output_file_name)
+        file_name = os.path.join(location, file_name)
+        cr_check_file_name2 = os.path.join(location, cr_check_file_name)
+
+        task(operand1=str(file_name), op='-', operand2=str(output_file_name2), result=str(cr_check_file_name2))
+        remove_file(str(file_name))   #removing the older files which is needed to bias correct.
 
 
 list_files = search_files(location=list_subdir()[0], keyword='*.fits')
@@ -425,7 +466,7 @@ flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PAT
 comic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
 print len(cosmic_curr_list)
 write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
-
+cosmic_correction (cosmic_curr_list, location=PATH)
 
 def flat_correction (file_list, location='') :
     """
