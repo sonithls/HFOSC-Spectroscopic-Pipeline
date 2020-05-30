@@ -471,6 +471,13 @@ print len(cosmic_curr_list)
 write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
 cr_check_list = cosmic_correction (cosmic_curr_list, location=PATH)
 
+# Stop running code for checking the cosmic ray correction
+print ("Cosmic ray correction is done. Please check chk files then continue")
+raw_input("Press Enter to continue...") #Python 2
+for file in cr_check_list:
+    remove_file(str(file))
+    
+
 def flat_correction (file_list, location='') :
     """
     This fuction do flat correction to object files.
