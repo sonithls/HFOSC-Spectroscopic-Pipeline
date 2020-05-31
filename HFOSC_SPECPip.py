@@ -526,7 +526,8 @@ def flat_correction (flat_list, file_list, location='', grism, prefix_string='f'
     #create response file from master flat
     task = iraf.noao.imred.specred.response
     task.unlearn()
-    task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file), functio='spline3', order='50')
+    task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file), functio='spline3',
+         order='50')
 
     #Remove CCDSEC from header to avoid IRAF error
     task = iraf.noao.hedit
@@ -547,8 +548,8 @@ def flat_correction (flat_list, file_list, location='', grism, prefix_string='f'
         file_name = os.path.join(location, file_name)
         flat_curr_list.append(cr_check_file_name2)
 
-        task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no', darkcor='no',
-             flatcor='yes')
+        task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no',
+              darkcor='no', flatcor='yes')
 
     #Creating backup files
     backuploc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
@@ -557,6 +558,13 @@ def flat_correction (flat_list, file_list, location='', grism, prefix_string='f'
     print ("copying nflat"+str(grism)+"to "+PATH+"/Backup")
     shutil.move (PATH+'/'+'nflat'+str(grism)+'.fits', backuploc)
     return flat_curr_list
+
+
+list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+flat_curr_list = flat_correction(flat_list=obj_list_gr8, file_list=flat_list_gr8, location='', grism='gr8',
+                                  prefix_string='f')
 
 
 def spectral_extraction (file_list, location=''):
