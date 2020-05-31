@@ -476,17 +476,58 @@ print ("Cosmic ray correction is done. Please check chk files then continue")
 raw_input("Press Enter to continue...") #Python 2
 for file in cr_check_list:
     remove_file(str(file))
-    
 
-def flat_correction (file_list, location='') :
+
+def flat_correction (flat_list, file_list, location='', grism) :
     """
     This fuction do flat correction to object files.
     Arguments:
+        flat_list: List of flat files in a perticular grism.
         file_list: List of files which need to do flat correction.
         location : location of the files if it is not in the working directory.
+    Returns:
+        none
     """
     if location != '':
-        pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list')
+        pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list'+str(grism))
+        master_flat = os.path.join(location, 'master-flat'+str(grism))
+    else :
+        pathloc = os.path.join(os.getcwd(), 'flat_corr_list'+str(grism))
+        master_flat = os.path.join(os.getcwd(), 'master-flat'+str(grism))
+
+    flat_list.sort()
+    if len(flat_list) != 0:
+        with open(pathloc, 'w') as f:
+            for file in flat_list:
+                if location != '':
+                    f.write(location+"/"+file+ '\n')
+                else:
+                    f.write(file+ '\n')
+
+    remove_file(str(master_flat))
+
+    task = iraf.noao.ccdred.flatcombine
+    task.unlearn()
+    task(input='@' + pathloc, output=str(master_flat), combine = 'average', reject = 'avsigclip',
+         ccdtype = 'flat', process = 'no', delete = 'no', rdnoise = float(read_noise), gain = float(ccd_gain))
+
+
+    pathloc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
+    print ("copying master-flat"+str(grism)+"to "+PATH+"/Backup")
+    shutil.move (PATH+'/'+'master-flat'+str(grism)+'.fits', pathloc)   #backup the master_flat
+
+
+    task = iraf.noao.hedit
+    task.unlearn()
+
+    task = iraf.noao.imred.specred.response
+    task.unlearn()
+
+    task = iraf.noao.hedit
+    task.unlearn()
+
+    task = iraf.noao.imred.ccdred.ccdproc
+    task.unlearn()
 
 def spectral_extraction (file_list, location=''):
     """
