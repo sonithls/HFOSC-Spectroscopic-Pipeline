@@ -478,14 +478,17 @@ for file in cr_check_list:
     remove_file(str(file))
 
 
-def flat_correction (flat_list, file_list, location='', grism) :
+def flat_correction (flat_list, file_list, location='', grism, prefix_string='f') :
     """
     This fuction do flat correction to object files.
     Arguments:
-        flat_list: List of flat files in a perticular grism.
-        file_list: List of files which need to do flat correction.
-        location : location of the files if it is not in the working directory.
+        flat_list     : List of flat files in a perticular grism.
+        file_list     : List of files which need to do flat correction.
+        location      : Location of the files if it is not in the working directory.
+        grism         : Type of grism used.
+        prefix_string : Prefix added after flat fielding.
     Returns:
+        flat_curr_list: List of flat currected files.
         none
     """
     if location != '':
@@ -518,34 +521,42 @@ def flat_correction (flat_list, file_list, location='', grism) :
     #Edit dispersion axis of flat files into 2
     task = iraf.noao.hedit
     task.unlearn()
-    task(images=pathloc, fields='dispaxis', value=2, verify = 'no', add = 'yes', show = 'no', update = 'yes' )
+    task(images=str(master_flat), fields='dispaxis', value=2, verify = 'no', add = 'yes', show = 'no', update = 'yes' )
 
     #create response file from master flat
     task = iraf.noao.imred.specred.response
     task.unlearn()
-    task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file),
-          functio='spline3', order='50')
+    task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file), functio='spline3', order='50')
 
     #Remove CCDSEC from header to avoid IRAF error
     task = iraf.noao.hedit
     task.unlearn()
 
-    for file in file_list :
+    for file_name in file_list :
         task(images='', fields='CCDSEC', verify = 'no', delete = 'yes', show = 'no', update = 'yes' )
 
     #Flat fielding of object and standard stars.
     task = iraf.noao.imred.ccdred.ccdproc
     task.unlearn()
 
-    for file in file_list :
-        task(images='', output='', ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no',
-              darkcor='no', flatcor='yes')
+    flat_curr_list = []
 
+    for file_name in file_list :
+        output_file_name = str(prefix_string) + str(file_name) + str(grism)
+        output_file_name2 = os.path.join(location, output_file_name)
+        file_name = os.path.join(location, file_name)
+        flat_curr_list.append(cr_check_file_name2)
+
+        task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no', darkcor='no',
+             flatcor='yes')
 
     #Creating backup files
-    pathloc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
+    backuploc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
     print ("copying master-flat"+str(grism)+"to "+PATH+"/Backup")
-    shutil.move (PATH+'/'+'master-flat'+str(grism)+'.fits', pathloc)   #backup the master_flat
+    shutil.move (PATH+'/'+'master-flat'+str(grism)+'.fits', backuploc)   #backup the master_flat
+    print ("copying nflat"+str(grism)+"to "+PATH+"/Backup")
+    shutil.move (PATH+'/'+'nflat'+str(grism)+'.fits', backuploc)
+    return flat_curr_list
 
 
 def spectral_extraction (file_list, location=''):
