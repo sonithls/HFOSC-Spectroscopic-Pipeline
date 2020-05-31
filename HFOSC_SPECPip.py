@@ -491,9 +491,11 @@ def flat_correction (flat_list, file_list, location='', grism) :
     if location != '':
         pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list'+str(grism))
         master_flat = os.path.join(location, 'master-flat'+str(grism))
+        response_file = os.path.join(location, 'nflat'+str(grism))
     else :
         pathloc = os.path.join(os.getcwd(), 'flat_corr_list'+str(grism))
         master_flat = os.path.join(os.getcwd(), 'master-flat'+str(grism))
+        response_file = os.path.join(os.getcwd(), 'nflat'+str(grism))
 
     flat_list.sort()
     if len(flat_list) != 0:
@@ -506,28 +508,45 @@ def flat_correction (flat_list, file_list, location='', grism) :
 
     remove_file(str(master_flat))
 
+
+    #Make master flat file
     task = iraf.noao.ccdred.flatcombine
     task.unlearn()
     task(input='@' + pathloc, output=str(master_flat), combine = 'average', reject = 'avsigclip',
          ccdtype = 'flat', process = 'no', delete = 'no', rdnoise = float(read_noise), gain = float(ccd_gain))
 
+    #Edit dispersion axis of flat files into 2
+    task = iraf.noao.hedit
+    task.unlearn()
+    task(images=pathloc, fields='dispaxis', value=2, verify = 'no', add = 'yes', show = 'no', update = 'yes' )
 
+    #create response file from master flat
+    task = iraf.noao.imred.specred.response
+    task.unlearn()
+    task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file),
+          functio='spline3', order='50')
+
+    #Remove CCDSEC from header to avoid IRAF error
+    task = iraf.noao.hedit
+    task.unlearn()
+
+    for file in file_list :
+        task(images='', fields='CCDSEC', verify = 'no', delete = 'yes', show = 'no', update = 'yes' )
+
+    #Flat fielding of object and standard stars.
+    task = iraf.noao.imred.ccdred.ccdproc
+    task.unlearn()
+
+    for file in file_list :
+        task(images='', output='', ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no',
+              darkcor='no', flatcor='yes')
+
+
+    #Creating backup files
     pathloc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
     print ("copying master-flat"+str(grism)+"to "+PATH+"/Backup")
     shutil.move (PATH+'/'+'master-flat'+str(grism)+'.fits', pathloc)   #backup the master_flat
 
-
-    task = iraf.noao.hedit
-    task.unlearn()
-
-    task = iraf.noao.imred.specred.response
-    task.unlearn()
-
-    task = iraf.noao.hedit
-    task.unlearn()
-
-    task = iraf.noao.imred.ccdred.ccdproc
-    task.unlearn()
 
 def spectral_extraction (file_list, location=''):
     """
