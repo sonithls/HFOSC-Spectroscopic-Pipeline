@@ -578,9 +578,10 @@ obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
 flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
                                   prefix_string='f')
-
-
-print ("Flat correction is done. Please check chk files then continue")
+print ("Flat correction grism 8 is done.")
+flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
+                                  prefix_string='f')
+print ("Flat correction grism 7 is done.")
 
 
 def spectral_extraction (file_list, location=''):
