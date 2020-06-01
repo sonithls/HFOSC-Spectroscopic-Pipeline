@@ -467,7 +467,7 @@ list_files = search_files(location=list_subdir()[0], keyword='*.fits')
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
 comic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
-print len(cosmic_curr_list)
+print (len(cosmic_curr_list))
 write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
 cr_check_list = cosmic_correction (cosmic_curr_list, location=PATH)
 
@@ -478,7 +478,7 @@ for file in cr_check_list:
     remove_file(str(file))
 
 
-def flat_correction (flat_list, file_list, location='', grism, prefix_string='f') :
+def flat_correction (flat_list, file_list, grism, location='', prefix_string='f') :
     """
     This fuction do flat correction to object files.
     Arguments:
