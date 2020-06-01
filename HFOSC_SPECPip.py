@@ -183,6 +183,7 @@ from pyraf import iraf
 # -------------------------------------------------------------------------------------------------------------------- #
 iraf.noao(_doprint=0)
 iraf.imred(_doprint=0)
+iraf.specred(_doprint=0)
 iraf.ccdred(_doprint=0)
 iraf.images(_doprint=0)
 iraf.astutil(_doprint=0)
@@ -211,6 +212,23 @@ def remove_file(file_name):
         os.remove(file_name)
     except OSError:
         pass
+
+
+def ccdsec_removal (file_list, location=''):
+    """
+    Remove CCDSEC from header to avoid IRAF error in ccdproc etc tasks.
+    Argument:
+        file_list: List of files need to remove CCDSEC
+    Returns :
+        none
+    """
+
+    task = iraf.hedit
+    task.unlearn()
+
+    for file_name in file_list :
+        file_name = os.path.join(location, file_name)
+        task(images=file_name, fields='CCDSEC', verify = 'no', delete = 'yes', show = 'no', update = 'yes' )
 
 
 def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
@@ -269,6 +287,8 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
 
 bias_correction (bias_list, passing_list, PATH)
+list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+ccdsec_removal (file_list=list_files, location=PATH)
 # -------------------------------------------------------------------------------------------------------------------- #
 
 def write_list (file_list, file_name, location=''):
@@ -466,7 +486,7 @@ list_files = search_files(location=list_subdir()[0], keyword='*.fits')
 # print list_files
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
-comic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
+cosmic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
 print (len(cosmic_curr_list))
 write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
 cr_check_list = cosmic_correction (cosmic_curr_list, location=PATH)
@@ -516,10 +536,10 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
     task = iraf.noao.ccdred.flatcombine
     task.unlearn()
     task(input='@' + pathloc, output=str(master_flat), combine = 'average', reject = 'avsigclip',
-         ccdtype = 'flat', process = 'no', delete = 'no', rdnoise = float(read_noise), gain = float(ccd_gain))
+         ccdtype = '', process = 'no', delete = 'no', rdnoise = float(read_noise), gain = float(ccd_gain))
 
     #Edit dispersion axis of flat files into 2
-    task = iraf.noao.hedit
+    task = iraf.hedit
     task.unlearn()
     task(images=str(master_flat), fields='dispaxis', value=2, verify = 'no', add = 'yes', show = 'no', update = 'yes' )
 
@@ -528,13 +548,6 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
     task.unlearn()
     task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file), functio='spline3',
          order='50')
-
-    #Remove CCDSEC from header to avoid IRAF error
-    task = iraf.noao.hedit
-    task.unlearn()
-
-    for file_name in file_list :
-        task(images='', fields='CCDSEC', verify = 'no', delete = 'yes', show = 'no', update = 'yes' )
 
     #Flat fielding of object and standard stars.
     task = iraf.noao.imred.ccdred.ccdproc
@@ -546,10 +559,10 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
         output_file_name = str(prefix_string) + str(file_name) + str(grism)
         output_file_name2 = os.path.join(location, output_file_name)
         file_name = os.path.join(location, file_name)
-        flat_curr_list.append(cr_check_file_name2)
+        flat_curr_list.append(output_file_name2)
 
         task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no',
-              darkcor='no', flatcor='yes')
+              darkcor='no', flatcor='yes', flat=response_file)
 
     #Creating backup files
     backuploc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
@@ -563,8 +576,11 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
 list_files = search_files(location=list_subdir()[0], keyword='*.fits')
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
-flat_curr_list = flat_correction(flat_list=obj_list_gr8, file_list=flat_list_gr8, location='', grism='gr8',
+flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
                                   prefix_string='f')
+
+
+print ("Flat correction is done. Please check chk files then continue")
 
 
 def spectral_extraction (file_list, location=''):
