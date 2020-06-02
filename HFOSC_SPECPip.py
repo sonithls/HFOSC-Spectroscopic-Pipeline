@@ -538,6 +538,10 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
     task(input='@' + pathloc, output=str(master_flat), combine = 'average', reject = 'avsigclip',
          ccdtype = '', process = 'no', delete = 'no', rdnoise = float(read_noise), gain = float(ccd_gain))
 
+    for file in flat_list :
+        file_name = os.path.join(location, file)
+        remove_file(str(file_name))
+
     #Edit dispersion axis of flat files into 2
     task = iraf.hedit
     task.unlearn()
@@ -563,6 +567,7 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
 
         task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no',
               darkcor='no', flatcor='yes', flat=response_file)
+        remove_file(str(file_name))
 
     #Creating backup files
     backuploc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
@@ -570,6 +575,7 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
     shutil.move (PATH+'/'+'master-flat'+str(grism)+'.fits', backuploc)   #backup the master_flat
     print ("copying nflat"+str(grism)+"to "+PATH+"/Backup")
     shutil.move (PATH+'/'+'nflat'+str(grism)+'.fits', backuploc)
+
     return flat_curr_list
 
 
