@@ -590,7 +590,7 @@ flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7
 print ("Flat correction grism 7 is done.")
 
 
-def spectral_extraction (file_list, location=''):
+def spectral_extraction (obj_list, lamp_list, location='', grism):
     """
     This fuction do spectral extraction and calibration of wavelength.
     Arguments:
@@ -599,3 +599,41 @@ def spectral_extraction (file_list, location=''):
     """
     if location != '':
         pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list')
+        lamp = os.path.join(os.getcwd(), location, lamp_list[0])
+
+
+
+    for file_name in obj_list:
+        obj_name = os.path.join(os.getcwd(), location, file_name)
+
+        # Running apall (aperture extract)
+        iraf.apall(input=obj_name, nfind=1, lower=-15, upper=15,
+                    background ='fit', weights ='none', readnoi=read_noise, gain=ccd_gain, t_niterate=1,
+                    extras='yes', interactive='yes')
+                    #weights= 'variance' seems to be unstable for our high effective gain
+                    #t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
+
+        #Extracting the lamp (FeAr OR FeNe) for this spectra as obj_name_lamp.fits
+        iraf.apall(input=lamp, reference=obj_name, out=os.path.splitext(obj_name)[0]+'_lamp',recenter='no',
+                   trace='no', background='none', interactive='no')
+
+        #Now reidentify the lines lamp files during the observation.
+        if grism =='gr7' :
+            Lamp='feargr7_feige34.fits'
+        elif grism =='gr8' :
+            Lamp='fenegr8_feige34.fits'
+        else :
+            print ("ERROR: grism is not specified")
+
+        iraf.reidentify(reference=Lamp, images=os.path.splitext(obj_name)[0]+'_lamp',
+                        verbose='yes', interactive='yes')
+        #interactive='no'
+
+        #Edit the header of obj_name to add ref lamp
+        iraf.hedit(os.path.splitext(obj_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(obj_name)[0]+'_lamp.fits', 
+                   add=1, ver=0)
+
+        # Doing dispersion correction using dispcor (wc - wavelength calibration)
+        file_name1= 'wc'+file_name+'.ms.fits'
+        iraf.dispcor(input=os.path.splitext(obj_name)[0]+'.ms.fits',
+                     output=os.path.join(os.getcwd(), location, file_name1))
