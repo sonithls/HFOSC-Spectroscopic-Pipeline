@@ -598,9 +598,7 @@ def spectral_extraction (obj_list, lamp_list, location='', grism):
         location : location of the files if it is not in the working directory.
     """
     if location != '':
-        pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list')
         lamp = os.path.join(os.getcwd(), location, lamp_list[0])
-
 
 
     for file_name in obj_list:
@@ -630,10 +628,19 @@ def spectral_extraction (obj_list, lamp_list, location='', grism):
         #interactive='no'
 
         #Edit the header of obj_name to add ref lamp
-        iraf.hedit(os.path.splitext(obj_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(obj_name)[0]+'_lamp.fits', 
+        iraf.hedit(os.path.splitext(obj_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(obj_name)[0]+'_lamp.fits',
                    add=1, ver=0)
 
         # Doing dispersion correction using dispcor (wc - wavelength calibration)
         file_name1= 'wc'+file_name+'.ms.fits'
         iraf.dispcor(input=os.path.splitext(obj_name)[0]+'.ms.fits',
                      output=os.path.join(os.getcwd(), location, file_name1))
+
+list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files,PATH)
+
+raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+
+spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
+spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
