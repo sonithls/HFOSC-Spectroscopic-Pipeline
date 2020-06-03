@@ -603,17 +603,17 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
 
 
     for file_name in obj_list:
-        obj_name = os.path.join(os.getcwd(), location, file_name)
+        #obj_name = os.path.join(os.getcwd(), location, file_name)
 
         # Running apall (aperture extract)
-        iraf.apall(input=obj_name, nfind=1, lower=-15, upper=15,
+        iraf.apall(input=file_name, nfind=1, lower=-15, upper=15,
                     background ='fit', weights ='none', readnoi=read_noise, gain=ccd_gain, t_niterate=1,
                     extras='yes', interactive='yes')
                     #weights= 'variance' seems to be unstable for our high effective gain
                     #t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
 
         #Extracting the lamp (FeAr OR FeNe) for this spectra as obj_name_lamp.fits
-        iraf.apall(input=lamp, reference=obj_name, out=os.path.splitext(obj_name)[0]+'_lamp',recenter='no',
+        iraf.apall(input=lamp, reference=file_name, out=os.path.splitext(file_name)[0]+'_lamp',recenter='no',
                    trace='no', background='none', interactive='no')
 
         #Now reidentify the lines lamp files during the observation.
@@ -629,13 +629,13 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         #interactive='no'
 
         #Edit the header of obj_name to add ref lamp
-        iraf.hedit(os.path.splitext(obj_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(obj_name)[0]+'_lamp.fits',
+        iraf.hedit(os.path.splitext(file_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(file_name)[0]+'_lamp.fits',
                    add=1, ver=0)
 
         # Doing dispersion correction using dispcor (wc - wavelength calibration)
         file_name1= 'wc'+file_name+'.ms.fits'
-        iraf.dispcor(input=os.path.splitext(obj_name)[0]+'.ms.fits',
-                     output=os.path.join(os.getcwd(), location, file_name1))
+        iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
+                     output=file_name1)
 
 list_files = search_files(location=list_subdir()[0], keyword='*.fits')
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
