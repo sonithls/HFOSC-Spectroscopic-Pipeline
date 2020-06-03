@@ -590,7 +590,7 @@ flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7
 print ("Flat correction grism 7 is done.")
 
 
-def spectral_extraction (obj_list, lamp_list, location='', grism):
+def spectral_extraction (obj_list, lamp_list, grism, location='',):
     """
     This fuction do spectral extraction and calibration of wavelength.
     Arguments:
@@ -599,6 +599,7 @@ def spectral_extraction (obj_list, lamp_list, location='', grism):
     """
     if location != '':
         lamp = os.path.join(os.getcwd(), location, lamp_list[0])
+        iraf.cd(os.path.join(os.getcwd(), location))
 
 
     for file_name in obj_list:
@@ -617,13 +618,13 @@ def spectral_extraction (obj_list, lamp_list, location='', grism):
 
         #Now reidentify the lines lamp files during the observation.
         if grism =='gr7' :
-            Lamp='feargr7_feige34.fits'
+            Lamp ='feargr7_feige34.fits' #Don't give complete path here. It mess with IRAF.
         elif grism =='gr8' :
             Lamp='fenegr8_feige34.fits'
         else :
             print ("ERROR: grism is not specified")
 
-        iraf.reidentify(reference=Lamp, images=os.path.splitext(obj_name)[0]+'_lamp',
+        iraf.reidentify(reference=Lamp, images=os.path.splitext(file_name)[0]+'_lamp',
                         verbose='yes', interactive='yes')
         #interactive='no'
 
@@ -644,3 +645,5 @@ raw_input("Press Enter for spectral_extraction and wavelength calibration...") #
 
 spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
 spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
+
+print ("Wavelength calibration of spectra is done")
