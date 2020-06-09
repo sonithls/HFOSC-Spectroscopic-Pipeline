@@ -36,7 +36,7 @@ def Backup(BACKUPDIR):
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
 
-Backup (BACKUP)
+# Backup (BACKUP)
 
 
 def search_files (location='', keyword=''):
@@ -59,7 +59,7 @@ def search_files (location='', keyword=''):
 
 def list_subdir ():
     """
-    This function list all sub directories.
+    This function list all sub directories which starts with a digit.
     Arguments:
         none
     Returns:
@@ -69,14 +69,18 @@ def list_subdir ():
     directory_contents = os.listdir(os.getcwd())
     sub_directories = []
     for item in directory_contents:
-        if os.path.isdir(item):
+        if os.path.isdir(item) and item[0].isdigit(): #list directories which have first charater a digit
             sub_directories.append(item)
+            sub_directories.sort()
     return sub_directories
 
 
+print (list_subdir())
+raw_input("Press Enter to continue...") #Python 2
 PATH = os.path.join(os.getcwd(),list_subdir()[0])
-#print PATH
-list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+folder_name = list_subdir()[0]
+# print PATH
+list_files = search_files(location=folder_name, keyword='*.fits')
 #print list_files
 
 import shutil
@@ -292,7 +296,7 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
 
 bias_correction (bias_list, passing_list, PATH)
-list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+list_files = search_files(location=folder_name, keyword='*.fits')
 ccdsec_removal (file_list=list_files, location=PATH)
 # -------------------------------------------------------------------------------------------------------------------- #
 
@@ -487,7 +491,7 @@ def cosmic_correction (cosmic_curr_list, location='', prefix_string='c'):
     return cr_check_list
 
 
-list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+list_files = search_files(location=folder_name, keyword='*.fits')
 # print list_files
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
@@ -584,7 +588,7 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
     return flat_curr_list
 
 
-list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+list_files = search_files(location=folder_name, keyword='*.fits')
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
 flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
@@ -656,7 +660,7 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
                      output=file_name1)
 
-list_files = search_files(location=list_subdir()[0], keyword='*.fits')
+list_files = search_files(location=folder_name, keyword='*.fits')
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files,PATH)
 
