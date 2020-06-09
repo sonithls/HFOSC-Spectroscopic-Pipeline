@@ -36,7 +36,7 @@ def Backup(BACKUPDIR):
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
 
-Backup (BACKUP)
+# Backup (BACKUP)
 
 
 def search_files (location='', keyword=''):
@@ -194,9 +194,14 @@ iraf.onedspec(_doprint=0)
 iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 # -------------------------------------------------------------------------------------------------------------------- #
 """CCD Information provided for running of IRAF module"""
-read_noise = 4.87
-ccd_gain = 1.22
-data_max = 55000
+# #HFOSC1#
+# read_noise = 4.87
+# ccd_gain = 1.22
+# data_max = 55000
+#HFOSC2#
+read_noise = 5.75
+ccd_gain = 0.28
+# data_max =
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
@@ -601,7 +606,22 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         lamp = os.path.join(os.getcwd(), location, lamp_list[0])
         iraf.cd(os.path.join(os.getcwd(), location))
 
-
+    #copy reference lamp files
+    if not os.path.isdir(os.path.join(location,'database')): os.makedirs(os.path.join(location,'database'))
+    try:
+        Databasefilepath = os.path.join(os.getcwd(),Database)
+        Databasepath = os.path.join(os.getcwd(),Database/database)
+        shutil.copy(os.path.join(Databasefilepath,'feargr7_feige34.fits'),os.path.join(location,'feargr7_feige34.fits'))
+        shutil.copy(os.path.join(Databasefilepath,'fenegr8_feige34.fits'),os.path.join(location,'fenegr8_feige34.fits'))
+        shutil.copy(os.path.join(Databasepath,'idfeargr7_feige34'),
+                    os.path.join(location,'database','idfeargr7_feige34'))
+        shutil.copy(os.path.join(Databasepath,'idfenegr8_feige34'),
+                    os.path.join(location,'database','idfenegr8_feige34'))
+    except IOError as e:
+        print(e)
+        print("ERROR: lamp files are not copied")
+        
+    fenegr8_feige34.fits
     for file_name in obj_list:
         #obj_name = os.path.join(os.getcwd(), location, file_name)
 
