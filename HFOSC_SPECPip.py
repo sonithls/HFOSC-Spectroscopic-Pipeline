@@ -36,7 +36,7 @@ def Backup(BACKUPDIR):
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
 
-# Backup (BACKUP)
+Backup (BACKUP)
 
 
 def search_files (location='', keyword=''):
@@ -602,15 +602,11 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         file_list: List of files which need to do spectral extraction
         location : location of the files if it is not in the working directory.
     """
-    if location != '':
-        lamp = os.path.join(os.getcwd(), location, lamp_list[0])
-        iraf.cd(os.path.join(os.getcwd(), location))
-
     #copy reference lamp files
     if not os.path.isdir(os.path.join(location,'database')): os.makedirs(os.path.join(location,'database'))
     try:
-        Databasefilepath = os.path.join(os.getcwd(),Database)
-        Databasepath = os.path.join(os.getcwd(),Database/database)
+        Databasefilepath = os.path.join(os.getcwd(),'Database')
+        Databasepath = os.path.join(os.getcwd(),'Database/database')
         shutil.copy(os.path.join(Databasefilepath,'feargr7_feige34.fits'),os.path.join(location,'feargr7_feige34.fits'))
         shutil.copy(os.path.join(Databasefilepath,'fenegr8_feige34.fits'),os.path.join(location,'fenegr8_feige34.fits'))
         shutil.copy(os.path.join(Databasepath,'idfeargr7_feige34'),
@@ -620,8 +616,11 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
     except IOError as e:
         print(e)
         print("ERROR: lamp files are not copied")
-        
-    fenegr8_feige34.fits
+
+    if location != '':
+        lamp = os.path.join(os.getcwd(), location, lamp_list[0])
+        iraf.cd(os.path.join(os.getcwd(), location))
+
     for file_name in obj_list:
         #obj_name = os.path.join(os.getcwd(), location, file_name)
 
