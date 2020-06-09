@@ -36,7 +36,7 @@ def Backup(BACKUPDIR):
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
 
-# Backup (BACKUP)
+Backup (BACKUP)
 
 
 def search_files (location='', keyword=''):
@@ -629,12 +629,12 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         #obj_name = os.path.join(os.getcwd(), location, file_name)
 
         # Running apall (aperture extract)
-        iraf.apall(input=file_name, nfind=1, lower=-15, upper=15,
-                    background ='fit', weights ='none', readnoi=read_noise, gain=ccd_gain, t_niterate=1,
-                    extras='yes', interactive='yes')
+        iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
+                   background ='fit', weights ='none', readnoi=read_noise, gain=ccd_gain, t_niterate=1,
+                    interactive='yes')
                     #weights= 'variance' seems to be unstable for our high effective gain
                     #t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
-
+                    #saturation=maximum count ?
         #Extracting the lamp (FeAr OR FeNe) for this spectra as obj_name_lamp.fits
         iraf.apall(input=lamp, reference=file_name, out=os.path.splitext(file_name)[0]+'_lamp',recenter='no',
                    trace='no', background='none', interactive='no')
