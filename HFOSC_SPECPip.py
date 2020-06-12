@@ -36,7 +36,7 @@ def Backup(BACKUPDIR):
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
 
-Backup (BACKUP)
+# Backup (BACKUP)
 
 
 def search_files (location='', keyword=''):
@@ -168,6 +168,8 @@ def list_bias (file_list, location=''):
         if OBJECT == "Bias_Snspec" :
             bias_list.append(file)
         elif OBJECT == "Bias_Sn" :
+            bias_list.append(file)
+        elif OBJECT == "Bias_snspec" :
             bias_list.append(file)
         elif OBJECT == "bias" :
             bias_list.append(file)
