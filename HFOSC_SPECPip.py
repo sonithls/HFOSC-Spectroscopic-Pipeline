@@ -50,6 +50,7 @@ def Backup(BACKUPDIR):
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
 
+# Backing up the whole directory
 # Backup (BACKUP)
 
 
@@ -89,6 +90,7 @@ def list_subdir ():
     return sub_directories
 
 
+# Selecting the folder for reducing the data
 print (list_subdir())
 raw_input("Press Enter to continue...") #Python 2
 PATH = os.path.join(os.getcwd(),list_subdir()[0])
@@ -154,7 +156,7 @@ def spec_or_phot (file_list, location, func=''):
 
     return spec_list, phot_list
 
-
+# Seperating photometric and spectrosopic files
 speclist, photlist = spec_or_phot (list_files, PATH, 'spec')
 #file_list is updated from passing list
 #print (speclist)
@@ -192,7 +194,7 @@ def list_bias (file_list, location=''):
     passing_list.sort()
     return bias_list, passing_list
 
-
+# Running bias corrections
 bias_list, passing_list = list_bias (speclist, PATH)
 # print (bias_list)
 # print (passing_list)
@@ -300,6 +302,7 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     print ("copying master-bias to "+PATH+"/Backup")
     shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
 
+# Running bias corrections
 bias_correction (bias_list, passing_list, PATH)
 list_files = search_files(location=folder_name, keyword='*.fits')
 ccdsec_removal (file_list=list_files, location=PATH)
@@ -495,7 +498,7 @@ def cosmic_correction (cosmic_curr_list, location='', prefix_string='c'):
         remove_file(str(file_name))   #removing the older files which is needed to bias correct.
     return cr_check_list
 
-
+# Running cosmic ray corrections
 list_files = search_files(location=folder_name, keyword='*.fits')
 # print list_files
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
@@ -592,10 +595,11 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
 
     return flat_curr_list
 
-
+# Making file list for flat-correction
 list_files = search_files(location=folder_name, keyword='*.fits')
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+# Flat correction using file lists made.
 flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
                                   prefix_string='f')
 print ("Flat correction grism 8 is done.")
@@ -665,18 +669,23 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
                      output=file_name1)
 
+#making list for spectral extraction and wavelength calibration
 list_files = search_files(location=folder_name, keyword='*.fits')
 obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
 lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files,PATH)
 
 raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
-
+# Running spectral_extraction function using file lists made
 spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
 spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
 
 print ("Wavelength calibration of spectra is done")
 
 raw_input("Press Enter for Flux_Calibration...") #Python 2
+
+def main ():
+    """Main function of the code"""
+
 
 def flux_calibrate ():
     """
