@@ -672,3 +672,9 @@ spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PA
 spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
 
 print ("Wavelength calibration of spectra is done")
+
+raw_input("Press Enter for Flux_Calibration...") #Python 2
+
+def flux_calibrate ():
+    """
+    """
