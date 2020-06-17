@@ -15,12 +15,26 @@ import os
 import glob
 import shutil
 import re
+import shutil
 from astropy.io import fits
 
 try:
     from pyraf import iraf
 except ImportError as error:
     print (error + "Please install pyraf and iraf")
+
+# -------------------------------------------------------------------------------------------------------------------- #
+"""CCD Information provided for running of IRAF module"""
+# #HFOSC1#
+# read_noise = 4.87
+# ccd_gain = 1.22
+# data_max = 55000
+#HFOSC2#
+read_noise = 5.75
+ccd_gain = 0.28
+# data_max =
+# -------------------------------------------------------------------------------------------------------------------- #
+
 
 BACKUP= "HFOSC_PIPELINE_DataBackup"
 
@@ -83,7 +97,7 @@ folder_name = list_subdir()[0]
 list_files = search_files(location=folder_name, keyword='*.fits')
 #print list_files
 
-import shutil
+
 
 def spec_or_phot (file_list, location, func=''):
     """
@@ -198,17 +212,6 @@ iraf.twodspec(_doprint=0)
 iraf.apextract(_doprint=0)
 iraf.onedspec(_doprint=0)
 iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
-# -------------------------------------------------------------------------------------------------------------------- #
-"""CCD Information provided for running of IRAF module"""
-# #HFOSC1#
-# read_noise = 4.87
-# ccd_gain = 1.22
-# data_max = 55000
-#HFOSC2#
-read_noise = 5.75
-ccd_gain = 0.28
-# data_max =
-# -------------------------------------------------------------------------------------------------------------------- #
 
 
 def remove_file(file_name):
