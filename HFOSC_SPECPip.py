@@ -15,12 +15,40 @@ import os
 import glob
 import shutil
 import re
+import shutil
 from astropy.io import fits
 
 try:
     from pyraf import iraf
 except ImportError as error:
     print (error + "Please install pyraf and iraf")
+# -------------------------------------------------------------------------------------------------------------------- #
+# Load IRAF Packages
+# -------------------------------------------------------------------------------------------------------------------- #
+iraf.noao(_doprint=0)
+iraf.imred(_doprint=0)
+iraf.specred(_doprint=0)
+iraf.ccdred(_doprint=0)
+iraf.images(_doprint=0)
+iraf.astutil(_doprint=0)
+iraf.crutil(_doprint=0)
+iraf.twodspec(_doprint=0)
+iraf.apextract(_doprint=0)
+iraf.onedspec(_doprint=0)
+iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
+
+# -------------------------------------------------------------------------------------------------------------------- #
+"""CCD Information provided for running of IRAF module"""
+#HFOSC1#
+# read_noise = 4.87
+# ccd_gain   = 1.22
+# data_max   = 55000
+
+#HFOSC2#
+read_noise  = 5.75
+ccd_gain    = 0.28
+# data_max  = 700000
+# -------------------------------------------------------------------------------------------------------------------- #
 
 BACKUP= "HFOSC_PIPELINE_DataBackup"
 
@@ -35,8 +63,6 @@ def Backup(BACKUPDIR):
     os.makedirs('../'+BACKUPDIR)
     print("Copying files to ../"+BACKUPDIR)
     os.system('cp -r * ../'+BACKUPDIR)
-
-# Backup (BACKUP)
 
 
 def search_files (location='', keyword=''):
@@ -74,16 +100,6 @@ def list_subdir ():
             sub_directories.sort()
     return sub_directories
 
-
-print (list_subdir())
-raw_input("Press Enter to continue...") #Python 2
-PATH = os.path.join(os.getcwd(),list_subdir()[0])
-folder_name = list_subdir()[0]
-# print PATH
-list_files = search_files(location=folder_name, keyword='*.fits')
-#print list_files
-
-import shutil
 
 def spec_or_phot (file_list, location, func=''):
     """
@@ -141,11 +157,6 @@ def spec_or_phot (file_list, location, func=''):
     return spec_list, phot_list
 
 
-speclist, photlist = spec_or_phot (list_files, PATH, 'spec')
-#file_list is updated from passing list
-#print (speclist)
-
-
 def list_bias (file_list, location=''):
     """
     Identify bias files from file_list provided by looking the header keyword in the
@@ -177,38 +188,6 @@ def list_bias (file_list, location=''):
     passing_list = list(set(file_list).difference(bias_list))
     passing_list.sort()
     return bias_list, passing_list
-
-
-bias_list, passing_list = list_bias (speclist, PATH)
-# print (bias_list)
-# print (passing_list)
-
-from pyraf import iraf
-# -------------------------------------------------------------------------------------------------------------------- #
-# Load IRAF Packages
-# -------------------------------------------------------------------------------------------------------------------- #
-iraf.noao(_doprint=0)
-iraf.imred(_doprint=0)
-iraf.specred(_doprint=0)
-iraf.ccdred(_doprint=0)
-iraf.images(_doprint=0)
-iraf.astutil(_doprint=0)
-iraf.crutil(_doprint=0)
-iraf.twodspec(_doprint=0)
-iraf.apextract(_doprint=0)
-iraf.onedspec(_doprint=0)
-iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
-# -------------------------------------------------------------------------------------------------------------------- #
-"""CCD Information provided for running of IRAF module"""
-# #HFOSC1#
-# read_noise = 4.87
-# ccd_gain = 1.22
-# data_max = 55000
-#HFOSC2#
-read_noise = 5.75
-ccd_gain = 0.28
-# data_max =
-# -------------------------------------------------------------------------------------------------------------------- #
 
 
 def remove_file(file_name):
@@ -292,15 +271,11 @@ def bias_correction (bias_list, list_file, location='', prefix_string='b_'):
     for file_name in bias_list:
         remove_file(str(os.path.join(location, file_name))) #removing the older bias files
 
-    pathloc = os.path.join(PATH,'Backup')
+    pathloc = os.path.join(location,'Backup')
     os.makedirs(pathloc)
-    print ("copying master-bias to "+PATH+"/Backup")
-    shutil.move (PATH+'/'+'master-bias.fits', pathloc)   #backup the master_bias
+    print ("copying master-bias to "+location+"/Backup")
+    shutil.move (location+'/'+'master-bias.fits', pathloc)   #backup the master_bias
 
-bias_correction (bias_list, passing_list, PATH)
-list_files = search_files(location=folder_name, keyword='*.fits')
-ccdsec_removal (file_list=list_files, location=PATH)
-# -------------------------------------------------------------------------------------------------------------------- #
 
 def write_list (file_list, file_name, location=''):
     """
@@ -493,22 +468,6 @@ def cosmic_correction (cosmic_curr_list, location='', prefix_string='c'):
     return cr_check_list
 
 
-list_files = search_files(location=folder_name, keyword='*.fits')
-# print list_files
-obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
-cosmic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
-print (len(cosmic_curr_list))
-write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
-cr_check_list = cosmic_correction (cosmic_curr_list, location=PATH)
-
-# Stop running code for checking the cosmic ray correction
-print ("Cosmic ray correction is done. Please check chk files then continue")
-raw_input("Press Enter to continue...") #Python 2
-for file in cr_check_list:
-    remove_file(str(file))
-
-
 def flat_correction (flat_list, file_list, grism, location='', prefix_string='f') :
     """
     This fuction do flat correction to object files.
@@ -581,24 +540,13 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
         remove_file(str(file_name))
 
     #Creating backup files
-    backuploc = os.path.join(PATH,'Backup')      #pathlocation changes here caution!!!
-    print ("copying master-flat"+str(grism)+"to "+PATH+"/Backup")
-    shutil.move (PATH+'/'+'master-flat'+str(grism)+'.fits', backuploc)   #backup the master_flat
-    print ("copying nflat"+str(grism)+"to "+PATH+"/Backup")
-    shutil.move (PATH+'/'+'nflat'+str(grism)+'.fits', backuploc)
+    backuploc = os.path.join(location,'Backup')      #pathlocation changes here caution!!!
+    print ("copying master-flat"+str(grism)+"to "+location+"/Backup")
+    shutil.move (location+'/'+'master-flat'+str(grism)+'.fits', backuploc)   #backup the master_flat
+    print ("copying nflat"+str(grism)+"to "+location+"/Backup")
+    shutil.move (location+'/'+'nflat'+str(grism)+'.fits', backuploc)
 
     return flat_curr_list
-
-
-list_files = search_files(location=folder_name, keyword='*.fits')
-obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
-flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
-                                  prefix_string='f')
-print ("Flat correction grism 8 is done.")
-flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
-                                  prefix_string='f')
-print ("Flat correction grism 7 is done.")
 
 
 def spectral_extraction (obj_list, lamp_list, grism, location='',):
@@ -662,13 +610,91 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
                      output=file_name1)
 
-list_files = search_files(location=folder_name, keyword='*.fits')
-obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files,PATH)
 
-raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+def flux_calibrate ():
+    """
+    """
 
-spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
-spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
 
-print ("Wavelength calibration of spectra is done")
+def main ():
+    """Main function of the code"""
+
+    # Backing up the whole directory
+    # Backup (BACKUP)
+
+
+    # Selecting the folder for reducing the data
+    print (list_subdir())
+    raw_input("Press Enter to continue...") #Python 2
+    PATH = os.path.join(os.getcwd(),list_subdir()[0])
+    folder_name = list_subdir()[0]
+    # print PATH
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    #print list_files
+
+
+    # Seperating photometric and spectrosopic files
+    speclist, photlist = spec_or_phot (list_files, PATH, 'spec')
+    #file_list is updated from passing list
+    #print (speclist)
+
+
+    # Running bias corrections
+    bias_list, passing_list = list_bias (speclist, PATH)
+    # print (bias_list)
+    # print (passing_list)
+
+
+    # Running bias corrections
+    bias_correction (bias_list, passing_list, PATH)
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    ccdsec_removal (file_list=list_files, location=PATH)
+
+
+    # Running cosmic ray corrections
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    # print list_files
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+    cosmic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
+    print (len(cosmic_curr_list))
+    write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
+    cr_check_list = cosmic_correction (cosmic_curr_list, location=PATH)
+
+    # Stop running code for checking the cosmic ray correction
+    print ("Cosmic ray correction is done. Please check chk files then continue")
+    raw_input("Press Enter to continue...") #Python 2
+    for file in cr_check_list:
+        remove_file(str(file))
+
+
+    # Making file list for flat-correction
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+    # Flat correction using file lists made.
+    flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
+                                      prefix_string='f')
+    print ("Flat correction grism 8 is done.")
+    flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
+                                      prefix_string='f')
+    print ("Flat correction grism 7 is done.")
+
+
+    #making list for spectral extraction and wavelength calibration
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files,PATH)
+
+    raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+    # Running spectral_extraction function using file lists made
+    spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
+    spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
+
+    print ("Wavelength calibration of spectra is done")
+
+    raw_input("Press Enter for Flux_Calibration...") #Python 2
+
+
+if __name__ == "__main__":
+    main()
