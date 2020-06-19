@@ -530,7 +530,7 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
     flat_curr_list = []
 
     for file_name in file_list :
-        output_file_name = str(prefix_string) + str(file_name) + str(grism)
+        output_file_name = str(prefix_string) + str(os.path.splitext(file_name)[0]) + '_'+str(grism)
         output_file_name2 = os.path.join(location, output_file_name)
         file_name = os.path.join(location, file_name)
         flat_curr_list.append(output_file_name2)
@@ -605,8 +605,8 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.hedit(os.path.splitext(file_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(file_name)[0]+'_lamp.fits',
                    add=1, ver=0)
 
-        # Doing dispersion correction using dispcor (wc - wavelength calibration)
-        file_name1= 'wc'+file_name+'.ms.fits'
+        # Doing dispersion correction using dispcor (w - wavelength calibration)
+        file_name1= 'w'+os.path.splitext(file_name)[0]+'.ms.fits'
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
                      output=file_name1)
 
