@@ -605,8 +605,8 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.hedit(os.path.splitext(file_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(file_name)[0]+'_lamp.fits',
                    add=1, ver=0)
 
-        # Doing dispersion correction using dispcor (wc - wavelength calibration)
-        file_name1= 'wc'+file_name+'.ms.fits'
+        # Doing dispersion correction using dispcor (w - wavelength calibration)
+        file_name1= 'w'+file_name+'.ms.fits'
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
                      output=file_name1)
 
