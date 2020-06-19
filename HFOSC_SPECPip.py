@@ -530,7 +530,7 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
     flat_curr_list = []
 
     for file_name in file_list :
-        output_file_name = str(prefix_string) + str(file_name) + str(grism)
+        output_file_name = str(prefix_string) + str(os.path.splitext(file_name)[0]) + str(grism)
         output_file_name2 = os.path.join(location, output_file_name)
         file_name = os.path.join(location, file_name)
         flat_curr_list.append(output_file_name2)
