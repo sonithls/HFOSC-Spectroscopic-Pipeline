@@ -605,16 +605,43 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.hedit(os.path.splitext(file_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(file_name)[0]+'_lamp.fits',
                    add=1, ver=0)
 
+        file_name_chk = os.path.join(location,file_name)
+        hdul = fits.open(file_name_chk) #HDU_List
+        hdr = hdul[0].header        #Primary HDU header
+        OBJECT = hdr['OBJECT']
+        file_name_out= str(OBJECT)+'_w'+os.path.splitext(file_name)[0]+'.ms.fits'
         # Doing dispersion correction using dispcor (w - wavelength calibration)
-        file_name1= 'w'+os.path.splitext(file_name)[0]+'.ms.fits'
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
-                     output=file_name1)
+                     output=file_name_out)
 
 
-def flux_calibrate ():
+def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     """
+    This function is for flux calibration of the object spectra if standard
+    star is also observed in the same night.
+    Arguments:
+        obj_list      : List of wavelength calibrated object spectra in a
+                        perticular grism.
+        std_list      : List of wavelength calibrated standard star spectra in
+                        a perticular grism.
+        location      : Location of the files if it is not in the working
+                        directory.
+        grism         : Type of grism used.
+        prefix_string : Prefix added after flux calibration.
+    Returns:
+        none
     """
-
+    # file_name_chk = os.path.join(location,file_name)
+    # hdul = fits.open(file_name_chk) #HDU_List
+    # hdr = hdul[0].header        #Primary HDU header
+    # OBJECT = hdr['OBJECT']
+    # aperture = hdr['APERTURE']
+    # if aperture == :
+    #     file_name_out= str(OBJECT)+'w'+os.path.splitext(file_name)[0]+'.ms.fits'
+    # elif aperture == :
+    #     file_name_out= str(OBJECT)+'w'+os.path.splitext(file_name)[0]+'.ms.fits'
+    # else :
+    #     print ("Header error in APERTURE")
 
 def main ():
     """Main function of the code"""
