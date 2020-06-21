@@ -631,17 +631,17 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     Returns:
         none
     """
-    # file_name_chk = os.path.join(location,file_name)
-    # hdul = fits.open(file_name_chk) #HDU_List
-    # hdr = hdul[0].header        #Primary HDU header
-    # OBJECT = hdr['OBJECT']
-    # aperture = hdr['APERTURE']
-    # if aperture == :
+    file_name_chk = os.path.join(location,file_name)
+    hdul = fits.open(file_name_chk) #HDU_List
+    hdr = hdul[0].header        #Primary HDU header
+    OBJECT = hdr['OBJECT']
+    aperture = hdr['APERTURE']
+    if aperture =='2 1340 l' :
+        file_name_out= str(OBJECT)+'w'+os.path.splitext(file_name)[0]+'.ms.fits'
+    # elif aperture =='2 1340 l' :
     #     file_name_out= str(OBJECT)+'w'+os.path.splitext(file_name)[0]+'.ms.fits'
-    # elif aperture == :
-    #     file_name_out= str(OBJECT)+'w'+os.path.splitext(file_name)[0]+'.ms.fits'
-    # else :
-    #     print ("Header error in APERTURE")
+    else :
+        print ("Header error in APERTURE")
 
 def main ():
     """Main function of the code"""
