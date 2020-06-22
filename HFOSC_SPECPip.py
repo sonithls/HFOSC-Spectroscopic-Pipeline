@@ -634,8 +634,14 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     Returns:
         none
     """
+    if location != '':
+        iraf.cd(os.path.join(os.getcwd(), location))
+
+
     #Check files are wavelength calibrated and separate object files and standard
     #star files
+    obj_stars = []
+    std_stars = []
     for file_name in obj_list:
         file_name_chk = os.path.join(location,file_name)
         hdul = fits.open(file_name_chk) #HDU_List
@@ -656,11 +662,14 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     #Setting Indian Astronomical Observatory, Hanle
     iraf.observatory(command= 'list', obsid= 'set', observa='iao')
 
-    #Calculating ST and adding in the header
+    for file_name in obj_stars and std_stars :
 
+        #Calculating ST and adding in the header
+        iraf.astutil.asthedit(images=file_name, commands=os.path.join(location,'database','setst'), update='yes')
 
-    #Setting Airmass to all files before flux calibration. (ST should be there in the header)
-    iraf.setairmass()
+        #Setting Airmass to all files before flux calibration. (ST should be there in the header)
+        iraf.noao.imred.specred.setairmass(extinct='onedstds$ctioextinct.dat',
+                                           caldir='onedstds$spec16redcal/', observa='observatory')
 
     #Running standard task in IRAF
 
