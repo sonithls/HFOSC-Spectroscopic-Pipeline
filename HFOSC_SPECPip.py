@@ -634,22 +634,24 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     Returns:
         none
     """
-    #Check object files are wavelength calibrated
-
-
-    #Seperate object files and standard star files
-    for file_name in file_list:
+    #Check files are wavelength calibrated and separate object files and standard
+    #star files
+    for file_name in obj_list:
         file_name_chk = os.path.join(location,file_name)
         hdul = fits.open(file_name_chk) #HDU_List
         hdr = hdul[0].header        #Primary HDU header
         OBJECT = hdr['OBJECT']
         aperture = hdr['APERTUR']
-        if aperture =='2 1340 l' :
-            file_name_out= 'std_'+str(OBJECT)+'w'+os.path.splitext(file_name)[0]+'.ms.fits'
-        elif aperture =='8 167 l' :
-            file_name_out= str(OBJECT)+'w'+os.path.splitext(file_name)[0]+'.ms.fits'
+        Wavelength_cal = hdr['Wavelength_cal']
+        if Wavelength_cal == 'done':
+            if aperture =='2 1340 l' :
+                obj_stars.append()
+            elif aperture =='8 167 l' :
+                std_stars.append()
+            else :
+                Print("Header error for "+ str(file_name)+" Please check header term aperture")
         else :
-            print ("Header error in APERTURE")
+            print("File "+str(file_name)+" is not wavelenght calibrated.")
 
     #Setting Indian Astronomical Observatory, Hanle
     iraf.observatory(command= 'list', obsid= 'set', observa='iao')
@@ -668,7 +670,9 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
 
     #Running calibrate task in IRAF
 
-
+# -------------------------------------------------------------------------------------------------------------------- #
+# Main function
+# -------------------------------------------------------------------------------------------------------------------- #
 
 def main ():
     """Main function of the code"""
