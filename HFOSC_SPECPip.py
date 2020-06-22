@@ -619,15 +619,13 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.hedit(file_name_out, "Wavelength_cal","done", add=1, ver=0)
 
 
-def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
+def flux_calibrate (obj_list, location, prefix_string='F_'):
     """
     This function is for flux calibration of the object spectra if standard
     star is also observed in the same night.
     Arguments:
         obj_list      : List of wavelength calibrated object spectra in a perticular
                         grism.
-        std_list      : List of wavelength calibrated standard star spectra in a
-                        perticular grism.
         location      : Location of the files if it is not in the working directory.
         grism         : Type of grism used.
         prefix_string : Prefix added after flux calibration.
@@ -686,7 +684,7 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
 
     #Running calibrate task in IRAF
     for file_name in obj_stars:
-        iraf.imred.specred.calibrate(input=file_name, output='F_'+str(file_name), extinct='yes', flux='yes',
+        iraf.imred.specred.calibrate(input=file_name, output=str(prefix_string)+str(file_name), extinct='yes', flux='yes',
                                      extinct='onedstds@ctioextinct.dat', observa='iao',
                                      sensiti=str(standard_data_file)+sens)
 
@@ -773,6 +771,10 @@ def main ():
     print ("Wavelength calibration of spectra is done")
 
     raw_input("Press Enter for Flux_Calibration...") #Python 2
+    # Running Flux calibration
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    flux_calibrate (obj_list=obj_list_gr8, location=PATH, prefix_string='F_')
+    flux_calibrate (obj_list=obj_list_gr7, location=PATH, prefix_string='F_')
 
 
 if __name__ == "__main__":
