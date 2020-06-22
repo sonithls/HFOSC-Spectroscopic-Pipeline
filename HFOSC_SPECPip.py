@@ -551,7 +551,8 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
 
 def spectral_extraction (obj_list, lamp_list, grism, location='',):
     """
-    This fuction do spectral extraction and calibration of wavelength.
+    This fuction do spectral extraction and calibration of wavelength. After running this
+    function a header term "Wavelength_cal" added after succesfully finishing this task.
     Arguments:
         file_list: List of files which need to do spectral extraction
         location : location of the files if it is not in the working directory.
@@ -614,26 +615,29 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
                      output=file_name_out)
 
+        #Add a header indicating that wavelength calibration is done.
+        iraf.hedit(file_name_out, "Wavelength_cal","done", add=1, ver=0)
+
 
 def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     """
     This function is for flux calibration of the object spectra if standard
     star is also observed in the same night.
     Arguments:
-        obj_list      : List of wavelength calibrated object spectra in a
+        obj_list      : List of wavelength calibrated object spectra in a perticular
+                        grism.
+        std_list      : List of wavelength calibrated standard star spectra in a
                         perticular grism.
-        std_list      : List of wavelength calibrated standard star spectra in
-                        a perticular grism.
-        location      : Location of the files if it is not in the working
-                        directory.
+        location      : Location of the files if it is not in the working directory.
         grism         : Type of grism used.
         prefix_string : Prefix added after flux calibration.
     Returns:
         none
     """
-    #Setting Indian Astronomical Observatory, Hanle
-    iraf.observatory(command= 'list', obsid= 'set', observa='iao')
+    #Check object files are wavelength calibrated
 
+
+    #Seperate object files and standard star files
     for file_name in file_list:
         file_name_chk = os.path.join(location,file_name)
         hdul = fits.open(file_name_chk) #HDU_List
@@ -647,6 +651,22 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
         else :
             print ("Header error in APERTURE")
 
+    #Setting Indian Astronomical Observatory, Hanle
+    iraf.observatory(command= 'list', obsid= 'set', observa='iao')
+
+    #Calculating ST and adding in the header
+
+
+    #Setting Airmass to all files before flux calibration. (ST should be there in the header)
+    iraf.setairmass()
+
+    #Running standard task in IRAF
+
+
+    #Running Sensfunc task in IRAF
+
+
+    #Running calibrate task in IRAF
 
 
 
