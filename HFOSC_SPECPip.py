@@ -637,7 +637,6 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     if location != '':
         iraf.cd(os.path.join(os.getcwd(), location))
 
-
     #Check files are wavelength calibrated and separate object files and standard
     #star files
     obj_stars = []
@@ -665,19 +664,32 @@ def flux_calibrate (obj_list, std_list, location, grism, prefix_string='F'):
     for file_name in obj_stars and std_stars :
 
         #Calculating ST and adding in the header
-        iraf.astutil.asthedit(images=file_name, commands=os.path.join(location,'database','setst'), update='yes')
+        iraf.astutil.asthedit(images=file_name, commands=os.path.join(location,'database','setst'),
+                              update='yes')
 
         #Setting Airmass to all files before flux calibration. (ST should be there in the header)
         iraf.noao.imred.specred.setairmass(extinct='onedstds$ctioextinct.dat',
                                            caldir='onedstds$spec16redcal/', observa='observatory')
 
     #Running standard task in IRAF
-
+    file_name = std_list[0]
+    standard_data_file = os.path.splitext(file_name)[0]
+    iraf.imred.specred.standard(input=file_name, output=standard_data_file,
+                                extinct='onedstds@ctioextinct.dat', caldir='onedstds$iidscal/',
+                                observa='iao', star_nam=standard_star_name )
+                                #mag = ?, fnuzero= ? (Absolute flux zero point), teff= ?
 
     #Running Sensfunc task in IRAF
-
+    iraf.imred.specred.sensfunc(standard=standard_data_file, sensitiv=str(standard_data_file)+sens,
+                                extinct='onedstds@ctioextinct.dat', observa='iao')
+                                #newexti = ?
 
     #Running calibrate task in IRAF
+    for file_name in obj_stars:
+        iraf.imred.specred.calibrate(input=file_name, output='F_'+str(file_name), extinct='yes', flux='yes',
+                                     extinct='onedstds@ctioextinct.dat', observa='iao',
+                                     sensiti=str(standard_data_file)+sens)
+
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Main function
