@@ -50,6 +50,7 @@ ccd_gain    = 0.28
 # data_max  = 700000
 # -------------------------------------------------------------------------------------------------------------------- #
 
+default_path= os.getcwd()
 BACKUP= "HFOSC_PIPELINE_DataBackup"
 
 def Backup(BACKUPDIR):
@@ -551,7 +552,8 @@ def flat_correction (flat_list, file_list, grism, location='', prefix_string='f'
 
 def spectral_extraction (obj_list, lamp_list, grism, location='',):
     """
-    This fuction do spectral extraction and calibration of wavelength.
+    This fuction do spectral extraction and calibration of wavelength. After running this
+    function a header term "Waveleng" added after succesfully finishing this task.
     Arguments:
         file_list: List of files which need to do spectral extraction
         location : location of the files if it is not in the working directory.
@@ -605,20 +607,107 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.hedit(os.path.splitext(file_name)[0]+'.ms.fits', "REFSPEC1",os.path.splitext(file_name)[0]+'_lamp.fits',
                    add=1, ver=0)
 
+        file_name_chk = os.path.join(location,file_name)
+        hdul = fits.open(file_name_chk) #HDU_List
+        hdr = hdul[0].header        #Primary HDU header
+        OBJECT = hdr['OBJECT']
+        file_name_out= str(OBJECT)+'_w'+os.path.splitext(file_name)[0]+'.ms.fits'
         # Doing dispersion correction using dispcor (w - wavelength calibration)
-        file_name1= 'w'+os.path.splitext(file_name)[0]+'.ms.fits'
         iraf.dispcor(input=os.path.splitext(file_name)[0]+'.ms.fits',
-                     output=file_name1)
+                     output=file_name_out)
+
+        #Add a header indicating that wavelength calibration is done.
+        iraf.hedit(file_name_out, "Waveleng","done", add=1, ver=0)
 
 
-def flux_calibrate ():
+def flux_calibrate (obj_list, location, default_path=default_path, prefix_string='F_'):
     """
+    This function is for flux calibration of the object spectra if standard
+    star is also observed in the same night.
+    Arguments:
+        obj_list      : List of wavelength calibrated object spectra in a perticular
+                        grism.
+        location      : Location of the files if it is not in the working directory.
+        grism         : Type of grism used.
+        prefix_string : Prefix added after flux calibration.
+    Returns:
+        none
     """
+    command_file_path = os.path.join(default_path,'Database/database','setst')
+    if location != '':
+        iraf.cd(os.path.join(os.getcwd(), location))
+
+    #Check files are wavelength calibrated and separate object files and standard
+    #star files
+    obj_stars = []
+    std_stars = []
+    for file_name in obj_list:
+        file_name_chk = os.path.join(location,file_name)
+        hdul = fits.open(file_name_chk) #HDU_List
+        hdr = hdul[0].header        #Primary HDU header
+        OBJECT = hdr['OBJECT']
+        aperture = hdr['APERTUR']
+        try:
+            Wavelength_cal = hdr['WAVELENG'] #checking weather Wavelength is done
+            if Wavelength_cal == 'done':
+                if aperture =='2 1340 l' :
+                    std_stars.append(file_name)
+                elif aperture =='8 167 l' :
+                    obj_stars.append(file_name)
+                else :
+                    Print("Header error for "+ str(file_name)+" Please check header term aperture")
+            else :
+                print("File "+str(file_name)+" is not wavelenght calibrated.")
+        except:
+            pass
+    print ("stars :", obj_stars)
+    print ("standards: ",std_stars)
 
 
-def main ():
-    """Main function of the code"""
+    #Setting Indian Astronomical Observatory, Hanle
+    iraf.observatory(command= 'list', obsid= 'set', observatory='iao')
 
+    star_list =list(set(obj_stars).union(std_stars))
+    for file_name in star_list:
+
+        #Calculating ST and adding in the header
+        print (file_name)
+        iraf.astutil.asthedit(images=file_name, commands=command_file_path,
+                              update='yes')
+
+        #Setting Airmass to all files before flux calibration. (ST should be there in the header)
+        iraf.noao.imred.specred.setairmass(images=file_name, observa='iao')
+
+    print ("Airmass correction is done for all stars")
+    print ("Press enter to continue")
+    raw_input()
+
+    #Running standard task in IRAF
+    file_name = std_stars[0]
+    standard_star_name = 'feige34'
+
+    standard_data_file = os.path.splitext(file_name)[0]
+    iraf.imred.specred.standard(input=file_name, output=standard_data_file, caldir='onedstds$iidscal/',
+                                observa='iao', star_nam=standard_star_name )
+                                #mag = ?, fnuzero= ? (Absolute flux zero point), teff= ?
+
+    #Running Sensfunc task in IRAF
+    iraf.imred.specred.sensfunc(standard=standard_data_file, sensitiv=str(standard_data_file)+'sens',
+                                extinct='onedstds$ctioextinct.dat', observa='iao')
+                                #newexti = ?
+
+    #Running calibrate task in IRAF
+    for file_name in obj_stars:
+        iraf.imred.specred.calibrate(input=file_name, output=str(prefix_string)+str(file_name), extinct='yes',
+                                     flux='yes', extinction='onedstds$ctioextinct.dat', observa='iao',
+                                     sensiti=str(standard_data_file)+'sens')
+
+
+# -------------------------------------------------------------------------------------------------------------------- #
+# Main function
+# -------------------------------------------------------------------------------------------------------------------- #
+
+def part1 ():
     # Backing up the whole directory
     # Backup (BACKUP)
 
@@ -693,8 +782,34 @@ def main ():
 
     print ("Wavelength calibration of spectra is done")
 
+
+def part2(folder_name, PATH):
+
     raw_input("Press Enter for Flux_Calibration...") #Python 2
 
+    # Running Flux calibration
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    print (obj_list_gr7)
+    flux_calibrate (obj_list=obj_list_gr8, location=PATH)
+    flux_calibrate (obj_list=obj_list_gr7, location=PATH)
+
+
+def main ():
+    """Main function of the code"""
+
+    PATH = os.path.join(os.getcwd(),list_subdir()[0])
+    folder_name = list_subdir()[0]
+
+
+    print("Press Enter for running complete code")
+    print("Press 1 and Entre for running only flux calibration")
+    input = raw_input()
+    if input =='1':
+        part2(folder_name=folder_name, PATH=PATH)
+    else:
+        part1()
+        part2(folder_name=folder_name, PATH=PATH)
 
 if __name__ == "__main__":
     main()

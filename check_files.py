@@ -27,19 +27,27 @@ list_files = search_files(os.getcwd(),keyword='*.fits')
 
 count =0
 
+dash = '-' * 80
+print (dash)
+print('{:<40s}{:<10s}{:>12s}{:>12s}'.format("FILE NAME", "OBJECT", "GRISM", "APERTURE"))
+print (dash)
+
 file = open("file_info", 'w')
 for file_name in list_files :
     hdul = fits.open(file_name)
     hdr = hdul[0].header  # the primary HDU header
-    OBJECT =hdr['OBJECT']
-    GRISM =hdr['GRISM']
+    OBJECT = hdr['OBJECT']
+    GRISM = hdr['GRISM']
+    aperture = hdr['APERTUR']
+#----------------------- VBT---------------------------#
 #     OBJECT = hdr['OBJECT']
 #     UPPER = hdr['UPPER']
 #     LOWER = hdr['LOWER']
 #     SLIT = hdr['SLIT']
+#------------------------------------------------------#
     count +=1
-    print (file_name, OBJECT, GRISM)
+    print('{:<40s}{:<10s}{:>12s}{:>12s}'.format(file_name, OBJECT, GRISM, aperture))
 #     print (file_name, OBJECT, UPPER, LOWER, SLIT)
     file.writelines(file_name+"  "+OBJECT+"  "+GRISM+ '\n')
 
-print ("Done")
+print (dash)
