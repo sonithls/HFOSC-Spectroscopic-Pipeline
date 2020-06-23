@@ -1,4 +1,2 @@
 observat = "iao"
-print($date)
-print(UT)
-st = mst ($date, ut, obsdb (observat, "longitude"))
+st = mst (@'date', @'ut', obsdb (observat, "longitude"))
