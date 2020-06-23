@@ -50,6 +50,7 @@ ccd_gain    = 0.28
 # data_max  = 700000
 # -------------------------------------------------------------------------------------------------------------------- #
 
+default_path= os.getcwd()
 BACKUP= "HFOSC_PIPELINE_DataBackup"
 
 def Backup(BACKUPDIR):
@@ -619,7 +620,7 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
         iraf.hedit(file_name_out, "Waveleng","done", add=1, ver=0)
 
 
-def flux_calibrate (obj_list, location, prefix_string='F_'):
+def flux_calibrate (obj_list, location, default_path=default_path, prefix_string='F_'):
     """
     This function is for flux calibration of the object spectra if standard
     star is also observed in the same night.
@@ -632,7 +633,7 @@ def flux_calibrate (obj_list, location, prefix_string='F_'):
     Returns:
         none
     """
-    command_file_path = os.path.join(os.getcwd(),'Database/database','setst')
+    command_file_path = os.path.join(default_path,'Database/database','setst')
     if location != '':
         iraf.cd(os.path.join(os.getcwd(), location))
 
@@ -650,22 +651,24 @@ def flux_calibrate (obj_list, location, prefix_string='F_'):
             Wavelength_cal = hdr['WAVELENG'] #checking weather Wavelength is done
             if Wavelength_cal == 'done':
                 if aperture =='2 1340 l' :
-                    obj_stars.append(file_name)
-                elif aperture =='8 167 l' :
                     std_stars.append(file_name)
+                elif aperture =='8 167 l' :
+                    obj_stars.append(file_name)
                 else :
                     Print("Header error for "+ str(file_name)+" Please check header term aperture")
             else :
                 print("File "+str(file_name)+" is not wavelenght calibrated.")
         except:
             pass
-
+    print ("stars :", obj_stars)
+    print ("standards: ",std_stars)
 
 
     #Setting Indian Astronomical Observatory, Hanle
     iraf.observatory(command= 'list', obsid= 'set', observatory='iao')
 
-    for file_name in obj_stars and std_stars :
+    star_list =list(set(obj_stars).union(std_stars))
+    for file_name in star_list:
 
         #Calculating ST and adding in the header
         print (file_name)
@@ -675,119 +678,129 @@ def flux_calibrate (obj_list, location, prefix_string='F_'):
         #Setting Airmass to all files before flux calibration. (ST should be there in the header)
         iraf.noao.imred.specred.setairmass(images=file_name, observa='iao')
 
+    print ("Airmass correction is done for all stars")
+    print ("Press enter to continue")
+    raw_input()
+
     #Running standard task in IRAF
     file_name = std_stars[0]
+    standard_star_name = 'feige34'
+
     standard_data_file = os.path.splitext(file_name)[0]
-    iraf.imred.specred.standard(input=file_name, output=standard_data_file,
-                                extinct='onedstds@ctioextinct.dat', caldir='onedstds$iidscal/',
+    iraf.imred.specred.standard(input=file_name, output=standard_data_file, caldir='onedstds$iidscal/',
                                 observa='iao', star_nam=standard_star_name )
                                 #mag = ?, fnuzero= ? (Absolute flux zero point), teff= ?
 
     #Running Sensfunc task in IRAF
-    iraf.imred.specred.sensfunc(standard=standard_data_file, sensitiv=str(standard_data_file)+sens,
-                                extinct='onedstds@ctioextinct.dat', observa='iao')
+    iraf.imred.specred.sensfunc(standard=standard_data_file, sensitiv=str(standard_data_file)+'sens',
+                                extinct='onedstds$ctioextinct.dat', observa='iao')
                                 #newexti = ?
 
     #Running calibrate task in IRAF
     for file_name in obj_stars:
-        iraf.imred.specred.calibrate(input=file_name, output=str(prefix_string)+str(file_name), extinct='yes', flux='yes',
-                                     extinction='onedstds@ctioextinct.dat', observa='iao',
-                                     sensiti=str(standard_data_file)+sens)
+        iraf.imred.specred.calibrate(input=file_name, output=str(prefix_string)+str(file_name), extinct='yes',
+                                     flux='yes', extinction='onedstds$ctioextinct.dat', observa='iao',
+                                     sensiti=str(standard_data_file)+'sens')
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Main function
 # -------------------------------------------------------------------------------------------------------------------- #
 
+def part1 ():
+    # Backing up the whole directory
+    # Backup (BACKUP)
+
+
+    # Selecting the folder for reducing the data
+    print (list_subdir())
+    raw_input("Press Enter to continue...") #Python 2
+    PATH = os.path.join(os.getcwd(),list_subdir()[0])
+    folder_name = list_subdir()[0]
+    # print PATH
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    #print list_files
+
+
+    # Seperating photometric and spectrosopic files
+    speclist, photlist = spec_or_phot (list_files, PATH, 'spec')
+    #file_list is updated from passing list
+    #print (speclist)
+
+
+    # Running bias corrections
+    bias_list, passing_list = list_bias (speclist, PATH)
+    # print (bias_list)
+    # print (passing_list)
+
+
+    # Running bias corrections
+    bias_correction (bias_list, passing_list, PATH)
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    ccdsec_removal (file_list=list_files, location=PATH)
+
+
+    # Running cosmic ray corrections
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    # print list_files
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+    cosmic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
+    print (len(cosmic_curr_list))
+    write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
+    cr_check_list = cosmic_correction (cosmic_curr_list, location=PATH)
+
+    # Stop running code for checking the cosmic ray correction
+    print ("Cosmic ray correction is done. Please check chk files then continue")
+    raw_input("Press Enter to continue...") #Python 2
+    for file in cr_check_list:
+        remove_file(str(file))
+
+
+    # Making file list for flat-correction
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+    # Flat correction using file lists made.
+    flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
+                                      prefix_string='f')
+    print ("Flat correction grism 8 is done.")
+    flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
+                                      prefix_string='f')
+    print ("Flat correction grism 7 is done.")
+
+
+    #making list for spectral extraction and wavelength calibration
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files,PATH)
+
+    raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+    # Running spectral_extraction function using file lists made
+    spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
+    spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
+
+    print ("Wavelength calibration of spectra is done")
+
+
+def part2():
+
+    raw_input("Press Enter for Flux_Calibration...") #Python 2
+
+    # Running Flux calibration
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+    print (obj_list_gr7)
+    flux_calibrate (obj_list=obj_list_gr8, location=PATH)
+    flux_calibrate (obj_list=obj_list_gr7, location=PATH)
+
+
 def main ():
     """Main function of the code"""
 
-    def part1 ():
-        # Backing up the whole directory
-        # Backup (BACKUP)
+    PATH = os.path.join(os.getcwd(),list_subdir()[0])
+    folder_name = list_subdir()[0]
 
-
-        # Selecting the folder for reducing the data
-        print (list_subdir())
-        raw_input("Press Enter to continue...") #Python 2
-        PATH = os.path.join(os.getcwd(),list_subdir()[0])
-        folder_name = list_subdir()[0]
-        # print PATH
-        list_files = search_files(location=folder_name, keyword='*.fits')
-        #print list_files
-
-
-        # Seperating photometric and spectrosopic files
-        speclist, photlist = spec_or_phot (list_files, PATH, 'spec')
-        #file_list is updated from passing list
-        #print (speclist)
-
-
-        # Running bias corrections
-        bias_list, passing_list = list_bias (speclist, PATH)
-        # print (bias_list)
-        # print (passing_list)
-
-
-        # Running bias corrections
-        bias_correction (bias_list, passing_list, PATH)
-        list_files = search_files(location=folder_name, keyword='*.fits')
-        ccdsec_removal (file_list=list_files, location=PATH)
-
-
-        # Running cosmic ray corrections
-        list_files = search_files(location=folder_name, keyword='*.fits')
-        # print list_files
-        obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-        flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
-        cosmic_curr_list = list(set(obj_list).union(flat_list)) #file which needed to correct for cosmic ray
-        print (len(cosmic_curr_list))
-        write_list (file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
-        cr_check_list = cosmic_correction (cosmic_curr_list, location=PATH)
-
-        # Stop running code for checking the cosmic ray correction
-        print ("Cosmic ray correction is done. Please check chk files then continue")
-        raw_input("Press Enter to continue...") #Python 2
-        for file in cr_check_list:
-            remove_file(str(file))
-
-
-        # Making file list for flat-correction
-        list_files = search_files(location=folder_name, keyword='*.fits')
-        obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-        flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
-        # Flat correction using file lists made.
-        flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
-                                          prefix_string='f')
-        print ("Flat correction grism 8 is done.")
-        flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
-                                          prefix_string='f')
-        print ("Flat correction grism 7 is done.")
-
-
-        #making list for spectral extraction and wavelength calibration
-        list_files = search_files(location=folder_name, keyword='*.fits')
-        obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-        lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files,PATH)
-
-        raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
-        # Running spectral_extraction function using file lists made
-        spectral_extraction (obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
-        spectral_extraction (obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
-
-        print ("Wavelength calibration of spectra is done")
-
-    def part2():
-
-        raw_input("Press Enter for Flux_Calibration...") #Python 2
-        PATH = os.path.join(os.getcwd(),list_subdir()[0])
-        folder_name = list_subdir()[0]
-        # Running Flux calibration
-        list_files = search_files(location=folder_name, keyword='*.fits')
-        obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-        print (obj_list_gr7)
-        flux_calibrate (obj_list=obj_list_gr8, location=PATH, prefix_string='F_')
-        flux_calibrate (obj_list=obj_list_gr7, location=PATH, prefix_string='F_')
 
     print("Press Enter for running complete code")
     print("Press 1 and Entre for running only flux calibration")
@@ -797,8 +810,6 @@ def main ():
     else:
         part1()
         part2()
-
-
 
 if __name__ == "__main__":
     main()
