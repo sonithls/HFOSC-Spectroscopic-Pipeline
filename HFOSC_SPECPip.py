@@ -783,7 +783,7 @@ def part1 ():
     print ("Wavelength calibration of spectra is done")
 
 
-def part2():
+def part2(folder_name, PATH):
 
     raw_input("Press Enter for Flux_Calibration...") #Python 2
 
@@ -806,10 +806,10 @@ def main ():
     print("Press 1 and Entre for running only flux calibration")
     input = raw_input()
     if input =='1':
-        part2()
+        part2(folder_name=folder_name, PATH=PATH)
     else:
         part1()
-        part2()
+        part2(folder_name=folder_name, PATH=PATH)
 
 if __name__ == "__main__":
     main()
