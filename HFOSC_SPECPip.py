@@ -582,7 +582,7 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
 
         # Running apall (aperture extract)
         iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
-                   background ='fit', weights ='none',saturation = int(max_count)  readnoi=read_noise, gain=ccd_gain, t_niterate=1,
+                   background ='fit', weights ='none',saturation = int(max_count), readnoi=read_noise, gain=ccd_gain, t_niterate=1,
                     interactive='yes')
                     #weights= 'variance' seems to be unstable for our high effective gain
                     #t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
@@ -634,6 +634,7 @@ def flux_calibrate (obj_list, location, default_path=default_path, prefix_string
         none
     """
     command_file_path = os.path.join(default_path,'Database/database','setst')
+    iaoextinct_path = os.path.join(default_path,'Database/database','iaoextinct.dat')
     if location != '':
         iraf.cd(os.path.join(os.getcwd(), location))
 
@@ -684,7 +685,7 @@ def flux_calibrate (obj_list, location, default_path=default_path, prefix_string
 
     #Running standard task in IRAF
     file_name = std_stars[0]
-    standard_star_name = 'feige34'
+    standard_star_name = 'feige34'        # Need to set an option to change this for different std stars
 
     standard_data_file = os.path.splitext(file_name)[0]
     iraf.imred.specred.standard(input=file_name, output=standard_data_file, caldir='onedstds$iidscal/',
@@ -693,14 +694,15 @@ def flux_calibrate (obj_list, location, default_path=default_path, prefix_string
 
     #Running Sensfunc task in IRAF
     iraf.imred.specred.sensfunc(standard=standard_data_file, sensitiv=str(standard_data_file)+'sens',
-                                extinct='onedstds$ctioextinct.dat', observa='iao')
-                                #newexti = ?
+                                extinct=iaoextinct_path, observa='iao')
+                                #extinct='onedstds$ctioextinct.dat'
 
     #Running calibrate task in IRAF
     for file_name in obj_stars:
         iraf.imred.specred.calibrate(input=file_name, output=str(prefix_string)+str(file_name), extinct='yes',
-                                     flux='yes', extinction='onedstds$ctioextinct.dat', observa='iao',
+                                     flux='yes', extinction=iaoextinct_path, observa='iao',
                                      sensiti=str(standard_data_file)+'sens')
+                                     #extinct='onedstds$ctioextinct.dat'
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
