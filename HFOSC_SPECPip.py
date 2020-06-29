@@ -47,7 +47,7 @@ iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 #HFOSC2#
 read_noise  = 5.75
 ccd_gain    = 0.28
-# data_max  = 700000
+max_count   = 700000
 # -------------------------------------------------------------------------------------------------------------------- #
 
 default_path= os.getcwd()
@@ -582,7 +582,7 @@ def spectral_extraction (obj_list, lamp_list, grism, location='',):
 
         # Running apall (aperture extract)
         iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
-                   background ='fit', weights ='none', readnoi=read_noise, gain=ccd_gain, t_niterate=1,
+                   background ='fit', weights ='none',saturation = int(max_count)  readnoi=read_noise, gain=ccd_gain, t_niterate=1,
                     interactive='yes')
                     #weights= 'variance' seems to be unstable for our high effective gain
                     #t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
