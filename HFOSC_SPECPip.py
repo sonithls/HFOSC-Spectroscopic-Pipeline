@@ -686,11 +686,15 @@ def flux_calibrate (obj_list, location, default_path=default_path, prefix_string
     #Running standard task in IRAF
     file_name = std_stars[0]
     standard_star_name = 'feige34'        # Need to set an option to change this for different std stars
+    mag = 11.18 # Magnitude of standard star.
 
     standard_data_file = os.path.splitext(file_name)[0]
-    iraf.imred.specred.standard(input=file_name, output=standard_data_file, caldir='onedstds$iidscal/',
-                                observa='iao', star_nam=standard_star_name )
-                                #mag = ?, fnuzero= ? (Absolute flux zero point), teff= ?
+    iraf.imred.specred.standard(input=file_name, output=standard_data_file, extinct=iaoextinct_path, caldir='onedstds$iidscal/',
+                                observa='iao', star_nam=standard_star_name)
+                                #, mag = float(mag), magband = 'V'
+                                #fnuzero= ? (Absolute flux zero point), teff= ?
+                                #mag = float(mag)Magnitude Of The Standard Star
+                                #magband = 'V' Magnitude Band
 
     #Running Sensfunc task in IRAF
     iraf.imred.specred.sensfunc(standard=standard_data_file, sensitiv=str(standard_data_file)+'sens',
