@@ -81,6 +81,7 @@ def search_files (location='', keyword=''):
     if keyword != '':
         file_list = glob.glob1(pathloc, keyword)
 
+    print (pathloc)
     return file_list
 
 
@@ -719,7 +720,7 @@ def part1 ():
     raw_input("Press Enter to continue...") #Python 2
     PATH = os.path.join(os.getcwd(),list_subdir()[0])
     folder_name = list_subdir()[0]
-    # print PATH
+    print (folder_name)
     list_files = search_files(location=folder_name, keyword='*.fits')
     #print list_files
 
@@ -786,11 +787,14 @@ def part1 ():
 
 
 def part2(folder_name, PATH):
+    print (PATH)
+    print (folder_name)
 
     raw_input("Press Enter for Flux_Calibration...") #Python 2
 
     # Running Flux calibration
     list_files = search_files(location=folder_name, keyword='*.fits')
+    print (list_files)
     obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
     print (obj_list_gr7)
     flux_calibrate (obj_list=obj_list_gr8, location=PATH)
@@ -799,7 +803,8 @@ def part2(folder_name, PATH):
 
 def main ():
     """Main function of the code"""
-
+    working_dir_path = os.getcwd()
+    print ("Current working directory :",working_dir_path)
     PATH = os.path.join(os.getcwd(),list_subdir()[0])
     folder_name = list_subdir()[0]
 
@@ -809,8 +814,10 @@ def main ():
     input = raw_input()
     if input =='1':
         part2(folder_name=folder_name, PATH=PATH)
+        os.chdir(working_dir_path)
     else:
         part1()
+        os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH)
 
 if __name__ == "__main__":
