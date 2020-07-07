@@ -183,6 +183,8 @@ def list_bias (file_list, location=''):
             bias_list.append(file)
         elif OBJECT == "Bias_snspec" :
             bias_list.append(file)
+        elif OBJECT == "bias_snspec" :
+            bias_list.append(file)
         elif OBJECT == "bias" :
             bias_list.append(file)
 
@@ -684,7 +686,7 @@ def flux_calibrate (obj_list, location, default_path=default_path, prefix_string
 
     #Running standard task in IRAF
     file_name = std_stars[0]
-    standard_star_name = 'feige34'
+    standard_star_name = raw_input("Type standard star name to continue")
 
     standard_data_file = os.path.splitext(file_name)[0]
     iraf.imred.specred.standard(input=file_name, output=standard_data_file, caldir='onedstds$iidscal/',

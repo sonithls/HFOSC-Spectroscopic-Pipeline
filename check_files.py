@@ -59,4 +59,4 @@ for file_name in list_files :
     file.writelines('{:<40s}{:<20s}{:<12s}{:<12s}'.format(file_name, OBJECT, GRISM, aperture)+ '\n')
 print (dash)
 
-time.sleep(60)
+time.sleep(2)
