@@ -3,7 +3,7 @@
 #Author : Sonith L.S
 #Contact : sonith.ls@iiap.res.in
 
-#Version 0.0.10
+#Version 0.0.30
 #Code is  written serially to check every functions are working properly
 #Adiitional formatting required for running in for multiple number of folder in faster way.
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -720,7 +720,7 @@ def flux_calibrate (obj_list, location, default_path=default_path, prefix_string
 # Main function
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def part1 ():
+def part1 (flat_flag):
     # Backing up the whole directory
     # Backup (BACKUP)
 
@@ -770,17 +770,21 @@ def part1 ():
         remove_file(str(file))
 
 
-    # Making file list for flat-correction
-    list_files = search_files(location=folder_name, keyword='*.fits')
-    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
-    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
-    # Flat correction using file lists made.
-    flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
-                                      prefix_string='f')
-    print ("Flat correction grism 8 is done.")
-    flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
-                                      prefix_string='f')
-    print ("Flat correction grism 7 is done.")
+    #---------------------------flat-correction--------------------------#
+    if flat_flag == 'no' or 'No':
+        pass
+    else:
+        # Making file list for flat-correction
+        list_files = search_files(location=folder_name, keyword='*.fits')
+        obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files,PATH)
+        flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files,PATH)
+        # Flat correction using file lists made.
+        flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
+                                          prefix_string='f')
+        print ("Flat correction grism 8 is done.")
+        flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
+                                          prefix_string='f')
+        print ("Flat correction grism 7 is done.")
 
 
     #making list for spectral extraction and wavelength calibration
@@ -819,6 +823,10 @@ def main ():
     folder_name = list_subdir()[0]
 
 
+    print("If you are not using flats please type -- no -- and entre")
+    flat_flag = raw_input()
+
+
     print("Press Enter for running complete code")
     print("Press 1 and Entre for running only flux calibration")
     input = raw_input()
@@ -826,7 +834,7 @@ def main ():
         part2(folder_name=folder_name, PATH=PATH)
         os.chdir(working_dir_path)
     else:
-        part1()
+        part1(flat_flag=flat_flag)
         os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH)
 
