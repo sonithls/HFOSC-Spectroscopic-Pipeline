@@ -7,8 +7,9 @@ from astropy.io import fits
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-default_path= os.getcwd()
-BACKUP= "HFOSC_PIPELINE_DataBackup"
+default_path = os.getcwd()
+BACKUP = "HFOSC_PIPELINE_DataBackup"
+
 
 def Backup(BACKUPDIR):
     """
@@ -23,7 +24,7 @@ def Backup(BACKUPDIR):
     os.system('cp -r * ../'+BACKUPDIR)
 
 
-def search_files (location='', keyword=''):
+def search_files(location='', keyword=''):
     """
     This function generate filelist from assigned folder with specific keyword in it.
     Arguments:
@@ -32,17 +33,17 @@ def search_files (location='', keyword=''):
     Returns:
         file_list: List of files with the input keyword.
     """
-    if location != '':                                                #change -- location
+    if location != '':       # change -- location
         pathloc = os.path.join(os.getcwd(), location)
 
     if keyword != '':
         file_list = glob.glob1(pathloc, keyword)
 
-    print (pathloc)
+    print(pathloc)
     return file_list
 
 
-def list_subdir ():
+def list_subdir():
     """
     This function list all sub directories which starts with a digit.
     Arguments:
@@ -54,13 +55,13 @@ def list_subdir ():
     directory_contents = os.listdir(os.getcwd())
     sub_directories = []
     for item in directory_contents:
-        if os.path.isdir(item) and item[0].isdigit(): #list directories which have first charater a digit
+        if os.path.isdir(item) and item[0].isdigit():  # list directories which have first charater a digit
             sub_directories.append(item)
             sub_directories.sort()
     return sub_directories
 
 
-def spec_or_phot (file_list, location, func=''):
+def spec_or_phot(file_list, location, func=''):
     """
     Check whether the file contains spectrosopy of photometry data and make sperate list
     for both spectrosopy and photometry with respective file names.
@@ -78,37 +79,37 @@ def spec_or_phot (file_list, location, func=''):
     phot_list = []
     spec_list_fullname = []
     phot_list_fullname = []
-    for file in file_list :
-        file_name = os.path.join(location,file)
-        hdul = fits.open(file_name) #HDU_List
+    for file in file_list:
+        file_name = os.path.join(location, file)
+        hdul = fits.open(file_name)  # HDU_List
         hdul[1].header
         hdr = hdul[1].header
         AXIS1 = hdr['NAXIS1']
         AXIS2 = hdr['NAXIS2']
         value = AXIS2/AXIS1
-        if value > 2 :
+        if value > 2:
             spec_list.append(file)
             spec_list_fullname.append(file_name)
-        elif value <= 2 :
+        elif value <= 2:
             phot_list.append(file)
             phot_list_fullname.append(file_name)
 
     if func == 'spec':
         try:
-            pathloc = os.path.join(location,'phot')
+            pathloc = os.path.join(location, 'phot')
             os.mkdir(pathloc)
             for file in phot_list_fullname:
-                shutil.move (file,pathloc)
+                shutil.move(file, pathloc)
 
         except OSError as error:
             print(error)
 
     elif func == 'phot':
         try:
-            pathloc = os.path.join(location,'spec')
+            pathloc = os.path.join(location, 'spec')
             os.mkdir(pathloc)
             for file in spec_list_fullname:
-                shutil.move (file,pathloc)
+                shutil.move(file, pathloc)
 
         except OSError as error:
             print(error)
@@ -116,7 +117,7 @@ def spec_or_phot (file_list, location, func=''):
     return spec_list, phot_list
 
 
-def list_bias (file_list, location=''):
+def list_bias(file_list, location=''):
     """
     Identify bias files from file_list provided by looking the header keyword in the
     files.
@@ -130,20 +131,20 @@ def list_bias (file_list, location=''):
     """
 
     bias_list = []
-    for file in file_list :
-        file_name = os.path.join(location,file)
-        hdul = fits.open(file_name) #HDU_List
-        hdr = hdul[0].header        #Primary HDU header
+    for file in file_list:
+        file_name = os.path.join(location, file)
+        hdul = fits.open(file_name)  # HDU_List
+        hdr = hdul[0].header        # Primary HDU header
         OBJECT = hdr['OBJECT']
-        if OBJECT == "Bias_Snspec" :
+        if OBJECT == "Bias_Snspec":
             bias_list.append(file)
-        elif OBJECT == "Bias_Sn" :
+        elif OBJECT == "Bias_Sn":
             bias_list.append(file)
-        elif OBJECT == "Bias_snspec" :
+        elif OBJECT == "Bias_snspec":
             bias_list.append(file)
-        elif OBJECT == "bias_snspec" :
+        elif OBJECT == "bias_snspec":
             bias_list.append(file)
-        elif OBJECT == "bias" :
+        elif OBJECT == "bias":
             bias_list.append(file)
 
     passing_list = list(set(file_list).difference(bias_list))
@@ -165,7 +166,7 @@ def remove_file(file_name):
         pass
 
 
-def write_list (file_list, file_name, location=''):
+def write_list(file_list, file_name, location=''):
     """
     This function write file names with complete path in a text file in the destination
     provided, using the input file_list.
@@ -182,12 +183,12 @@ def write_list (file_list, file_name, location=''):
 
     if len(file_list) != 0:
         with open(pathloc, 'w') as f:
-            for file in file_list :
+            for file in file_list:
                 file = os.path.join(os.getcwd(), location, file)
-                f.write(file+ '\n')
+                f.write(file+'\n')
 
 
-def list_flat (file_list, location=''):
+def list_flat(file_list, location=''):
     """
     From the file_list provided, sperate files into flat files and further speperate them
     into grism7 and grism8 files.
@@ -201,34 +202,34 @@ def list_flat (file_list, location=''):
         passing_list : List of rest of the files in filelist.
     """
     flat_list = []
-    flat_list_gr7= []
-    flat_list_gr8= []
-    passing_list= []
+    flat_list_gr7 = []
+    flat_list_gr8 = []
+    passing_list = []
 
-    for file in file_list :
-        file_name = os.path.join(location,file)
-        hdul = fits.open(file_name) #HDU_List
-        hdr = hdul[0].header        #Primary HDU header
+    for file in file_list:
+        file_name = os.path.join(location, file)
+        hdul = fits.open(file_name)  # HDU_List
+        hdr = hdul[0].header         # Primary HDU header
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
-        if (OBJECT == "Halogen") or (OBJECT == "halogen") or (OBJECT == "flat") :
+        if (OBJECT == "Halogen") or (OBJECT == "halogen") or (OBJECT == "flat"):
             flat_list.append(file)
-            if GRISM == "4 Grism 7" :
+            if GRISM == "4 Grism 7":
                 flat_list_gr7.append(file)
-            elif GRISM == "3 Grism 8" :
+            elif GRISM == "3 Grism 8":
                 flat_list_gr8.append(file)
-            else :
-                print (file)
-                print ("There is error in header term : GRISM")
+            else:
+                print(file)
+                print("There is error in header term : GRISM")
 
-        else :
+        else:
             passing_list.append(file)
 
     return flat_list, flat_list_gr7, flat_list_gr8, passing_list
 
 
-def list_lamp (file_list, location=''):
+def list_lamp(file_list, location=''):
     """
     From the file_list provided, sperate files into lamp files and further speperate them
     into grism7 and grism8 files.
@@ -240,13 +241,13 @@ def list_lamp (file_list, location=''):
         lamp_list_gr8: List of gr8 lamp files.
         passing_list : List of rest of the files in filelist.
     """
-    lamp_list_gr7= []
-    lamp_list_gr8= []
+    lamp_list_gr7 = []
+    lamp_list_gr8 = []
 
-    for file in file_list :
-        file_name = os.path.join(location,file)
-        hdul = fits.open(file_name) #HDU_List
-        hdr = hdul[0].header        #Primary HDU header
+    for file in file_list:
+        file_name = os.path.join(location, file)
+        hdul = fits.open(file_name)  # HDU_List
+        hdr = hdul[0].header         # Primary HDU header
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
@@ -259,7 +260,7 @@ def list_lamp (file_list, location=''):
     return lamp_list_gr7, lamp_list_gr8, passing_list
 
 
-def list_object (file_list, location=''):
+def list_object(file_list, location=''):
     """
     From the file_list provided, sperate files into object files and further speperate them
     into grism7 and grism8 files.
@@ -273,27 +274,27 @@ def list_object (file_list, location=''):
         passing_list : List of rest of the files in filelist.
     """
     obj_list = []
-    obj_list_gr7= []
-    obj_list_gr8= []
-    passing_list= []
-    for file in file_list :
-        file_name = os.path.join(location,file)
-        hdul = fits.open(file_name) #HDU_List
-        hdr = hdul[0].header        #Primary HDU header
+    obj_list_gr7 = []
+    obj_list_gr8 = []
+    passing_list = []
+    for file in file_list:
+        file_name = os.path.join(location, file)
+        hdul = fits.open(file_name)  # HDU_List
+        hdr = hdul[0].header         # Primary HDU header
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
         if ((OBJECT != "FeAr") and (OBJECT != "FeNe") and (OBJECT != "Halogen") and (OBJECT != "Bias_Snspec")):
             obj_list.append(file)
-            if (GRISM == "4 Grism 7") or (GRISM == "Grism 7") or (GRISM == "gr7") or (GRISM == "grism 7") :
+            if (GRISM == "4 Grism 7") or (GRISM == "Grism 7") or (GRISM == "gr7") or (GRISM == "grism 7"):
                 obj_list_gr7.append(file)
-            elif (GRISM == "3 Grism 8") or (GRISM == "Grism 8") or (GRISM == "gr8") or (GRISM == "grism 8") :
+            elif (GRISM == "3 Grism 8") or (GRISM == "Grism 8") or (GRISM == "gr8") or (GRISM == "grism 8"):
                 obj_list_gr8.append(file)
-            else :
-                print (file)
-                print ("There is error in header term : GRISM")
-        else :
+            else:
+                print(file)
+                print("There is error in header term : GRISM")
+        else:
             passing_list.append(file)
 
-    #passing_list = list(set(file_list).difference(obj_list_gr7).difference(obj_list_gr8))
+    # passing_list = list(set(file_list).difference(obj_list_gr7).difference(obj_list_gr8))
     return obj_list, obj_list_gr7, obj_list_gr8, passing_list
