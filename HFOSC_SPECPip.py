@@ -1,10 +1,10 @@
 # -------------------------------------------------------------------------------------------------------------------- #
-# This script is to semi-automate basic reduction of HFOSC spectrosopic data
-# Author : Sonith L.S
-# Contact : sonith.ls@iiap.res.in
-# Version 0.0.30
-# Code is  written serially to check every functions are working properly
-# Adiitional formatting required for running in for multiple number of folder in faster way.
+#This script is to semi-automate basic reduction of HFOSC spectrosopic data
+#Author : Sonith L.S
+#Contact : sonith.ls@iiap.res.in
+__version__ = '0.0.4'
+#Code is  written serially to check every functions are working properly
+#Adiitional formatting required for running in for multiple number of folder in faster way.
 # -------------------------------------------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -582,6 +582,22 @@ def spectral_extraction(obj_list, lamp_list, grism, location='',):
 
     for file_name in obj_list:
         # obj_name = os.path.join(os.getcwd(), location, file_name)
+
+        print(
+        '''
+        Following keys are for aperture selection.
+        d - delete trace
+        m - set trace
+        l - set the lower limit for the aperture
+        u - set the upper limit for the aperture
+        b - enter background editing
+        z - delete background intervals
+        s s - mark new fit regions for the backgorund.
+              (Press s to select initial point at cursor
+               position, press s again for complete the selection)
+        f - fit
+        q - quit
+        ''')
 
         # Running apall (aperture extract)
         iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
