@@ -185,50 +185,6 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
     return cr_check_list
 
 
-def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c'):
-    """
-    Corrects for cosmic rays in the individually for each OBJECT images and allow to adjust the
-    parameters manually
-    Arguments:
-        cosmic_curr_list: List of files which need to do cosmicray correction.
-        location        : Location of the files if it is not in the working directory.
-        prefix_string   : Prefix to distinguish FITS file from the original FITS file
-    Return:
-        cr_check_list   : List of files to check how good is the cosmic ray correction.
-    """
-
-    task = iraf.noao.imred.crutil.cosmicrays
-    task.unlearn()
-
-    cr_currected_list = []
-    for file_name in cosmic_curr_list:
-
-        output_file_name = str(prefix_string) + str(file_name)
-        output_file_name = os.path.join(location, output_file_name)
-        file_name = os.path.join(location, file_name)
-        remove_file(output_file_name)
-
-        task(input=file_name, output=output_file_name, interac='no', train='no')
-        cr_currected_list.append(output_file_name)
-
-    task = iraf.images.imutil.imarith
-    task.unlearn()
-
-    cr_check_list = []
-    for file_name in cosmic_curr_list:
-
-        output_file_name = str(prefix_string) + str(file_name)
-        cr_check_file_name = str('chk_') + output_file_name
-        output_file_name2 = os.path.join(location, output_file_name)
-        file_name = os.path.join(location, file_name)
-        cr_check_file_name2 = os.path.join(location, cr_check_file_name)
-        cr_check_list.append(cr_check_file_name2)
-
-        task(operand1=str(file_name), op='-', operand2=str(output_file_name2), result=str(cr_check_file_name2))
-        remove_file(str(file_name))   # removing the older files which is needed to bias correct.
-    return cr_check_list
-
-
 def flat_correction(flat_list, file_list, grism, location='', prefix_string='f'):
     """
     This fuction do flat correction to object files.
