@@ -112,12 +112,15 @@ def part1(flat_flag):
     # print list_files
     obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
     flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files, PATH)
-    cosmic_curr_list = list(set(obj_list).union(flat_list))  # file which needed to correct for cosmic ray
+    # cosmic_curr_list = list(set(obj_list).union(flat_list))  # file which needed to correct for cosmic ray
+    cosmic_curr_list = obj_list  # file which needed to correct for cosmic ray
+    cosmic_curr_list_flats = flat_list
     print(len(cosmic_curr_list))
     write_list(file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
 
-    # cosmicray correction manually for individual files or all files automatically
+    cr_check_list = cosmic_correction(cosmic_curr_list_flats, location=PATH)
 
+    # cosmicray correction manually for individual files or all files automatically
     print("Press Enter for running cosmicray correction with default settings")
     print("Press m and Enter for running cosmicray correction manually")
     input = raw_input()
