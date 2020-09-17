@@ -180,8 +180,18 @@ def part2(folder_name, PATH):
 
 
 def main():
-    """Main function of the code"""
+    """Main function of the HFOSC Spectrosopic Pipeline"""
     working_dir_path = os.getcwd()
+
+    logo = """
+####################################################################
+####################################################################
+                    HFOSC Spectrosopic Pipeline
+####################################################################
+####################################################################
+"""
+    print(logo)
+
     print("Current working directory :", working_dir_path)
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
