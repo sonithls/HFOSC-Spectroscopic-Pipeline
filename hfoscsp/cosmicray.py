@@ -8,6 +8,10 @@ try:
 except ImportError as error:
     print(error + "Please install pyraf and iraf")
 
+bar = """
+###############################################################################
+"""
+
 
 def remove_file(file_name):
     """
@@ -47,13 +51,14 @@ def irafcrmedian(input, output, lsigma, hsigma, ncmed, nlmed, ncsig, nlsig):
     Argument:
         input   : file name of file to correct cosmic rays.
         output  : file name of cosmic ray corrected file.
-
+        lsigma  : Low Clipping Sigma Factor
+        ncsig   : Column Box Size For Sigma Calculation
     Returns :
         none
     """
     iraf.noao.imred.crutil.crmedian.unlearn()
-    iraf.noao.imred.crutil.crmedian(input=input, output=output, lsigma=lsigma, hsigma=hsigma, ncmed=ncmed,
-                                    ncsig=ncsig, nlsig=nlsig)
+    iraf.noao.imred.crutil.crmedian(input=input, output=output, crmask='', median='', sigma='', residua='',
+                                    lsigma=lsigma, hsigma=hsigma, ncmed=ncmed, ncsig=ncsig, nlsig=nlsig)
 
 
 def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c'):
@@ -77,15 +82,19 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     ds9_time_delay = 2 #Depends upon how fast your system opens up ds9
     ds9_waiting = threading.Thread(time.sleep(ds9_time_delay))
     ds9_waiting.start()
-    # print("OKOKOKOKOK")
 
     # Default method for cr currection curresponds to cosmicray task in IRAF
-    cr_currection_method = '1'
+    cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
+
     # cosmicray correction task default parameters
     threshold = 25
     fluxrate = 2
     npasses = 5
     window = 5
+
+    # crmedian
+    lsigma = 25       # Low Clipping Sigma Factor
+    ncsig = 10        # Column Box Size For Sigma Calculation
 
     # Create guaranteed unique sentinel (can't use None since iterator might produce None)
     sentinel = object()
@@ -113,8 +122,8 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
             irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
                            npasses=npasses, window=window)
         elif cr_currection_method == '2':
-            irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
-                           npasses=npasses, window=window)
+            irafcrmedian(input=file_name, output=output_file_name2, lsigma=lsigma, hsigma=3, ncmed=5, nlmed=5,
+                         ncsig=ncsig, nlsig=25)
         elif cr_currection_method == '3':
             irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
                            npasses=npasses, window=window)
@@ -130,8 +139,9 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
         iraf.display(output_file_name2, 1)
         iraf.display(cr_check_file_name2, 2)
         iraf.display(file_name, 3)
+        print(bar)
         print("Try ds9>>>Frame>>>Blink to check how good is the cosmic ray correction")
-
+        print(bar)
         # except iraf.IrafError as error:
         #     # ds9 might not be open, hence open it and try again
         #     print('DS9 window is not active. Opening a DS9 window please wait')
@@ -146,13 +156,16 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
             print(x)
             cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
             if cr_currection_method == '1':
-                print("Enter new cosmic-ray correction parameters")
+                print("Enter new cosmicray correction parameters")
                 threshold = raw_input('threshold='+str(threshold)+'; Enter new threshold :')
                 fluxrate = raw_input('fluxrate ='+str(fluxrate)+'; Enter new fluxrate :')
                 npasses = raw_input('npasses ='+str(npasses)+'; Enter new npasses :')
                 window = raw_input('window'+str(window)+'Enter new window (5/7) :')
-            # elif cr_currection_method == 2:
-            # elif cr_currection_method == 3:
+            if cr_currection_method == '2':
+                print("Enter new crmedian correction parameters")
+                lsigma = raw_input('lsigma='+str(lsigma)+'; Enter new lsigma :')  # Low Clipping Sigma Factor
+                ncsig = raw_input('ncsig='+str(ncsig)+'; Enter new ncsig (minimum=10):')     # Column Box Size For Sigma Calculation
+            # if cr_currection_method == '3':
             continue
 
         if check == 'y':  # Should continue
