@@ -1,3 +1,7 @@
+# Author : Sonith L.S
+# Contact : sonith.ls@iiap.res.in
+__version__ = '0.0.5'
+
 import os
 import time
 import subprocess

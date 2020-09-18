@@ -2,7 +2,7 @@
 # This script is to semi-automate basic reduction of HFOSC spectrosopic data
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 # Code is  written serially to check every functions are working properly
 # Adiitional formatting required for running in for multiple number of folder in faster way.
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -192,7 +192,7 @@ def main():
 ###############################################################################
 ###############################################################################
                           HFOSC Spectrosopic Pipeline
-                                Version: 0.0.4
+                                Version: 0.0.5
 ###############################################################################
 ###############################################################################
 """
