@@ -73,11 +73,15 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
 
     # opening ds9 for manually inspecting images
     subprocess.Popen('ds9')
-    time.sleep(4)
+    # process_ds9open.wait()
+    ds9_time_delay = 2 #Depends upon how fast your system opens up ds9
+    ds9_waiting = threading.Thread(time.sleep(ds9_time_delay))
+    ds9_waiting.start()
+    # print("OKOKOKOKOK")
 
     # Default method for cr currection curresponds to cosmicray task in IRAF
-    cr_currection_method = 1
-    # cosmic ray correction task default parameters
+    cr_currection_method = '1'
+    # cosmicray correction task default parameters
     threshold = 25
     fluxrate = 2
     npasses = 5
@@ -105,26 +109,22 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
         remove_file(output_file_name2)
         remove_file(cr_check_file_name2)
 
-        if cr_currection_method == 1:
-            thread = threading.Thread(target=irafcosmicrays(input=file_name, output=output_file_name2,
-                                                            threshold=threshold, fluxrate=fluxrate,
-                                                            npasses=npasses, window=window))
-        elif cr_currection_method == 2:
-            thread = threading.Thread(target=irafcosmicrays(input=file_name, output=output_file_name2,
-                                                            threshold=threshold, fluxrate=fluxrate,
-                                                            npasses=npasses, window=window))
-        elif cr_currection_method == 3:
-            thread = threading.Thread(target=irafcosmicrays(input=file_name, output=output_file_name2,
-                                                            threshold=threshold, fluxrate=fluxrate,
-                                                            npasses=npasses, window=window))
-        thread.start()
-        # wait here for the result to be available before continuing
-        thread.join()
+        if cr_currection_method == '1':
+            irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
+                           npasses=npasses, window=window)
+        elif cr_currection_method == '2':
+            irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
+                           npasses=npasses, window=window)
+        elif cr_currection_method == '3':
+            irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
+                           npasses=npasses, window=window)
+
 
         iraf.images.imutil.imarith.unlearn()
         iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
                                    result=str(cr_check_file_name2))
-        time.sleep(1)
+        #time.sleep(3)
+        ds9_waiting.join()
         # try:
             # iraf.display(cr_check_file_name2, 2)
         iraf.display(output_file_name2, 1)
@@ -136,9 +136,6 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
         #     # ds9 might not be open, hence open it and try again
         #     print('DS9 window is not active. Opening a DS9 window please wait')
         #     subprocess.Popen('ds9')
-        #     time.sleep(3)  # Wait 3 seconds
-        #     # iraf.display(cr_check_file_name2, 2)
-        #     iraf.display(output_file_name2)
 
         print(file_name)
 
@@ -147,18 +144,13 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
 
         if check == 'n':  # Should redo
             print(x)
-            print("Entre new cosmic-ray correction method (1/2/3)")
-            cr_currection_method = raw_input()
-            if cr_currection_method == 1:
-                print("Entre new cosmic-ray correction parameters")
-                print("threshold = ", threshold, "Enter new threshold =")
-                threshold = raw_input()
-                print("fluxrate = ", fluxrate, "Enter new fluxrate = ")
-                fluxrate = raw_input()
-                print("npasses = ", npasses, "Enter new npasses = ")
-                npasses = raw_input()
-                print("window = ", window, "Enter new window (5/7) = ")
-                window = raw_input()
+            cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
+            if cr_currection_method == '1':
+                print("Enter new cosmic-ray correction parameters")
+                threshold = raw_input('threshold='+str(threshold)+'; Enter new threshold :')
+                fluxrate = raw_input('fluxrate ='+str(fluxrate)+'; Enter new fluxrate :')
+                npasses = raw_input('npasses ='+str(npasses)+'; Enter new npasses :')
+                window = raw_input('window'+str(window)+'Enter new window (5/7) :')
             # elif cr_currection_method == 2:
             # elif cr_currection_method == 3:
             continue
