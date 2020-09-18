@@ -76,6 +76,11 @@ max_count = 700000
 default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
 
+bar = """
+###############################################################################
+###############################################################################
+"""
+
 
 def part1(flat_flag):
     # Backing up the whole directory
@@ -184,11 +189,11 @@ def main():
     working_dir_path = os.getcwd()
 
     logo = """
-####################################################################
-####################################################################
-                    HFOSC Spectrosopic Pipeline
-####################################################################
-####################################################################
+###############################################################################
+###############################################################################
+                          HFOSC Spectrosopic Pipeline
+###############################################################################
+###############################################################################
 """
     print(logo)
 
@@ -196,7 +201,7 @@ def main():
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
 
-    print("If you are not using flats please type -- no -- and entre")
+    print("If you are not using flats please type -- no -- and enter")
     flat_flag = raw_input()
 
     print("Press Enter for running complete code")
