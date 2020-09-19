@@ -39,13 +39,13 @@ from hfoscsp.file_management import list_object
 
 from hfoscsp.reduction import ccdsec_removal
 from hfoscsp.reduction import bias_correction
-from hfoscsp.reduction import cosmic_correction
+# from hfoscsp.reduction import cosmic_correction
 from hfoscsp.reduction import flat_correction
 from hfoscsp.reduction import spectral_extraction
 from hfoscsp.reduction import flux_calibrate
 
 from hfoscsp.cosmicray import cosmic_correction_individual
-
+from hfoscsp.cosmicray import cosmic_correction
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
