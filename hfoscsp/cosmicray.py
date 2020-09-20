@@ -136,7 +136,7 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     sigfrac = 0.5
     objlim = 5.0
     data_max = 700000
-    read_noise = 1.27
+    read_noise = 5.75
 
     # Create guaranteed unique sentinel (can't use None since iterator might produce None)
     sentinel = object()
@@ -220,6 +220,8 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
             x = next(iterobj, sentinel)  # Explicitly advance loop for continue case
             cr_check_list.append(cr_check_file_name)
             cr_currected_list.append(output_file_name)
+            remove_file(str(file_name))
+            remove_file(cr_check_file_name2)
             # remove_file(str(file_name))   # removing the older files which is needed to bias correct.
             continue
 
