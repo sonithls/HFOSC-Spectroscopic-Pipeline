@@ -2,7 +2,7 @@
 # This script is to semi-automate basic reduction of HFOSC spectrosopic data
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 # Code is  written serially to check every functions are working properly
 # Adiitional formatting required for running in for multiple number of folder in faster way.
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -39,13 +39,13 @@ from hfoscsp.file_management import list_object
 
 from hfoscsp.reduction import ccdsec_removal
 from hfoscsp.reduction import bias_correction
-from hfoscsp.reduction import cosmic_correction
+# from hfoscsp.reduction import cosmic_correction
 from hfoscsp.reduction import flat_correction
 from hfoscsp.reduction import spectral_extraction
 from hfoscsp.reduction import flux_calibrate
 
 from hfoscsp.cosmicray import cosmic_correction_individual
-
+from hfoscsp.cosmicray import cosmic_correction
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -192,7 +192,7 @@ def main():
 ###############################################################################
 ###############################################################################
                           HFOSC Spectrosopic Pipeline
-                                Version: 0.0.4
+                                Version: 0.0.5
 ###############################################################################
 ###############################################################################
 """
