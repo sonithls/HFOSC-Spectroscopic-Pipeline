@@ -230,6 +230,9 @@ def list_flat(file_list, location=''):
         else:
             passing_list.append(file)
 
+    print('Grism 7 flat files :', flat_list_gr7)
+    print('Grism 8 flat files :', flat_list_gr8)
+
     return flat_list, flat_list_gr7, flat_list_gr8, passing_list
 
 
