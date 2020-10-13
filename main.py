@@ -2,7 +2,7 @@
 # This script is to semi-automate basic reduction of HFOSC spectrosopic data
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 # Code is  written serially to check every functions are working properly
 # Adiitional formatting required for running in for multiple number of folder in faster way.
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -125,6 +125,9 @@ def part1(flat_flag):
 
     cr_check_list = cosmic_correction(cosmic_curr_list_flats, location=PATH)
 
+    for file in cr_check_list:
+        remove_file(str(file))
+
     # cosmicray correction manually for individual files or all files automatically
     print("Press Enter for running cosmicray correction with default settings")
     print("Press m and Enter for running cosmicray correction manually")
@@ -141,8 +144,9 @@ def part1(flat_flag):
         remove_file(str(file))
 
     # ---------------------------flat-correction-------------------------- #
-    if flat_flag == 'no' or 'No':
-        pass
+    if str(flat_flag).lower() == 'no':
+        print("flat_flag :", flat_flag)
+        print("No flatfielding")
     else:
         # Making file list for flat-correction
         list_files = search_files(location=folder_name, keyword='*.fits')
@@ -202,8 +206,8 @@ def main():
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
 
-    print("If you are not using flats please type -- no -- and enter")
-    flat_flag = raw_input()
+    flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
+    print("flat_flag :", flat_flag)
 
     print("Press Enter for running complete code")
     print("Press 1 and Entre for running only flux calibration")
