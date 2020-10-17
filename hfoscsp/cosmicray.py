@@ -1,6 +1,6 @@
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 import os
 import time
@@ -227,10 +227,10 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
 
         if check == 'b':  # Should break
             break
+            print("Error in loop")
 
         # Advance loop
         x = next(iterobj, sentinel)
-        print("Error in loop")
         break
 
     return cr_check_list
