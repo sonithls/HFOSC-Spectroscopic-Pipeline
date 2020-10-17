@@ -114,7 +114,7 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     # opening ds9 for manually inspecting images
     subprocess.Popen('ds9')
     # process_ds9open.wait()
-    ds9_time_delay = 2 #Depends upon how fast your system opens up ds9
+    ds9_time_delay = 2  # Depends upon how fast your system opens up ds9
     ds9_waiting = threading.Thread(time.sleep(ds9_time_delay))
     ds9_waiting.start()
 
@@ -170,14 +170,13 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
             la_cosmic(input=file_name, output=output_file_name2, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim,
                       read_noise=read_noise, data_max=data_max)
 
-
         iraf.images.imutil.imarith.unlearn()
         iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
                                    result=str(cr_check_file_name2))
-        #time.sleep(3)
+        # time.sleep(3)
         ds9_waiting.join()
         # try:
-            # iraf.display(cr_check_file_name2, 2)
+        #     iraf.display(cr_check_file_name2, 2)
         iraf.display(output_file_name2, 1)
         iraf.display(cr_check_file_name2, 2)
         iraf.display(file_name, 3)
