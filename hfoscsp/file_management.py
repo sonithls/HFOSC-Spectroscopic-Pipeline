@@ -144,7 +144,7 @@ def list_bias(file_list, location=''):
             bias_list.append(file)
         elif OBJECT == "bias_snspec":
             bias_list.append(file)
-        elif OBJECT == "bias":
+        elif OBJECT.lower() == "bias":
             bias_list.append(file)
         elif OBJECT == "Bias snspec":
             bias_list.append(file)
