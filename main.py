@@ -158,11 +158,9 @@ def part1(flat_flag):
         remove_file(str(file))
 
     # cosmicray correction manually for individual files or all files automatically
-    question_1 = [inquirer.List('x', message="How do you like to proceed Cosmic ray correction?",
-                                choices=['Default', 'Manually'])]
-    answer_1 = inquirer.prompt(question_1)
-    print(answer_1["x"])
-    input = answer_1["x"]
+    message = "How do you like to proceed Cosmic ray correction?",
+    choices = ['Default', 'Manually']
+    input = options(message, choices)
 
     if input.lower() == 'manually':
         cr_check_list = cosmic_correction_individual(cosmic_curr_list, location=PATH)
