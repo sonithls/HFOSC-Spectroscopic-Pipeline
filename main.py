@@ -248,16 +248,28 @@ def main():
     elif input.lower() == 'no':
         flat_flag = 'no'
 
-    print("Press Enter for running complete code")
-    print("Press 1 and Entre for running only flux calibration")
-    input = raw_input()
-    if input == '1':
+    message = "Select the mode of running the Pipeline"
+    choices = ['Complete Code', 'Only Flux Calibration']
+    input = options(message, choices)
+
+    if input == 'Complete Code':
         part2(folder_name=folder_name, PATH=PATH)
         os.chdir(working_dir_path)
-    else:
+    elif input == 'Only Flux Calibration':
         part1(flat_flag=flat_flag)
         os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH)
+
+    # print("Press Enter for running complete code")
+    # print("Press 1 and Entre for running only flux calibration")
+    # input = raw_input()
+    # if input == '1':
+    #     part2(folder_name=folder_name, PATH=PATH)
+    #     os.chdir(working_dir_path)
+    # else:
+    #     part1(flat_flag=flat_flag)
+    #     os.chdir(working_dir_path)
+    #     part2(folder_name=folder_name, PATH=PATH)
 
 
 if __name__ == "__main__":
