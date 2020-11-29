@@ -158,7 +158,7 @@ def part1(flat_flag):
         remove_file(str(file))
 
     # cosmicray correction manually for individual files or all files automatically
-    message = "How do you like to proceed Cosmic ray correction?",
+    message = "How do you like to proceed Cosmic ray correction?"
     choices = ['Default', 'Manually']
     input = options(message, choices)
 
