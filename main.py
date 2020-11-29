@@ -236,8 +236,17 @@ def main():
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
 
-    flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
-    print("flat_flag :", flat_flag)
+    # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
+    # print("flat_flag :", flat_flag)
+
+    message = "Do you want to do flatfielding ?"
+    choices = ['Yes', 'No']
+    input = options(message, choices)
+
+    if input.lower() == 'yes':
+        flat_flag = ''
+    elif input.lower() == 'no':
+        flat_flag = 'no'
 
     print("Press Enter for running complete code")
     print("Press 1 and Entre for running only flux calibration")
