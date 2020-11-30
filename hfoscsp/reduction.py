@@ -2,11 +2,13 @@
 # Import required libraries
 # -------------------------------------------------------------------------------------------------------------------- #
 import os
-import glob
+# import glob
 import shutil
-import re
-import shutil
+# import re
+# import shutil
 from astropy.io import fits
+
+from hfoscsp.interactive import options
 
 try:
     from pyraf import iraf
@@ -413,8 +415,11 @@ def flux_calibrate(obj_list, location, default_path, prefix_string='F_'):
         iraf.noao.imred.specred.setairmass(images=file_name, observa='iao')
 
     print("Airmass correction is done for all stars")
-    print("Press enter to continue")
-    raw_input()
+    # print("Press enter to continue")
+    # raw_input()
+    message = "Press enter 'Yes' to continue"
+    choices = ['Yes']
+    options(message, choices)
 
     # Running standard task in IRAF
     file_name = std_stars[0]
