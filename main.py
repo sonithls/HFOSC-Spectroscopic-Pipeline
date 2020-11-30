@@ -177,7 +177,7 @@ def part1(flat_flag):
     if str(flat_flag).lower() == 'no':
         print("flat_flag :", flat_flag)
         print("No flatfielding")
-    else:
+    elif str(flat_flag).lower() == 'yes':
         # Making file list for flat-correction
         list_files = search_files(location=folder_name, keyword='*.fits')
         obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
@@ -241,12 +241,8 @@ def main():
 
     message = "Do you want to do flatfielding ?"
     choices = ['Yes', 'No']
-    input = options(message, choices)
-
-    if input.lower() == 'yes':
-        flat_flag = ''
-    elif input.lower() == 'no':
-        flat_flag = 'no'
+    flat_flag = options(message, choices)
+    # Question for flatfielding using flat_flag
 
     message = "Select the mode of running the Pipeline"
     choices = ['Complete Code', 'Only Flux Calibration']
