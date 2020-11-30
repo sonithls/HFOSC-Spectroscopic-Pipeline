@@ -117,7 +117,12 @@ def part1(flat_flag):
 
     # Selecting the folder for reducing the data
     print(list_subdir())
-    raw_input("Press Enter to continue...")  # Python 2
+    # raw_input("Press Enter to continue...")  # Python 2
+
+    message = "Do you want to continue ? Please press Enter"
+    choices = ['Yes']
+    options(message, choices)
+
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
     print(folder_name)
@@ -169,7 +174,12 @@ def part1(flat_flag):
 
     # Stop running code for checking the cosmic ray corrected files
     print("Cosmic ray correction is done. Please check chk files then continue")
-    raw_input("Press Enter to continue...")  # Python 2
+
+    # raw_input("Press Enter to continue...")  # Python 2
+    message = "Do you want to continue ? Please press Enter"
+    choices = ['Yes']
+    options(message, choices)
+
     for file in cr_check_list:
         remove_file(str(file))
 
@@ -195,7 +205,12 @@ def part1(flat_flag):
     obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
     lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files, PATH)
 
-    raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+    # raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+
+    message = "Press Enter for spectral_extraction and wavelength calibration..."
+    choices = ['Yes']
+    options(message, choices)
+
     # Running spectral_extraction function using file lists made
     spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
     spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
@@ -207,7 +222,10 @@ def part2(folder_name, PATH):
     print(PATH)
     print(folder_name)
 
-    raw_input("Press Enter for Flux_Calibration...") #Python 2
+    # raw_input("Press Enter for Flux_Calibration...") # Python 2
+    message = "Press Enter for Flux_Calibration..."
+    choices = ['Yes']
+    options(message, choices)
 
     # Running Flux calibration
     list_files = search_files(location=folder_name, keyword='*.fits')
