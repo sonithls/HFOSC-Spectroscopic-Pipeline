@@ -8,7 +8,8 @@ import subprocess
 import threading
 import ccdproc
 from astropy.io import fits
-import inquirer
+
+from hfoscsp.interactive import options
 
 try:
     from pyraf import iraf
@@ -33,20 +34,6 @@ def remove_file(file_name):
         os.remove(file_name)
     except OSError:
         pass
-
-
-def options(message, choices):
-    """
-    Funnction for giving multiple options while running code.
-    message : Message before giving different options.
-    choices : List of chioses
-    Ex : choices = ['Default', 'Manually']
-    """
-    question = [inquirer.List('x', message, choices)]
-    answer = inquirer.prompt(question)
-    print(answer["x"])
-    answer = answer["x"]
-    return answer
 
 
 def irafcosmicrays(input, output, threshold, fluxrate, npasses, window):
@@ -217,7 +204,7 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
             print(x)
             # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
             message = "Enter Yes accept, No for reject"
-            choices = ['irafcrmedian', 'irafcosmicrays' 'la_cosmic']
+            choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
             cr_currection_method = options(message, choices)
             if cr_currection_method == 'irafcosmicrays':
                 print("Enter new cosmicray correction parameters")
