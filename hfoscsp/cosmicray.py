@@ -134,8 +134,10 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     ds9_waiting.start()
 
     # Default method for cr currection curresponds to cosmicray task in IRAF
-    cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
-
+    # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
+    message = "Enter Yes accept, No for reject"
+    choices = ['irafcrmedian', 'irafcosmicrays' 'la_cosmic']
+    cr_currection_method = options(message, choices)
     # cosmicray correction task default parameters
     threshold = 25
     fluxrate = 2
@@ -175,13 +177,13 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
         remove_file(output_file_name2)
         remove_file(cr_check_file_name2)
 
-        if cr_currection_method == '1':
+        if cr_currection_method == 'irafcosmicrays':
             irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
                            npasses=npasses, window=window)
-        elif cr_currection_method == '2':
+        elif cr_currection_method == 'irafcrmedian':
             irafcrmedian(input=file_name, output=output_file_name2, lsigma=lsigma, hsigma=3, ncmed=5, nlmed=5,
                          ncsig=ncsig, nlsig=25)
-        elif cr_currection_method == '3':
+        elif cr_currection_method == 'la_cosmic':
             la_cosmic(input=file_name, output=output_file_name2, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim,
                       read_noise=read_noise, data_max=data_max)
 
@@ -213,19 +215,22 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
 
         if check == 'No':  # Should redo
             print(x)
-            cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
-            if cr_currection_method == '1':
+            # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
+            message = "Enter Yes accept, No for reject"
+            choices = ['irafcrmedian', 'irafcosmicrays' 'la_cosmic']
+            cr_currection_method = options(message, choices)
+            if cr_currection_method == 'irafcosmicrays':
                 print("Enter new cosmicray correction parameters")
                 threshold = raw_input('threshold='+str(threshold)+'; Enter new threshold :')
                 fluxrate = raw_input('fluxrate ='+str(fluxrate)+'; Enter new fluxrate :')
                 npasses = raw_input('npasses ='+str(npasses)+'; Enter new npasses :')
                 window = raw_input('window'+str(window)+'Enter new window (5/7) :')
-            if cr_currection_method == '2':
+            if cr_currection_method == 'irafcrmedian':
                 print("Enter new crmedian correction parameters")
                 lsigma = raw_input('lsigma='+str(lsigma)+'; Enter new lsigma :')  # Low Clipping Sigma Factor
                 ncsig = raw_input('ncsig='+str(ncsig)+'; Enter new ncsig (minimum=10):')
                 # Column Box Size For Sigma Calculation
-            if cr_currection_method == '3':
+            if cr_currection_method == 'la_cosmic':
                 print("Enter new la_cosmic cosmic-ray correction parameters")
                 sigclip = raw_input('sigclip='+str(sigclip)+'; Enter new sigclip :')
                 sigfrac = raw_input('sigfrac='+str(sigfrac)+'; Enter new sigfrac :')
