@@ -253,12 +253,12 @@ def main():
     input = options(message, choices)
 
     if input == 'Complete Code':
-        part2(folder_name=folder_name, PATH=PATH)
-        os.chdir(working_dir_path)
-    elif input == 'Only Flux Calibration':
         part1(flat_flag=flat_flag)
         os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH)
+    elif input == 'Only Flux Calibration':
+        part2(folder_name=folder_name, PATH=PATH)
+        os.chdir(working_dir_path)
 
     # print("Press Enter for running complete code")
     # print("Press 1 and Entre for running only flux calibration")
