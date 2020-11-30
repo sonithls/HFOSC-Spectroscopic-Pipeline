@@ -123,7 +123,7 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     # Default method for cr currection curresponds to cosmicray task in IRAF
     # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
     message = "Enter Yes accept, No for reject"
-    choices = ['irafcrmedian', 'irafcosmicrays' 'la_cosmic']
+    choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
     cr_currection_method = options(message, choices)
     # cosmicray correction task default parameters
     threshold = 25
