@@ -1,0 +1,50 @@
+version 0.0.1
+=============
+> basic structure
+> file management codes
+
+version 0.0.2
+=============
+> wavelength calibration
+
+version 0.0.3
+=============
+> flux calibration
+
+version 0.0.4
+=============
+> Packaging
+> pep8 style
+
+version 0.0.5
+=============
+> cosmic ray corrections for individual files.
+> functionality for verifying corrections and redo the correction if required-
+> with out restarting the programme.
+> Multiple cosmic ray correction methods.
+
+version 0.0.6
+=============
+> Bug fixes.
+> Optimisations for easier operation.
+> Provision for returning to the original prompt when you make a invalid option
+  rather than terminating the entire code.
+> fix floating point error while flat fielding.
+
+version 0.0.7
+=============
+> Interactive prompts for faster reduction.
+
+version 1.0.0
+=============
+> Packaging
+> setup.py
+> documentation
+
+Version 2.0.0
+=============
+> Photometry pipeline
+
+Version 3.0.0
+=============
+> File identifier using ML

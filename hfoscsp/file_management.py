@@ -1,8 +1,12 @@
+# Author : Sonith L.S
+# Contact : sonith.ls@iiap.res.in
+__version__ = '0.0.7'
+
 import os
 import glob
 import shutil
-import re
-import shutil
+# import re
+# import shutil
 from astropy.io import fits
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -144,7 +148,7 @@ def list_bias(file_list, location=''):
             bias_list.append(file)
         elif OBJECT == "bias_snspec":
             bias_list.append(file)
-        elif OBJECT == "bias":
+        elif OBJECT.lower() == "bias":
             bias_list.append(file)
         elif OBJECT == "Bias snspec":
             bias_list.append(file)
@@ -217,7 +221,7 @@ def list_flat(file_list, location=''):
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
-        if (OBJECT == "Halogen") or (OBJECT == "halogen") or (OBJECT == "flat"):
+        if (OBJECT.lower() == "halogen") or (OBJECT == "flat"):
             flat_list.append(file)
             if GRISM == "4 Grism 7":
                 flat_list_gr7.append(file)
@@ -229,6 +233,9 @@ def list_flat(file_list, location=''):
 
         else:
             passing_list.append(file)
+
+    print('Grism 7 flat files :', flat_list_gr7)
+    print('Grism 8 flat files :', flat_list_gr8)
 
     return flat_list, flat_list_gr7, flat_list_gr8, passing_list
 
@@ -288,7 +295,7 @@ def list_object(file_list, location=''):
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
-        if ((OBJECT != "FeAr") and (OBJECT != "FeNe") and (OBJECT != "Halogen") and (OBJECT != "Bias_Snspec")):
+        if ((OBJECT != "FeAr") and (OBJECT != "FeNe") and (OBJECT.lower() != "halogen") and (OBJECT != "Bias_Snspec")):
             obj_list.append(file)
             if (GRISM == "4 Grism 7") or (GRISM == "Grism 7") or (GRISM == "gr7") or (GRISM == "grism 7"):
                 obj_list_gr7.append(file)

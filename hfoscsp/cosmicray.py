@@ -1,6 +1,6 @@
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.5'
+__version__ = '0.0.7'
 
 import os
 import time
@@ -8,6 +8,8 @@ import subprocess
 import threading
 import ccdproc
 from astropy.io import fits
+
+from hfoscsp.interactive import options
 
 try:
     from pyraf import iraf
@@ -114,13 +116,15 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     # opening ds9 for manually inspecting images
     subprocess.Popen('ds9')
     # process_ds9open.wait()
-    ds9_time_delay = 2 #Depends upon how fast your system opens up ds9
+    ds9_time_delay = 2  # Depends upon how fast your system opens up ds9
     ds9_waiting = threading.Thread(time.sleep(ds9_time_delay))
     ds9_waiting.start()
 
     # Default method for cr currection curresponds to cosmicray task in IRAF
-    cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
-
+    # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
+    message = "Enter Yes accept, No for reject"
+    choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
+    cr_currection_method = options(message, choices)
     # cosmicray correction task default parameters
     threshold = 25
     fluxrate = 2
@@ -160,24 +164,23 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
         remove_file(output_file_name2)
         remove_file(cr_check_file_name2)
 
-        if cr_currection_method == '1':
+        if cr_currection_method == 'irafcosmicrays':
             irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
                            npasses=npasses, window=window)
-        elif cr_currection_method == '2':
+        elif cr_currection_method == 'irafcrmedian':
             irafcrmedian(input=file_name, output=output_file_name2, lsigma=lsigma, hsigma=3, ncmed=5, nlmed=5,
                          ncsig=ncsig, nlsig=25)
-        elif cr_currection_method == '3':
+        elif cr_currection_method == 'la_cosmic':
             la_cosmic(input=file_name, output=output_file_name2, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim,
                       read_noise=read_noise, data_max=data_max)
-
 
         iraf.images.imutil.imarith.unlearn()
         iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
                                    result=str(cr_check_file_name2))
-        #time.sleep(3)
+        # time.sleep(3)
         ds9_waiting.join()
         # try:
-            # iraf.display(cr_check_file_name2, 2)
+        #     iraf.display(cr_check_file_name2, 2)
         iraf.display(output_file_name2, 1)
         iraf.display(cr_check_file_name2, 2)
         iraf.display(file_name, 3)
@@ -192,30 +195,36 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
         print(file_name)
 
         check = ''
-        check = raw_input('Enter "y" accept, "n" reject:')
+        message = "Enter Yes accept, No for reject"
+        choices = ['Yes', 'No']
+        check = options(message, choices)
+        # check = raw_input('Enter "y" accept, "n" reject:')
 
-        if check == 'n':  # Should redo
+        if check == 'No':  # Should redo
             print(x)
-            cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
-            if cr_currection_method == '1':
+            # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
+            message = "Enter Yes accept, No for reject"
+            choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
+            cr_currection_method = options(message, choices)
+            if cr_currection_method == 'irafcosmicrays':
                 print("Enter new cosmicray correction parameters")
                 threshold = raw_input('threshold='+str(threshold)+'; Enter new threshold :')
                 fluxrate = raw_input('fluxrate ='+str(fluxrate)+'; Enter new fluxrate :')
                 npasses = raw_input('npasses ='+str(npasses)+'; Enter new npasses :')
                 window = raw_input('window'+str(window)+'Enter new window (5/7) :')
-            if cr_currection_method == '2':
+            if cr_currection_method == 'irafcrmedian':
                 print("Enter new crmedian correction parameters")
                 lsigma = raw_input('lsigma='+str(lsigma)+'; Enter new lsigma :')  # Low Clipping Sigma Factor
                 ncsig = raw_input('ncsig='+str(ncsig)+'; Enter new ncsig (minimum=10):')
                 # Column Box Size For Sigma Calculation
-            if cr_currection_method == '3':
+            if cr_currection_method == 'la_cosmic':
                 print("Enter new la_cosmic cosmic-ray correction parameters")
                 sigclip = raw_input('sigclip='+str(sigclip)+'; Enter new sigclip :')
                 sigfrac = raw_input('sigfrac='+str(sigfrac)+'; Enter new sigfrac :')
                 objlim = raw_input('objlim='+str(objlim)+'; Enter new objlim :')
             continue
 
-        if check == 'y':  # Should continue
+        if check == 'Yes':  # Should continue
             print(x)
             x = next(iterobj, sentinel)  # Explicitly advance loop for continue case
             cr_check_list.append(cr_check_file_name)
@@ -227,10 +236,10 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
 
         if check == 'b':  # Should break
             break
+            print("Error in loop")
 
         # Advance loop
         x = next(iterobj, sentinel)
-        print("Error in loop")
         break
 
     return cr_check_list

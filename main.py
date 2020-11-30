@@ -2,7 +2,7 @@
 # This script is to semi-automate basic reduction of HFOSC spectrosopic data
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.5'
+__version__ = '0.0.7'
 # Code is  written serially to check every functions are working properly
 # Adiitional formatting required for running in for multiple number of folder in faster way.
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -12,11 +12,6 @@ __version__ = '0.0.5'
 # -------------------------------------------------------------------------------------------------------------------- #
 import os
 import sys
-import glob
-import shutil
-import re
-import shutil
-from astropy.io import fits
 
 try:
     from pyraf import iraf
@@ -26,7 +21,7 @@ except ImportError as error:
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required modules
 # -------------------------------------------------------------------------------------------------------------------- #
-from hfoscsp.file_management import Backup
+# from hfoscsp.file_management import Backup
 from hfoscsp.file_management import search_files
 from hfoscsp.file_management import list_subdir
 from hfoscsp.file_management import spec_or_phot
@@ -46,6 +41,9 @@ from hfoscsp.reduction import flux_calibrate
 
 from hfoscsp.cosmicray import cosmic_correction_individual
 from hfoscsp.cosmicray import cosmic_correction
+
+from hfoscsp.interactive import options
+# from hfoscsp.interactive import multioptions
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -88,7 +86,12 @@ def part1(flat_flag):
 
     # Selecting the folder for reducing the data
     print(list_subdir())
-    raw_input("Press Enter to continue...")  # Python 2
+    # raw_input("Press Enter to continue...")  # Python 2
+
+    message = "Do you want to continue ? Please press Enter"
+    choices = ['Yes']
+    options(message, choices)
+
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
     print(folder_name)
@@ -125,25 +128,35 @@ def part1(flat_flag):
 
     cr_check_list = cosmic_correction(cosmic_curr_list_flats, location=PATH)
 
+    for file in cr_check_list:
+        remove_file(str(file))
+
     # cosmicray correction manually for individual files or all files automatically
-    print("Press Enter for running cosmicray correction with default settings")
-    print("Press m and Enter for running cosmicray correction manually")
-    input = raw_input()
-    if input == 'm':
+    message = "How do you like to proceed Cosmic ray correction?"
+    choices = ['Default', 'Manually']
+    input = options(message, choices)
+
+    if input.lower() == 'manually':
         cr_check_list = cosmic_correction_individual(cosmic_curr_list, location=PATH)
     else:
         cr_check_list = cosmic_correction(cosmic_curr_list, location=PATH)
 
     # Stop running code for checking the cosmic ray corrected files
     print("Cosmic ray correction is done. Please check chk files then continue")
-    raw_input("Press Enter to continue...")  # Python 2
+
+    # raw_input("Press Enter to continue...")  # Python 2
+    message = "Do you want to continue ?"
+    choices = ['Yes']
+    options(message, choices)
+
     for file in cr_check_list:
         remove_file(str(file))
 
     # ---------------------------flat-correction-------------------------- #
-    if flat_flag == 'no' or 'No':
-        pass
-    else:
+    if str(flat_flag).lower() == 'no':
+        print("flat_flag :", flat_flag)
+        print("No flatfielding")
+    elif str(flat_flag).lower() == 'yes':
         # Making file list for flat-correction
         list_files = search_files(location=folder_name, keyword='*.fits')
         obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
@@ -161,7 +174,12 @@ def part1(flat_flag):
     obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
     lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files, PATH)
 
-    raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+    # raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+
+    message = "Press Enter for spectral_extraction and wavelength calibration..."
+    choices = ['Yes']
+    options(message, choices)
+
     # Running spectral_extraction function using file lists made
     spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
     spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
@@ -173,7 +191,10 @@ def part2(folder_name, PATH):
     print(PATH)
     print(folder_name)
 
-    raw_input("Press Enter for Flux_Calibration...") #Python 2
+    # raw_input("Press Enter for Flux_Calibration...") # Python 2
+    message = "Press Enter for Flux_Calibration..."
+    choices = ['Yes']
+    options(message, choices)
 
     # Running Flux calibration
     list_files = search_files(location=folder_name, keyword='*.fits')
@@ -192,7 +213,7 @@ def main():
 ###############################################################################
 ###############################################################################
                           HFOSC Spectrosopic Pipeline
-                                Version: 0.0.5
+                                Version: 0.0.6
 ###############################################################################
 ###############################################################################
 """
@@ -202,19 +223,36 @@ def main():
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
 
-    print("If you are not using flats please type -- no -- and enter")
-    flat_flag = raw_input()
+    # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
+    # print("flat_flag :", flat_flag)
 
-    print("Press Enter for running complete code")
-    print("Press 1 and Entre for running only flux calibration")
-    input = raw_input()
-    if input == '1':
-        part2(folder_name=folder_name, PATH=PATH)
-        os.chdir(working_dir_path)
-    else:
+    message = "Do you want to do flatfielding ?"
+    choices = ['Yes', 'No']
+    flat_flag = options(message, choices)
+    # Question for flatfielding using flat_flag
+
+    message = "Select the mode of running the Pipeline"
+    choices = ['Complete Code', 'Only Flux Calibration']
+    input = options(message, choices)
+
+    if input == 'Complete Code':
         part1(flat_flag=flat_flag)
         os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH)
+    elif input == 'Only Flux Calibration':
+        part2(folder_name=folder_name, PATH=PATH)
+        os.chdir(working_dir_path)
+
+    # print("Press Enter for running complete code")
+    # print("Press 1 and Entre for running only flux calibration")
+    # input = raw_input()
+    # if input == '1':
+    #     part2(folder_name=folder_name, PATH=PATH)
+    #     os.chdir(working_dir_path)
+    # else:
+    #     part1(flat_flag=flat_flag)
+    #     os.chdir(working_dir_path)
+    #     part2(folder_name=folder_name, PATH=PATH)
 
 
 if __name__ == "__main__":
