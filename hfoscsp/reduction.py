@@ -427,7 +427,7 @@ def flux_calibrate(obj_list, location, default_path, prefix_string='F_'):
     # Running standard task in IRAF
     file_name = std_stars[0]
 
-    standard_star_name = raw_input("Type standard star name to continue")
+    standard_star_name = raw_input("Type standard star name to continue :")
 
     # standard_star_name = 'feige34'        # Need to set an option to change this for different std stars
     # mag = 11.18 # Magnitude of standard star.

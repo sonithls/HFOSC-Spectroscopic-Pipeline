@@ -145,7 +145,7 @@ def part1(flat_flag):
     print("Cosmic ray correction is done. Please check chk files then continue")
 
     # raw_input("Press Enter to continue...")  # Python 2
-    message = "Do you want to continue ? Please press Enter"
+    message = "Do you want to continue ?"
     choices = ['Yes']
     options(message, choices)
 
