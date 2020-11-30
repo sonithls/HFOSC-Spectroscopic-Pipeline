@@ -12,12 +12,6 @@ __version__ = '0.0.6'
 # -------------------------------------------------------------------------------------------------------------------- #
 import os
 import sys
-import glob
-import shutil
-import re
-import shutil
-from astropy.io import fits
-import inquirer
 
 try:
     from pyraf import iraf
@@ -47,6 +41,8 @@ from hfoscsp.reduction import flux_calibrate
 
 from hfoscsp.cosmicray import cosmic_correction_individual
 from hfoscsp.cosmicray import cosmic_correction
+
+from hfoscsp.interactive import options
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -81,34 +77,6 @@ bar = """
 ###############################################################################
 ###############################################################################
 """
-
-
-def options(message, choices):
-    """
-    Funnction for giving multiple options while running code.
-    message : Message before giving different options.
-    choices : List of chioses
-    Ex : choices = ['Default', 'Manually']
-    """
-    question = [inquirer.List('x', message, choices)]
-    answer = inquirer.prompt(question)
-    print(answer["x"])
-    answer = answer["x"]
-    return answer
-
-
-def multioptions(message, choices, default=''):
-    """
-    Funnction for giving multiple options while running code.
-    message : Message before giving different options.
-    choices : List of chioses
-    Ex : choices = ['Default', 'Manually']
-    """
-    question = [inquirer.Checkbox('x', message, choices, default)]
-    answer = inquirer.prompt(question)
-    print(answer)
-    answer = answer["x"]
-    return answer
 
 
 def part1(flat_flag):
