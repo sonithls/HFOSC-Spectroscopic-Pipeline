@@ -1,8 +1,12 @@
+# Author : Sonith L.S
+# Contact : sonith.ls@iiap.res.in
+__version__ = '0.0.7'
+
 import os
 import glob
 import shutil
-import re
-import shutil
+# import re
+# import shutil
 from astropy.io import fits
 
 # -------------------------------------------------------------------------------------------------------------------- #

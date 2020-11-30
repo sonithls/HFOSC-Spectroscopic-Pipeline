@@ -1,6 +1,6 @@
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 import os
 import time

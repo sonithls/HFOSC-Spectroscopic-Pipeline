@@ -2,7 +2,7 @@
 # This script is to semi-automate basic reduction of HFOSC spectrosopic data
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 # Code is  written serially to check every functions are working properly
 # Adiitional formatting required for running in for multiple number of folder in faster way.
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -21,7 +21,7 @@ except ImportError as error:
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required modules
 # -------------------------------------------------------------------------------------------------------------------- #
-from hfoscsp.file_management import Backup
+# from hfoscsp.file_management import Backup
 from hfoscsp.file_management import search_files
 from hfoscsp.file_management import list_subdir
 from hfoscsp.file_management import spec_or_phot
@@ -43,6 +43,7 @@ from hfoscsp.cosmicray import cosmic_correction_individual
 from hfoscsp.cosmicray import cosmic_correction
 
 from hfoscsp.interactive import options
+# from hfoscsp.interactive import multioptions
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
