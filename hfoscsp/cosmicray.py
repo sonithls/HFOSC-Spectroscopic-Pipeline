@@ -8,6 +8,7 @@ import subprocess
 import threading
 import ccdproc
 from astropy.io import fits
+import inquirer
 
 try:
     from pyraf import iraf
@@ -32,6 +33,20 @@ def remove_file(file_name):
         os.remove(file_name)
     except OSError:
         pass
+
+
+def options(message, choices):
+    """
+    Funnction for giving multiple options while running code.
+    message : Message before giving different options.
+    choices : List of chioses
+    Ex : choices = ['Default', 'Manually']
+    """
+    question = [inquirer.List('x', message, choices)]
+    answer = inquirer.prompt(question)
+    print(answer["x"])
+    answer = answer["x"]
+    return answer
 
 
 def irafcosmicrays(input, output, threshold, fluxrate, npasses, window):
@@ -191,9 +206,12 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
         print(file_name)
 
         check = ''
-        check = raw_input('Enter "y" accept, "n" reject:')
+        message = "Enter Yes accept, No for reject"
+        choices = ['Yes', 'No']
+        check = options(message, choices)
+        # check = raw_input('Enter "y" accept, "n" reject:')
 
-        if check == 'n':  # Should redo
+        if check == 'No':  # Should redo
             print(x)
             cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
             if cr_currection_method == '1':
@@ -214,7 +232,7 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
                 objlim = raw_input('objlim='+str(objlim)+'; Enter new objlim :')
             continue
 
-        if check == 'y':  # Should continue
+        if check == 'Yes':  # Should continue
             print(x)
             x = next(iterobj, sentinel)  # Explicitly advance loop for continue case
             cr_check_list.append(cr_check_file_name)
