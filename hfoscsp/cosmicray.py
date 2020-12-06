@@ -373,7 +373,11 @@ def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
             cr_check_file_name = str('chk_') + output_file_name
             cr_check_file_name2 = os.path.join(location, 'CR_Check', cr_check_file_name)
             cr_check_folder = os.path.join(location, 'CR_Check')
-            os.makedirs(cr_check_folder)
+            try:
+                os.makedirs(cr_check_folder)
+            except OSError:
+                pass
+
             remove_file(cr_check_file_name2)
 
             iraf.images.imutil.imarith.unlearn()
