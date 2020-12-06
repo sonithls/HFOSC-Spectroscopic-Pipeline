@@ -40,6 +40,7 @@ from hfoscsp.reduction import spectral_extraction
 from hfoscsp.reduction import flux_calibrate
 
 from hfoscsp.cosmicray import cosmic_correction_individual
+from hfoscsp.cosmicray import cosmic_correction_batch
 from hfoscsp.cosmicray import cosmic_correction
 
 from hfoscsp.interactive import options
@@ -139,7 +140,7 @@ def part1(flat_flag):
     if input.lower() == 'manually':
         cr_check_list = cosmic_correction_individual(cosmic_curr_list, location=PATH)
     else:
-        cr_check_list = cosmic_correction(cosmic_curr_list, location=PATH)
+        cr_check_list = cosmic_correction_batch(cosmic_curr_list, location=PATH)
 
     # Stop running code for checking the cosmic ray corrected files
     print("Cosmic ray correction is done. Please check chk files then continue")

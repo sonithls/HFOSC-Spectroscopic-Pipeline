@@ -2,6 +2,8 @@
 # Contact : sonith.ls@iiap.res.in
 __version__ = '0.0.7'
 
+# Warning : Please check any variable depends on CCD
+
 import os
 import time
 import subprocess
@@ -122,7 +124,7 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
 
     # Default method for cr currection curresponds to cosmicray task in IRAF
     # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
-    message = "Enter Yes accept, No for reject"
+    message = "Select the cosmic ray correction module"
     choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
     cr_currection_method = options(message, choices)
     # cosmicray correction task default parameters
@@ -139,8 +141,8 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     sigclip = 15.0
     sigfrac = 0.5
     objlim = 5.0
-    data_max = 700000
-    read_noise = 5.75
+    data_max = 700000  # Depend up on CCD
+    read_noise = 5.75  # Depend up on CCD
 
     # Create guaranteed unique sentinel (can't use None since iterator might produce None)
     sentinel = object()
@@ -298,4 +300,78 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
 
         task(operand1=str(file_name), op='-', operand2=str(output_file_name2), result=str(cr_check_file_name2))
         remove_file(str(file_name))   # removing the older files which is needed to bias correct.
+    return cr_check_list
+
+
+def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
+    """
+    Corrects for cosmic rays in the OBJECT image.
+    Arguments:
+        cosmic_curr_list: List of files which need to do cosmicray correction.
+        location        : Location of the files if it is not in the working directory.
+        prefix_string   : Prefix to distinguish FITS file from the original FITS file
+    Return:
+        cr_check_list   : List of files to check how good is the cosmic ray correction.
+    """
+
+    print(cosmic_curr_list)
+    cr_currected_list = []
+    cr_check_list = []
+
+    message = "Select the cosmic ray correction module"
+    choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
+    cr_currection_method = options(message, choices)
+    # cosmicray correction task default parameters
+    threshold = 25
+    fluxrate = 2
+    npasses = 5
+    window = 5
+
+    # crmedian
+    lsigma = 25       # Low Clipping Sigma Factor
+    ncsig = 10        # Column Box Size For Sigma Calculation
+
+    # la_cosmic parameters
+    sigclip = 15.0
+    sigfrac = 0.5
+    objlim = 5.0
+    data_max = 700000  # Depend up on CCD
+    read_noise = 5.75  # Depend up on CCD
+
+    # Cosmic ray correction loop
+    for file_name in cosmic_curr_list:
+
+        output_file_name = str(prefix_string) + str(file_name)
+        output_file_name2 = os.path.join(location, output_file_name)
+
+        cr_check_file_name = str('chk_') + output_file_name
+        cr_check_file_name2 = os.path.join(location, cr_check_file_name)
+
+        file_name = os.path.join(location, file_name)
+
+        print(output_file_name)
+        print(cr_check_file_name)
+
+        remove_file(output_file_name2)
+        remove_file(cr_check_file_name2)
+
+        if cr_currection_method == 'irafcosmicrays':
+            irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
+                           npasses=npasses, window=window)
+        elif cr_currection_method == 'irafcrmedian':
+            irafcrmedian(input=file_name, output=output_file_name2, lsigma=lsigma, hsigma=3, ncmed=5, nlmed=5,
+                         ncsig=ncsig, nlsig=25)
+        elif cr_currection_method == 'la_cosmic':
+            la_cosmic(input=file_name, output=output_file_name2, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim,
+                      read_noise=read_noise, data_max=data_max)
+
+        iraf.images.imutil.imarith.unlearn()
+        iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
+                                   result=str(cr_check_file_name2))
+
+        cr_check_list.append(cr_check_file_name)
+        cr_currected_list.append(output_file_name)
+        remove_file(str(file_name))
+        remove_file(cr_check_file_name2)
+
     return cr_check_list
