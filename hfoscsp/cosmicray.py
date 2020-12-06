@@ -1,6 +1,6 @@
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 
 # Warning : Please check any variable depends on CCD
 
