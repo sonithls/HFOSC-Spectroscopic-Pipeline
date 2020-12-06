@@ -321,6 +321,11 @@ def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
     message = "Select the cosmic ray correction module"
     choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
     cr_currection_method = options(message, choices)
+
+    message = "Do you need to keep verification files for cosmic-ray correction ?"
+    choices = ['No', 'Yes']
+    verify = options(message, choices)
+
     # cosmicray correction task default parameters
     threshold = 25
     fluxrate = 2
@@ -365,13 +370,17 @@ def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
             la_cosmic(input=file_name, output=output_file_name2, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim,
                       read_noise=read_noise, data_max=data_max)
 
-        iraf.images.imutil.imarith.unlearn()
-        iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
-                                   result=str(cr_check_file_name2))
-
-        cr_check_list.append(cr_check_file_name)
         cr_currected_list.append(output_file_name)
+
+        if verify == 'No':
+            pass
+        elif verify == 'Yes':
+            iraf.images.imutil.imarith.unlearn()
+            iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
+                                       result=str(cr_check_file_name2))
+            cr_check_list.append(cr_check_file_name)
+
         remove_file(str(file_name))
-        remove_file(cr_check_file_name2)
+        # remove_file(cr_check_file_name2)
 
     return cr_check_list
