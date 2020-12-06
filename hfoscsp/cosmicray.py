@@ -349,16 +349,11 @@ def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
         output_file_name = str(prefix_string) + str(file_name)
         output_file_name2 = os.path.join(location, output_file_name)
 
-        cr_check_file_name = str('chk_') + output_file_name
-        cr_check_file_name2 = os.path.join(location, cr_check_file_name)
-
         file_name = os.path.join(location, file_name)
 
         print(output_file_name)
-        print(cr_check_file_name)
 
         remove_file(output_file_name2)
-        remove_file(cr_check_file_name2)
 
         if cr_currection_method == 'irafcosmicrays':
             irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
@@ -375,9 +370,17 @@ def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
         if verify == 'No':
             pass
         elif verify == 'Yes':
+            cr_check_file_name = str('chk_') + output_file_name
+            cr_check_file_name2 = os.path.join(location, 'CR_Check', cr_check_file_name)
+            cr_check_folder = os.path.join(location, 'CR_Check')
+            os.makedirs(cr_check_folder)
+            remove_file(cr_check_file_name2)
+
             iraf.images.imutil.imarith.unlearn()
             iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
                                        result=str(cr_check_file_name2))
+
+            print(cr_check_file_name)
             cr_check_list.append(cr_check_file_name)
 
         remove_file(str(file_name))
