@@ -43,6 +43,10 @@ version 0.0.9
 =============
 > wavelength calibration verification using telluric input_lines
 
+version 0.0.10
+=============
+Batch-wise reduction for single day.
+
 version 1.0.0
 =============
 > Packaging
