@@ -92,7 +92,7 @@ def list_subdir():
     return sub_directories
 
 
-def spec_or_phot(file_list, location, func=''):
+def spec_or_phot(file_list, location, ccd, func=''):
     """
     Check whether the file contains spectrosopy of photometry data and make sperate list
     for both spectrosopy and photometry with respective file names.
@@ -105,6 +105,10 @@ def spec_or_phot(file_list, location, func=''):
         spec_list: List of spectrosopic files
         phot_list: List of photometric files
     """
+    if ccd == "HFOSC":
+        index = 0
+    elif ccd == "HFOSC1":
+        index = 1
 
     spec_list = []
     phot_list = []
@@ -113,8 +117,8 @@ def spec_or_phot(file_list, location, func=''):
     for file in file_list:
         file_name = os.path.join(location, file)
         hdul = fits.open(file_name)  # HDU_List
-        hdul[1].header
-        hdr = hdul[1].header
+        hdul[index].header
+        hdr = hdul[index].header
         AXIS1 = hdr['NAXIS1']
         AXIS2 = hdr['NAXIS2']
         value = AXIS2/AXIS1

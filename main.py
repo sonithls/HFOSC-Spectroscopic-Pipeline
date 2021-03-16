@@ -92,7 +92,7 @@ bar = """
 """
 
 
-def part1(flat_flag):
+def part1(flat_flag, ccd):
     # Backing up the whole directory
     # Backup (BACKUP)
 
@@ -111,7 +111,7 @@ def part1(flat_flag):
     # print list_files
 
     # Seperating photometric and spectrosopic files
-    speclist, photlist = spec_or_phot(list_files, PATH, 'spec')
+    speclist, photlist = spec_or_phot(list_files, PATH, ccd, 'spec')
     # file_list is updated from passing list
     # print (speclist)
 
@@ -251,7 +251,7 @@ def main():
     input = options(message, choices)
 
     if input == 'Complete Code':
-        part1(flat_flag=flat_flag)
+        part1(flat_flag=flat_flag, ccd=ccd)
         os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH)
     elif input == 'Only Flux Calibration':
