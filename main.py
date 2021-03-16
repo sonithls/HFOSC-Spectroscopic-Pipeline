@@ -54,6 +54,8 @@ from hfoscsp.cosmicray import cosmic_correction
 
 from hfoscsp.interactive import options
 # from hfoscsp.interactive import multioptions
+
+from astropy.io import fits
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -77,9 +79,9 @@ iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 # data_max   = 55000
 
 # HFOSC2 #
-read_noise = 5.75
-ccd_gain = 0.28
-max_count = 700000
+# read_noise = 5.75
+# ccd_gain = 0.28
+# max_count = 700000
 # -------------------------------------------------------------------------------------------------------------------- #
 default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
@@ -90,21 +92,31 @@ bar = """
 """
 
 
-def setccd(files, location):
+def setccd(file_list, location):
     '''
     selecting CCD based on header keywords in the fits files
     '''
-    if ccd == 1:
-        ccd_key = "CCD_1"  # New HCT CCD
-        read_noise = 5.75
-        ccd_gain = 0.28
-        max_count = 700000
-    elif ccd == 2:
-        ccd_key = "CCD_0"  # Old HCT CCD
-        read_noise = 4.87
-        ccd_gain = 1.22
-        max_count = 55000
-    return read_noise, ccd_gain, max_count, ccd_key
+    for file in file_list:
+        file_name = os.path.join(location, file)
+        hdul = fits.open(file_name)  # HDU_List
+        hdr = hdul[0].header
+        inst = hdr['INSTRUME']
+
+        if inst == 'HFOSC2':
+            ccd = "HFOSC2"  # New HCT CCD # HFOSC2 #
+            read_noise = 5.75
+            ccd_gain = 0.28
+            max_count = 700000
+            break
+        elif inst == 2:
+            ccd = "HFOSC"  # Old HCT CCD # HFOSC1 #
+            read_noise = 4.87
+            ccd_gain = 1.22
+            max_count = 52000  # 55000 ?
+            break
+        else:
+            print("HEADER ERROR")
+    return read_noise, ccd_gain, max_count, ccd
 
 
 def part1(flat_flag):
@@ -251,6 +263,8 @@ def main():
     folder_name = list_subdir()[0]
 
     list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
+    read_noise, ccd_gain, max_count, ccd = setccd(file_list=list_files_ccdcheck, location=PATH)
+
     # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
     # print("flat_flag :", flat_flag)
 
