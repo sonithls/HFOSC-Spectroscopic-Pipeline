@@ -15,6 +15,30 @@ default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
 
 
+class SetCCD:
+    def __init__(self, file_list, location):
+        for file in file_list:
+            file_name = os.path.join(location, file)
+            hdul = fits.open(file_name)  # HDU_List
+            hdr = hdul[0].header
+            inst = hdr['INSTRUME'].strip(' ')
+
+            if inst == 'HFOSC2':
+                self.ccd = "HFOSC2"  # New HCT CCD # HFOSC2 #
+                self.read_noise = 5.75
+                self.ccd_gain = 0.28
+                self.max_count = 700000
+                break
+            elif inst == "HFOSC":
+                self.ccd = "HFOSC"  # Old HCT CCD # HFOSC #
+                self.read_noise = 4.87
+                self.ccd_gain = 1.22
+                self.max_count = 52000  # 55000 ?
+                break
+            else:
+                print("HEADER ERROR")
+
+
 def setccd(file_list, location):
     '''
     selecting CCD based on header keywords in the fits files
@@ -32,7 +56,7 @@ def setccd(file_list, location):
             max_count = 700000
             break
         elif inst == "HFOSC":
-            ccd = "HFOSC"  # Old HCT CCD # HFOSC1 #
+            ccd = "HFOSC"  # Old HCT CCD # HFOSC #
             read_noise = 4.87
             ccd_gain = 1.22
             max_count = 52000  # 55000 ?

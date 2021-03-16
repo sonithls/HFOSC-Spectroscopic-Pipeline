@@ -41,6 +41,7 @@ from hfoscsp.file_management import list_flat
 from hfoscsp.file_management import list_lamp
 from hfoscsp.file_management import list_object
 from hfoscsp.file_management import setccd
+from hfoscsp.file_management import SetCCD
 
 from hfoscsp.reduction import ccdsec_removal
 from hfoscsp.reduction import bias_correction
@@ -237,7 +238,8 @@ def main():
 
     list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
     read_noise, ccd_gain, max_count, ccd = setccd(file_list=list_files_ccdcheck, location=PATH)
-
+    CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
+    ccd = CCD.ccd
     # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
     # print("flat_flag :", flat_flag)
 
