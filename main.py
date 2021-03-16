@@ -40,6 +40,7 @@ from hfoscsp.file_management import write_list
 from hfoscsp.file_management import list_flat
 from hfoscsp.file_management import list_lamp
 from hfoscsp.file_management import list_object
+from hfoscsp.file_management import setccd
 
 from hfoscsp.reduction import ccdsec_removal
 from hfoscsp.reduction import bias_correction
@@ -55,7 +56,6 @@ from hfoscsp.cosmicray import cosmic_correction
 from hfoscsp.interactive import options
 # from hfoscsp.interactive import multioptions
 
-from astropy.io import fits
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -90,33 +90,6 @@ bar = """
 ###############################################################################
 ###############################################################################
 """
-
-
-def setccd(file_list, location):
-    '''
-    selecting CCD based on header keywords in the fits files
-    '''
-    for file in file_list:
-        file_name = os.path.join(location, file)
-        hdul = fits.open(file_name)  # HDU_List
-        hdr = hdul[0].header
-        inst = hdr['INSTRUME'].strip(' ')
-
-        if inst == 'HFOSC2':
-            ccd = "HFOSC2"  # New HCT CCD # HFOSC2 #
-            read_noise = 5.75
-            ccd_gain = 0.28
-            max_count = 700000
-            break
-        elif inst == "HFOSC":
-            ccd = "HFOSC"  # Old HCT CCD # HFOSC1 #
-            read_noise = 4.87
-            ccd_gain = 1.22
-            max_count = 52000  # 55000 ?
-            break
-        else:
-            print("HEADER ERROR")
-    return read_noise, ccd_gain, max_count, ccd
 
 
 def part1(flat_flag):

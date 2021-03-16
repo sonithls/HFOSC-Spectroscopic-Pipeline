@@ -1,6 +1,6 @@
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.7'
+__version__ = '0.0.9'
 
 import os
 import glob
@@ -13,6 +13,33 @@ from astropy.io import fits
 
 default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
+
+
+def setccd(file_list, location):
+    '''
+    selecting CCD based on header keywords in the fits files
+    '''
+    for file in file_list:
+        file_name = os.path.join(location, file)
+        hdul = fits.open(file_name)  # HDU_List
+        hdr = hdul[0].header
+        inst = hdr['INSTRUME'].strip(' ')
+
+        if inst == 'HFOSC2':
+            ccd = "HFOSC2"  # New HCT CCD # HFOSC2 #
+            read_noise = 5.75
+            ccd_gain = 0.28
+            max_count = 700000
+            break
+        elif inst == "HFOSC":
+            ccd = "HFOSC"  # Old HCT CCD # HFOSC1 #
+            read_noise = 4.87
+            ccd_gain = 1.22
+            max_count = 52000  # 55000 ?
+            break
+        else:
+            print("HEADER ERROR")
+    return read_noise, ccd_gain, max_count, ccd
 
 
 def Backup(BACKUPDIR):
