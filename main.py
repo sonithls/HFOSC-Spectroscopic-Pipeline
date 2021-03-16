@@ -100,7 +100,7 @@ def setccd(file_list, location):
         file_name = os.path.join(location, file)
         hdul = fits.open(file_name)  # HDU_List
         hdr = hdul[0].header
-        inst = hdr['INSTRUME']
+        inst = hdr['INSTRUME'].strip(' ')
 
         if inst == 'HFOSC2':
             ccd = "HFOSC2"  # New HCT CCD # HFOSC2 #
@@ -108,7 +108,7 @@ def setccd(file_list, location):
             ccd_gain = 0.28
             max_count = 700000
             break
-        elif inst == 2:
+        elif inst == "HFOSC":
             ccd = "HFOSC"  # Old HCT CCD # HFOSC1 #
             read_noise = 4.87
             ccd_gain = 1.22
