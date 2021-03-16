@@ -190,7 +190,6 @@ def list_bias(file_list, location=''):
 
     passing_list = list(set(file_list).difference(bias_list))
     passing_list.sort()
-    print (bias_list)
     return bias_list, passing_list
 
 

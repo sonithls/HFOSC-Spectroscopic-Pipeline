@@ -123,7 +123,7 @@ def part1(flat_flag, ccd):
     # print (passing_list)
 
     # Running bias corrections
-    bias_correction(bias_list, passing_list, PATH)
+    bias_correction(bias_list, passing_list, ccd, PATH)
     list_files = search_files(location=folder_name, keyword='*.fits')
     ccdsec_removal(file_list=list_files, location=PATH)
 

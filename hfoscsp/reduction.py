@@ -79,7 +79,7 @@ def ccdsec_removal(file_list, location=''):
         task(images=file_name, fields='CCDSEC', verify='no', delete='yes', show='no', update='yes')
 
 
-def bias_correction(bias_list, list_file, location='', prefix_string='b_'):
+def bias_correction(bias_list, list_file, ccd, location='', prefix_string='b_'):
     """
     From the imput bias_list make master-bias, do bias correction to rest of files in the
     directory, remove all past files and backup master-bias file
@@ -92,6 +92,10 @@ def bias_correction(bias_list, list_file, location='', prefix_string='b_'):
         none
         save bias_list in the location provided.
     """
+    if ccd == "HFOSC":
+        index = 0
+    elif ccd == "HFOSC1":
+        index = 1
 
     if location != '':               # change location
         pathloc = os.path.join(os.getcwd(), location, 'bias_list')
@@ -104,7 +108,7 @@ def bias_correction(bias_list, list_file, location='', prefix_string='b_'):
     if len(bias_list) != 0:
         with open(pathloc, 'w') as f:
             for file in bias_list:
-                f.write(location+"/"+file+"[1]"+'\n')
+                f.write(location+"/"+file+str([index])+'\n')
 
     remove_file(str(master_bias))
 
@@ -120,7 +124,7 @@ def bias_correction(bias_list, list_file, location='', prefix_string='b_'):
         output_file_name = str(prefix_string) + str(file_name)
         output_file_name = os.path.join(location, output_file_name)
         file_name = os.path.join(location, file_name)
-        file_name_1 = file_name+"[1]"
+        file_name_1 = file_name+str([index])
         remove_file(str(output_file_name))
         task(operand1=str(file_name_1), op='-', operand2=str(master_bias), result=str(output_file_name))
         remove_file(str(file_name))   # removing the older files which is needed to bias correct.
