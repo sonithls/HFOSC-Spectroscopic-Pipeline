@@ -90,10 +90,21 @@ bar = """
 """
 
 
-def setccd():
+def setccd(files, location):
     '''
     selecting CCD based on header keywords in the fits files
     '''
+    if ccd == 1:
+        ccd_key = "CCD_1"  # New HCT CCD
+        read_noise = 5.75
+        ccd_gain = 0.28
+        max_count = 700000
+    elif ccd == 2:
+        ccd_key = "CCD_0"  # Old HCT CCD
+        read_noise = 4.87
+        ccd_gain = 1.22
+        max_count = 55000
+    return read_noise, ccd_gain, max_count, ccd_key
 
 
 def part1(flat_flag):
@@ -239,6 +250,7 @@ def main():
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
 
+    list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
     # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
     # print("flat_flag :", flat_flag)
 
