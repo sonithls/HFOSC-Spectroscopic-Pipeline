@@ -294,11 +294,18 @@ def list_lamp(file_list, location=''):
         hdr = hdul[0].header         # Primary HDU header
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
+        LAMP = hdr['LAMP']
 
         if (OBJECT == "FeAr"):
             lamp_list_gr7.append(file)
         elif (OBJECT == "FeNe"):
             lamp_list_gr8.append(file)
+        elif (OBJECT.lower() == "lamp"):  # HFOSC old CCD
+            if (LAMP.lower() == "fe-ar"):
+                lamp_list_gr7.append(file)
+            elif (LAMP.lower() == "fe-ne"):
+                lamp_list_gr8.append(file)
+
 
     passing_list = list(set(file_list).difference(lamp_list_gr7).difference(lamp_list_gr8))
     return lamp_list_gr7, lamp_list_gr8, passing_list
