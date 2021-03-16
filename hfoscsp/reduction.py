@@ -36,7 +36,7 @@ iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 
 # -------------------------------------------------------------------------------------------------------------------- #
 """CCD Information provided for running of IRAF module"""
-# HFOSC1 #
+# HFOSC #
 # read_noise = 4.87
 # ccd_gain   = 1.22
 # data_max   = 55000
@@ -94,7 +94,7 @@ def bias_correction(bias_list, list_file, ccd, location='', prefix_string='b_'):
     """
     if ccd == "HFOSC":
         index = 0
-    elif ccd == "HFOSC1":
+    elif ccd == "HFOSC2":
         index = 1
 
     if location != '':               # change location
