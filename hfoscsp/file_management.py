@@ -107,7 +107,7 @@ def spec_or_phot(file_list, location, ccd, func=''):
     """
     if ccd == "HFOSC":
         index = 0
-    elif ccd == "HFOSC1":
+    elif ccd == "HFOSC2":
         index = 1
 
     spec_list = []
@@ -305,7 +305,6 @@ def list_lamp(file_list, location=''):
                 lamp_list_gr7.append(file)
             elif (LAMP.lower() == "fe-ne"):
                 lamp_list_gr8.append(file)
-
 
     passing_list = list(set(file_list).difference(lamp_list_gr7).difference(lamp_list_gr8))
     return lamp_list_gr7, lamp_list_gr8, passing_list
