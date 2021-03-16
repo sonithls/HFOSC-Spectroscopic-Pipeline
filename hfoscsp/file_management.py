@@ -185,9 +185,12 @@ def list_bias(file_list, location=''):
             bias_list.append(file)
         elif OBJECT == "bias-snspec":
             bias_list.append(file)
+        elif OBJECT.lower() == "bias snspec":
+            bias_list.append(file)
 
     passing_list = list(set(file_list).difference(bias_list))
     passing_list.sort()
+    print (bias_list)
     return bias_list, passing_list
 
 
