@@ -15,6 +15,9 @@ Spectroscopic Pipeline
 4) 'NAXIS2'
 5) 'APERTUR'
 6) 'INSTRUME'
+7) 'LAMP'       for HFOSC
+8) 'DATE-AVG'   for HFOSC2
+
 '''
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required libraries
