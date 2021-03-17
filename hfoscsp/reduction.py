@@ -79,7 +79,7 @@ def ccdsec_removal(file_list, location=''):
         task(images=file_name, fields='CCDSEC', verify='no', delete='yes', show='no', update='yes')
 
 
-def bias_correction(bias_list, list_file, ccd, location='', prefix_string='b_'):
+def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
     """
     From the imput bias_list make master-bias, do bias correction to rest of files in the
     directory, remove all past files and backup master-bias file
@@ -92,9 +92,9 @@ def bias_correction(bias_list, list_file, ccd, location='', prefix_string='b_'):
         none
         save bias_list in the location provided.
     """
-    if ccd == "HFOSC":
+    if CCD.ccd == "HFOSC":
         index = 0
-    elif ccd == "HFOSC2":
+    elif CCD.ccd == "HFOSC2":
         index = 1
 
     if location != '':               # change location

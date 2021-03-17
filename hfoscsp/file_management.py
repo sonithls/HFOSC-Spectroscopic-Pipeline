@@ -116,7 +116,7 @@ def list_subdir():
     return sub_directories
 
 
-def spec_or_phot(file_list, location, ccd, func=''):
+def spec_or_phot(file_list, location, CCD, func=''):
     """
     Check whether the file contains spectrosopy of photometry data and make sperate list
     for both spectrosopy and photometry with respective file names.
@@ -129,9 +129,9 @@ def spec_or_phot(file_list, location, ccd, func=''):
         spec_list: List of spectrosopic files
         phot_list: List of photometric files
     """
-    if ccd == "HFOSC":
+    if CCD.ccd == "HFOSC":
         index = 0
-    elif ccd == "HFOSC2":
+    elif CCD.ccd == "HFOSC2":
         index = 1
 
     spec_list = []

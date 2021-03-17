@@ -93,7 +93,7 @@ bar = """
 """
 
 
-def part1(flat_flag, ccd):
+def part1(flat_flag, CCD):
     # Backing up the whole directory
     # Backup (BACKUP)
 
@@ -112,7 +112,7 @@ def part1(flat_flag, ccd):
     # print list_files
 
     # Seperating photometric and spectrosopic files
-    speclist, photlist = spec_or_phot(list_files, PATH, ccd, 'spec')
+    speclist, photlist = spec_or_phot(list_files, PATH, CCD.ccd, 'spec')
     # file_list is updated from passing list
     # print (speclist)
 
@@ -124,7 +124,7 @@ def part1(flat_flag, ccd):
     # print (passing_list)
 
     # Running bias corrections
-    bias_correction(bias_list, passing_list, ccd, PATH)
+    bias_correction(bias_list, passing_list, CCD, PATH)
     list_files = search_files(location=folder_name, keyword='*.fits')
     ccdsec_removal(file_list=list_files, location=PATH)
 
@@ -239,7 +239,6 @@ def main():
     list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
     read_noise, ccd_gain, max_count, ccd = setccd(file_list=list_files_ccdcheck, location=PATH)
     CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
-    ccd = CCD.ccd
     # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
     # print("flat_flag :", flat_flag)
 
@@ -253,7 +252,7 @@ def main():
     input = options(message, choices)
 
     if input == 'Complete Code':
-        part1(flat_flag=flat_flag, ccd=ccd)
+        part1(flat_flag=flat_flag, CCD=CCD)
         os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH)
     elif input == 'Only Flux Calibration':
