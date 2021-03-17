@@ -42,7 +42,7 @@ from hfoscsp.file_management import write_list
 from hfoscsp.file_management import list_flat
 from hfoscsp.file_management import list_lamp
 from hfoscsp.file_management import list_object
-from hfoscsp.file_management import setccd
+# from hfoscsp.file_management import setccd
 from hfoscsp.file_management import SetCCD
 
 from hfoscsp.reduction import ccdsec_removal
@@ -114,7 +114,7 @@ def part1(flat_flag, CCD):
     # print list_files
 
     # Seperating photometric and spectrosopic files
-    speclist, photlist = spec_or_phot(list_files, PATH, CCD.ccd, 'spec')
+    speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')
     # file_list is updated from passing list
     # print (speclist)
 
