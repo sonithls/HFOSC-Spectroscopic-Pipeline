@@ -17,7 +17,6 @@ Spectroscopic Pipeline
 6) 'INSTRUME'
 7) 'LAMP'       for HFOSC
 8) 'DATE-AVG'   for HFOSC2
-
 '''
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required libraries
@@ -178,11 +177,11 @@ def part1(flat_flag, CCD):
         obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
         flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files, PATH)
         # Flat correction using file lists made.
-        flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
-                                         prefix_string='f')
+        flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, grism='gr8', CCD=CCD,
+                                         location=PATH, prefix_string='f')
         print("Flat correction grism 8 is done.")
-        flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
-                                         prefix_string='f')
+        flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, grism='gr7', CCD=CCD,
+                                         location=PATH, prefix_string='f')
         print("Flat correction grism 7 is done.")
 
     # making list for spectral extraction and wavelength calibration
@@ -197,8 +196,8 @@ def part1(flat_flag, CCD):
     options(message, choices)
 
     # Running spectral_extraction function using file lists made
-    spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
-    spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
+    spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, CCD=CCD, grism='gr7')
+    spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, CCD=CCD, grism='gr8')
 
     print("Wavelength calibration of spectra is done")
 
@@ -240,7 +239,7 @@ def main():
     folder_name = list_subdir()[0]
 
     list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
-    read_noise, ccd_gain, max_count, ccd = setccd(file_list=list_files_ccdcheck, location=PATH)
+    # read_noise, ccd_gain, max_count, ccd = setccd(file_list=list_files_ccdcheck, location=PATH)
     CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
     # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
     # print("flat_flag :", flat_flag)

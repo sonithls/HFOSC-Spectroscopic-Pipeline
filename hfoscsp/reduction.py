@@ -42,9 +42,9 @@ iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 # data_max   = 55000
 
 # HFOSC2 #
-read_noise = 5.75
-ccd_gain = 0.28
-max_count = 700000
+# read_noise = 5.75
+# ccd_gain = 0.28
+# max_count = 700000
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
@@ -115,7 +115,7 @@ def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
     task = iraf.noao.imred.ccdred.zerocombine
     task.unlearn()
     task(input='@' + pathloc, output=str(master_bias), combine='median', reject='avsigclip',
-         ccdtype='', process='no', delete='no', rdnoise=float(read_noise), gain=float(ccd_gain))
+         ccdtype='', process='no', delete='no', rdnoise=float(CCD.read_noise), gain=float(CCD.ccd_gain))
 
     task = iraf.images.imutil.imarith
     task.unlearn()
@@ -194,7 +194,7 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
     return cr_check_list
 
 
-def flat_correction(flat_list, file_list, grism, location='', prefix_string='f'):
+def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string='f'):
     """
     This fuction do flat correction to object files.
     Arguments:
@@ -231,7 +231,7 @@ def flat_correction(flat_list, file_list, grism, location='', prefix_string='f')
     task = iraf.noao.ccdred.flatcombine
     task.unlearn()
     task(input='@' + pathloc, output=str(master_flat), combine='average', reject='avsigclip',
-         ccdtype='', process='no', delete='no', rdnoise=float(read_noise), gain=float(ccd_gain))
+         ccdtype='', process='no', delete='no', rdnoise=float(CCD.read_noise), gain=float(CCD.ccd_gain))
 
     for file in flat_list:
         file_name = os.path.join(location, file)
@@ -274,7 +274,7 @@ def flat_correction(flat_list, file_list, grism, location='', prefix_string='f')
     return flat_curr_list
 
 
-def spectral_extraction(obj_list, lamp_list, grism, location=''):
+def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
     """
     This fuction do spectral extraction and calibration of wavelength. After running this
     function a header term "Waveleng" added after succesfully finishing this task.
@@ -324,8 +324,8 @@ def spectral_extraction(obj_list, lamp_list, grism, location=''):
 
         # Running apall (aperture extract)
         iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
-                   background='fit', weights='none', saturation=int(max_count), readnoi=read_noise, gain=ccd_gain,
-                   t_niterate=1, interactive='yes')
+                   background='fit', weights='none', saturation=int(CCD.max_count), readnoi=CCD.read_noise,
+                   gain=CCD.ccd_gain, t_niterate=1, interactive='yes')
         # weights= 'variance' seems to be unstable for our high effective gain
         # t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
         # saturation=maximum count ?
