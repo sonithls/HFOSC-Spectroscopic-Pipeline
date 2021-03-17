@@ -248,9 +248,13 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
     task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file), functio='spline3',
          order='50')
 
+    # # Flat fielding of object and standard stars.
+    # task = iraf.noao.imred.ccdred.ccdproc
+    # task.unlearn()
+
     # Flat fielding of object and standard stars.
-    task = iraf.noao.imred.ccdred.ccdproc
-    task.unlearn()
+    task1 = iraf.images.imutil.imarith
+    task1.unlearn()
 
     flat_curr_list = []
 
@@ -260,8 +264,11 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
         file_name = os.path.join(location, file_name)
         flat_curr_list.append(output_file_name2)
 
-        task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no', zerocor='no',
-             darkcor='no', flatcor='yes', flat=response_file)
+        # task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no',
+        #      zerocor='no', darkcor='no', flatcor='yes', flat=response_file)
+
+        task1(operand1=file_name, op='/', operand2=response_file, result=output_file_name2)
+
         remove_file(str(file_name))
 
     # Creating backup files
