@@ -370,7 +370,7 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         iraf.hedit(file_name_out, "Waveleng", "done", add=1, ver=0)
 
 
-def flux_calibrate(obj_list, location, default_path, prefix_string='F_'):
+def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     """
     This function is for flux calibration of the object spectra if standard
     star is also observed in the same night.
@@ -383,7 +383,11 @@ def flux_calibrate(obj_list, location, default_path, prefix_string='F_'):
     Returns:
         none
     """
-    command_file_path = os.path.join(default_path, 'Database/database', 'setst')
+    if CCD.ccd == "HFOSC":
+        command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC')
+    elif CCD.ccd == "HFOSC2":
+        command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC2')
+
     iaoextinct_path = os.path.join(default_path, 'Database/database', 'iaoextinct.dat')
     if location != '':
         iraf.cd(os.path.join(os.getcwd(), location))

@@ -202,7 +202,7 @@ def part1(flat_flag, CCD):
     print("Wavelength calibration of spectra is done")
 
 
-def part2(folder_name, PATH):
+def part2(folder_name, PATH, CCD):
     print(PATH)
     print(folder_name)
 
@@ -216,8 +216,8 @@ def part2(folder_name, PATH):
     print(list_files)
     obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
     print(obj_list_gr7)
-    flux_calibrate(obj_list=obj_list_gr8, location=PATH, default_path=default_path)
-    flux_calibrate(obj_list=obj_list_gr7, location=PATH, default_path=default_path)
+    flux_calibrate(obj_list=obj_list_gr8, location=PATH, default_path=default_path, CCD=CCD)
+    flux_calibrate(obj_list=obj_list_gr7, location=PATH, default_path=default_path, CCD=CCD)
 
 
 def main():
@@ -256,9 +256,9 @@ def main():
     if input == 'Complete Code':
         part1(flat_flag=flat_flag, CCD=CCD)
         os.chdir(working_dir_path)
-        part2(folder_name=folder_name, PATH=PATH)
+        part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
     elif input == 'Only Flux Calibration':
-        part2(folder_name=folder_name, PATH=PATH)
+        part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
         os.chdir(working_dir_path)
 
     # print("Press Enter for running complete code")
