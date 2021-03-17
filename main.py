@@ -152,9 +152,9 @@ def part1(flat_flag, CCD):
     input = options(message, choices)
 
     if input.lower() == 'manually':
-        cr_check_list = cosmic_correction_individual(cosmic_curr_list, location=PATH)
+        cr_check_list = cosmic_correction_individual(cosmic_curr_list, CCD=CCD, location=PATH)
     else:
-        cr_check_list = cosmic_correction_batch(cosmic_curr_list, location=PATH)
+        cr_check_list = cosmic_correction_batch(cosmic_curr_list, CCD=CCD, location=PATH)
 
     # Stop running code for checking the cosmic ray corrected files
     print("Cosmic ray correction is done. Please check chk files then continue")
