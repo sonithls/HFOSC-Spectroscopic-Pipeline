@@ -45,10 +45,6 @@ version 0.0.9
 
 version 0.0.10
 =============
-> wavelength calibration verification using telluric input_lines
-
-version 0.0.11
-=============
 Batch-wise reduction for single day.
 
 version 1.0.0
