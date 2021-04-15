@@ -425,7 +425,7 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     for file_name in star_list:
 
         # Calculating ST and adding in the header
-        print(file_name)
+        print(file_name, command_file_path)
         iraf.astutil.asthedit(images=file_name, commands=command_file_path,
                               update='yes')
 
