@@ -12,6 +12,7 @@ import shutil
 from astropy.io import fits
 
 from hfoscsp.interactive import options
+from hfoscsp.airmass import airmass
 
 try:
     from pyraf import iraf
@@ -422,16 +423,19 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     iraf.observatory(command='list', obsid='set', observatory='iao')
 
     star_list = list(set(obj_stars).union(std_stars))
-    for file_name in star_list:
-
-        # Calculating ST and adding in the header
-        print(file_name, command_file_path)
-        iraf.astutil.asthedit(images=file_name, commands=command_file_path,
-                              update='yes')
-
-        # Setting Airmass to all files before flux calibration. (ST should be there in the header)
-        iraf.noao.imred.specred.setairmass(images=file_name, observa='iao')
-
+    # for file_name in star_list:
+    #
+    #     # Calculating ST and adding in the header
+    #     print(file_name, command_file_path)
+    #     iraf.astutil.asthedit(images=file_name, commands=command_file_path,
+    #                           update='yes')
+    #
+    #     # Setting Airmass to all files before flux calibration. (ST should be there in the header)
+    #     iraf.noao.imred.specred.setairmass(images=file_name, observa='iao')
+    #
+    # print("Airmass correction is done for all stars")
+    for filename in star_list:
+        airmass(filename=filename)
     print("Airmass correction is done for all stars")
     # print("Press enter to continue")
     # raw_input()
