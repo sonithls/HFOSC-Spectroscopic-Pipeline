@@ -290,20 +290,31 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         file_list: List of files which need to do spectral extraction
         location : location of the files if it is not in the working directory.
     """
+    if CCD.ccd == "HFOSC":
+        gr7_lamp = ''
+        gr8_lamp = ''
+        gr7_lamp_id = ''
+        gr8_lamp_id = ''
+    elif CCD.ccd == "HFOSC2":
+        gr7_lamp = 'feargr7_feige34.fits'
+        gr8_lamp = 'fenegr8_feige34.fits'
+        gr7_lamp_id = 'idfeargr7_feige34'
+        gr8_lamp_id = 'idfenegr8_feige34'
+
     # copy reference lamp files
     if not os.path.isdir(os.path.join(location, 'database')):
         os.makedirs(os.path.join(location, 'database'))
     try:
         Databasefilepath = os.path.join(os.getcwd(), 'Database')
         Databasepath = os.path.join(os.getcwd(), 'Database/database')
-        shutil.copy(os.path.join(Databasefilepath, 'feargr7_feige34.fits'),
-                    os.path.join(location, 'feargr7_feige34.fits'))
-        shutil.copy(os.path.join(Databasefilepath, 'fenegr8_feige34.fits'),
-                    os.path.join(location, 'fenegr8_feige34.fits'))
-        shutil.copy(os.path.join(Databasepath, 'idfeargr7_feige34'),
-                    os.path.join(location, 'database', 'idfeargr7_feige34'))
-        shutil.copy(os.path.join(Databasepath, 'idfenegr8_feige34'),
-                    os.path.join(location, 'database', 'idfenegr8_feige34'))
+        shutil.copy(os.path.join(Databasefilepath, gr7_lamp),
+                    os.path.join(location, gr7_lamp))
+        shutil.copy(os.path.join(Databasefilepath, gr8_lamp),
+                    os.path.join(location, gr8_lamp))
+        shutil.copy(os.path.join(Databasepath, gr7_lamp_id),
+                    os.path.join(location, 'database', gr7_lamp_id))
+        shutil.copy(os.path.join(Databasepath, gr8_lamp_id),
+                    os.path.join(location, 'database', gr8_lamp_id))
     except IOError as e:
         print(e)
         print("ERROR: lamp files are not copied")
