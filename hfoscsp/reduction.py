@@ -384,10 +384,11 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     Returns:
         none
     """
-    if CCD.ccd == "HFOSC":
-        command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC')
-    elif CCD.ccd == "HFOSC2":
-        command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC2')
+    # This become obsolete
+    # if CCD.ccd == "HFOSC":
+    #     command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC')
+    # elif CCD.ccd == "HFOSC2":
+    #     command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC2')
 
     iaoextinct_path = os.path.join(default_path, 'Database/database', 'iaoextinct.dat')
     if location != '':
@@ -423,6 +424,7 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     iraf.observatory(command='list', obsid='set', observatory='iao')
 
     star_list = list(set(obj_stars).union(std_stars))
+    # This become obsolete
     # for file_name in star_list:
     #
     #     # Calculating ST and adding in the header
