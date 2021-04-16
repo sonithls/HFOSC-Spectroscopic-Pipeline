@@ -1,6 +1,6 @@
 # Author : Sonith L.S
 # Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.7'
+__version__ = '0.0.9'
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required libraries
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -291,9 +291,9 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         location : location of the files if it is not in the working directory.
     """
     if CCD.ccd == "HFOSC":
-        gr7_lamp = ''
+        gr7_lamp = 'hfosc1_gr7_lamp.fits'
         gr8_lamp = ''
-        gr7_lamp_id = ''
+        gr7_lamp_id = 'idhfosc1_gr7_lamp'
         gr8_lamp_id = ''
     elif CCD.ccd == "HFOSC2":
         gr7_lamp = 'feargr7_feige34.fits'
@@ -304,20 +304,27 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
     # copy reference lamp files
     if not os.path.isdir(os.path.join(location, 'database')):
         os.makedirs(os.path.join(location, 'database'))
+
+    Databasefilepath = os.path.join(os.getcwd(), 'Database')
+    Databasepath = os.path.join(os.getcwd(), 'Database/database')
+
     try:
-        Databasefilepath = os.path.join(os.getcwd(), 'Database')
-        Databasepath = os.path.join(os.getcwd(), 'Database/database')
         shutil.copy(os.path.join(Databasefilepath, gr7_lamp),
                     os.path.join(location, gr7_lamp))
-        shutil.copy(os.path.join(Databasefilepath, gr8_lamp),
-                    os.path.join(location, gr8_lamp))
         shutil.copy(os.path.join(Databasepath, gr7_lamp_id),
                     os.path.join(location, 'database', gr7_lamp_id))
+    except IOError as e:
+        print(e)
+        print("ERROR: gr7 lamp files are not copied")
+
+    try:
+        shutil.copy(os.path.join(Databasefilepath, gr8_lamp),
+                    os.path.join(location, gr8_lamp))
         shutil.copy(os.path.join(Databasepath, gr8_lamp_id),
                     os.path.join(location, 'database', gr8_lamp_id))
     except IOError as e:
         print(e)
-        print("ERROR: lamp files are not copied")
+        print("ERROR: gr8 lamp files are not copied")
 
     if location != '':
         lamp = os.path.join(os.getcwd(), location, lamp_list[0])
@@ -355,9 +362,9 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
 
         # Now reidentify the lines lamp files during the observation.
         if grism == 'gr7':
-            Lamp = 'feargr7_feige34.fits'  # Don't give complete path here. It mess with IRAF.
+            Lamp = gr7_lamp  # Don't give complete path here. It mess with IRAF.
         elif grism == 'gr8':
-            Lamp = 'fenegr8_feige34.fits'
+            Lamp = gr8_lamp
         else:
             print("ERROR: grism is not specified")
 
