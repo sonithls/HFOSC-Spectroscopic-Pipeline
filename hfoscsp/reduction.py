@@ -286,27 +286,41 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
     """
     This fuction do spectral extraction and calibration of wavelength. After running this
     function a header term "Waveleng" added after succesfully finishing this task.
-    Arguments:
-        file_list: List of files which need to do spectral extraction
-        location : location of the files if it is not in the working directory.
+    Parameters
+    ----------
+    file_list: List of files which need to do spectral extraction
+    location: Location of the files if it is not in the working directory.
     """
-    if CCD.ccd == "HFOSC":
-        gr7_lamp = 'hfosc1_gr7_lamp.fits'
-        gr8_lamp = ''
-        gr7_lamp_id = 'idhfosc1_gr7_lamp'
-        gr8_lamp_id = ''
-    elif CCD.ccd == "HFOSC2":
-        gr7_lamp = 'feargr7_feige34.fits'
-        gr8_lamp = 'fenegr8_feige34.fits'
-        gr7_lamp_id = 'idfeargr7_feige34'
-        gr8_lamp_id = 'idfenegr8_feige34'
+    if not os.path.isdir(os.path.join(location, 'lamp')):
+        if CCD.ccd == "HFOSC":
+            gr7_lamp = 'hfosc1_gr7_lamp.fits'
+            gr8_lamp = ''
+            gr7_lamp_id = 'idhfosc1_gr7_lamp'
+            gr8_lamp_id = ''
+
+        elif CCD.ccd == "HFOSC2":
+            gr7_lamp = 'feargr7_feige34.fits'
+            gr8_lamp = 'fenegr8_feige34.fits'
+            gr7_lamp_id = 'idfeargr7_feige34'
+            gr8_lamp_id = 'idfenegr8_feige34'
+
+        Databasefilepath = os.path.join(os.getcwd(), 'Database')
+        Databasepath = os.path.join(os.getcwd(), 'Database/database')
+
+    else:
+        # Only works if lamp folder exists in the main directory and lamp files
+        # are named gr7.fits and gr8.fits and lamp id named as idgr7 and idgr8.
+        gr7_lamp = 'gr7.fits'
+        gr8_lamp = 'gr8.fits'
+        gr7_lamp_id = 'idgr7'
+        gr8_lamp_id = 'idgr8'
+
+        Databasefilepath = os.path.join(os.getcwd(), 'lamp')
+        Databasepath = os.path.join(os.getcwd(), 'lamp')
 
     # copy reference lamp files
     if not os.path.isdir(os.path.join(location, 'database')):
         os.makedirs(os.path.join(location, 'database'))
-
-    Databasefilepath = os.path.join(os.getcwd(), 'Database')
-    Databasepath = os.path.join(os.getcwd(), 'Database/database')
 
     try:
         shutil.copy(os.path.join(Databasefilepath, gr7_lamp),
