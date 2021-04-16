@@ -284,12 +284,16 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
 
 def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
     """
-    This fuction do spectral extraction and calibration of wavelength. After running this
-    function a header term "Waveleng" added after succesfully finishing this task.
+    This fuction do spectral extraction and calibration of wavelength. After
+    running this function a header term "Waveleng" added after succesfully
+    finishing this task.
+
     Parameters
     ----------
-    file_list: List of files which need to do spectral extraction
-    location: Location of the files if it is not in the working directory.
+    file_list: list
+        List of files which need to do spectral extraction
+    location: str
+        Location of the files if it is not in the working directory.
     """
     if not os.path.isdir(os.path.join(location, 'lamp')):
         if CCD.ccd == "HFOSC":
@@ -407,13 +411,23 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     """
     This function is for flux calibration of the object spectra if standard
     star is also observed in the same night.
-    Arguments:
-        obj_list      : List of wavelength calibrated object spectra in a perticular
-                        grism.
-        location      : Location of the files if it is not in the working directory.
-        grism         : Type of grism used.
-        prefix_string : Prefix added after flux calibration.
-    Returns:
+
+    Parameters
+    ----------
+        obj_list : list
+            List of wavelength calibrated object spectra in a perticular grism.
+        location : str
+            Location of the files if it is not in the working directory.
+        default_path :
+            Parent directory of the code
+        grism : str
+            Type of grism used.
+        CCD : obj
+            CCD object
+        prefix_string : str
+            Prefix added after flux calibration.
+    Returns
+    -------
         none
     """
     # This become obsolete
