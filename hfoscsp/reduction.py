@@ -298,9 +298,9 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
     if not os.path.isdir(os.path.join(location, 'lamp')):
         if CCD.ccd == "HFOSC":
             gr7_lamp = 'hfosc1_gr7_lamp.fits'
-            gr8_lamp = ''
+            gr8_lamp = 'hfosc1_gr8_lamp.fits'
             gr7_lamp_id = 'idhfosc1_gr7_lamp'
-            gr8_lamp_id = ''
+            gr8_lamp_id = 'idhfosc1_gr8_lamp'
 
         elif CCD.ccd == "HFOSC2":
             gr7_lamp = 'feargr7_feige34.fits'
