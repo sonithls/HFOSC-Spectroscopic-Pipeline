@@ -1,3 +1,4 @@
+"""Calculate airmass."""
 from astropy.io import fits
 import astropy.units as u
 from astropy.time import Time
@@ -13,17 +14,17 @@ hct = EarthLocation.from_geodetic(lat=latitude, lon=longitude, height=altitude)
 
 def airmass(filename, observatory=hct):
     """
-    Calculating the airmass and adding in the header and retuning value.
+    Calculate airmass and adding in the header and retuning value.
 
     Parameters
-    ==========
-    filename    : File which need to calcualte the airmass.
-
+    ----------
+        filename    : str
+            File which need to calculate the airmass.
     Returns
-    =======
-    airmass     : Airmass value
+    -------
+        airmass     : float
+            Airmass value
     """
-
     hdu = fits.open(filename, mode='update')
     header = hdu[0].header
 

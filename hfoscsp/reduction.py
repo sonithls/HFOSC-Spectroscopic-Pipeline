@@ -51,8 +51,10 @@ iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 
 def remove_file(file_name):
     """
-    Removing a file from the directory
-    Argument:
+    Remove a file from the directory.
+
+    Arguments:
+    ---------
         file_name: file name of the file to remove from directory.
     Returns :
         none
@@ -66,12 +68,14 @@ def remove_file(file_name):
 def ccdsec_removal(file_list, location=''):
     """
     Remove CCDSEC from header to avoid IRAF error in ccdproc etc tasks.
-    Argument:
+
+    Arguments:
+    ---------
         file_list: List of files need to remove CCDSEC
     Returns :
+    --------
         none
     """
-
     task = iraf.hedit
     task.unlearn()
 
@@ -82,14 +86,21 @@ def ccdsec_removal(file_list, location=''):
 
 def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
     """
-    From the imput bias_list make master-bias, do bias correction to rest of files in the
-    directory, remove all past files and backup master-bias file
+    From the input bias_list make master-bias, do bias correction to rest of \
+    files in the directory, remove all past files and backup master-bias file.
+
     Arguments:
-        bias_list    : List of bias files to make master bias.
-        list_file    : List of files which need to do bias correction.
-        location     : location of the files if it is not in the working directory.
-        prefix_string: prefix which add after doing bias correction to files.
+    ---------
+        bias_list    : list
+            List of bias files to make master bias.
+        list_file    : list
+            List of files which need to do bias correction.
+        location     : str
+            location of the files if it is not in the working directory.
+        prefix_string: str
+            prefix which add after doing bias correction to files.
     Returns:
+    -------
         none
         save bias_list in the location provided.
     """
@@ -142,12 +153,19 @@ def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
 def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
     """
     Corrects for cosmic rays in the OBJECT image.
+
     Arguments:
-        cosmic_curr_list: List of files which need to do cosmicray correction.
-        location        : Location of the files if it is not in the working directory.
-        prefix_string   : Prefix to distinguish FITS file from the original FITS file
+    ---------
+        cosmic_curr_list: list
+            List of files which need to do cosmic-ray correction.
+        location        : str
+            Location of the files if it is not in the working directory.
+        prefix_string   : str
+            Prefix to distinguish FITS file from the original FITS file
     Return:
-        cr_check_list   : List of files to check how good is the cosmic ray correction.
+    ------
+        cr_check_list   : list
+            List of files to check how good is the cosmic ray correction.
     """
 #     if location != '':
 #         pathloc = os.path.join(os.getcwd(), location, 'cosmic_curr_list')
@@ -158,7 +176,7 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
 #     if len(cosmic_curr_list) != 0:
 #         with open(pathloc, 'w') as f:
 #             for file in cosmic_curr_list:
-#                 if location != '':                  #importent change, check with other functions
+#                 if location != '':                  #important change, check with other functions
 #                     f.write(location+"/"+file+'\n')
 #                 else :
 #                     f.write(file+'\n')
@@ -197,15 +215,17 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
 
 def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string='f'):
     """
-    This fuction do flat correction to object files.
+    Flat correction to object files.
+
     Arguments:
-        flat_list     : List of flat files in a perticular grism.
+    ---------
+        flat_list     : List of flat files in a particular grism.
         file_list     : List of files which need to do flat correction.
         location      : Location of the files if it is not in the working directory.
         grism         : Type of grism used.
         prefix_string : Prefix added after flat fielding.
     Returns:
-        flat_curr_list: List of flat currected files.
+        flat_curr_list: List of flat corrected files.
         none
     """
     if location != '':
@@ -284,8 +304,8 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
 
 def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
     """
-    This fuction do spectral extraction and calibration of wavelength. After
-    running this function a header term "Waveleng" added after succesfully
+    This function do spectral extraction and calibration of wavelength. After\
+    running this function a header term "Waveleng" added after successfully\
     finishing this task.
 
     Parameters
@@ -409,7 +429,7 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
 
 def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     """
-    This function is for flux calibration of the object spectra if standard
+    This function is for flux calibration of the object spectra if standard\
     star is also observed in the same night.
 
     Parameters
