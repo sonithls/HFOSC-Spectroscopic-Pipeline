@@ -79,22 +79,30 @@ def Backup(BACKUPDIR):
     os.system('cp -r * ../'+BACKUPDIR)
 
 
-def search_files(location='', keyword=''):
+def search_files(keyword, location=''):
     """
-    This function generate filelist from assigned folder with specific keyword in it.
-    Arguments:
-        location : location of the files if it is not in the working directory
-        keyword  : keyword in the name of the file eg: "*.fits"
+    Generate a file_list from assigned folder containing files with specific\
+    keyword in it.
+
+    Parameters:
+    ----------
+        location : str
+            Location of the files if it is not in the working directory
+        keyword  : str
+            Keyword in the name of the file e.g.: "*.fits"
     Returns:
-        file_list: List of files with the input keyword.
+    -------
+        file_list: list
+            List of files with the input keyword.
     """
-    if location != '':       # change -- location
-        pathloc = os.path.join(os.getcwd(), location)
+    if location != '':  # changing location
+        loc = os.path.join(os.getcwd(), location)
+    else:
+        loc = os.getcwd()
 
     if keyword != '':
-        file_list = glob.glob1(pathloc, keyword)
+        file_list = glob.glob1(loc, keyword)
 
-    print(pathloc)
     return file_list
 
 
