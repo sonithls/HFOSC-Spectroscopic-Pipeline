@@ -3,15 +3,20 @@ from astropy.io import fits
 from file_management import search_files
 import os
 from astroquery.simbad import Simbad
-from hfoscsp.interactive import options
+from interactive import options
 
 
-def headcorr(file_list):
+def headcorr(file_list, location=''):
     """Header correction for files in the file list."""
     data = {}
 
     for filename in file_list:
-        hdu = fits.open(filename)
+        if location != '':  # change location
+            loc = os.path.join(os.getcwd(), location, filename)
+        else:
+            loc = os.path.join(os.getcwd(), filename)
+
+        hdu = fits.open(loc)
         header = hdu[0].header
 
         # HFOSC
@@ -41,9 +46,9 @@ def headcorr(file_list):
     for i in data.keys():
         try:
             result_table = Simbad.query_object(data[i][0])
-            print(result_table)
+            # print(result_table)
             obj = result_table[0][0]
-            print(obj)
+            # print(obj)
             ra = str(result_table[0][1])
             dec = str(result_table[0][2])
             data[i] = [data[i][0], ra, dec]
@@ -58,6 +63,7 @@ def headcorr(file_list):
         with open(location, 'w') as f:
             for i in data.keys():
                 f.write(i+','+data[i][0]+','+data[i][1]+','+data[i][2]+'\n')
+    print(data)
 
     return data
 
@@ -66,7 +72,12 @@ def updateheader(data, location=''):
     """Update header."""
     for i in data.keys():
         filename = i
-        hdu = fits.open(filename, mode='update')
+        if location != '':  # change location
+            loc = os.path.join(os.getcwd(), location, filename)
+        else:
+            loc = os.path.join(os.getcwd(), filename)
+
+        hdu = fits.open(loc, mode='update')
         header = hdu[0].header
 
         ra = data[i][1]
@@ -87,9 +98,9 @@ def updateheader(data, location=''):
 def main():
     """Run the code."""
     file_list = search_files(location='', keyword='*.fits')
-    data = headcorr(file_list)
-    message = "Check the object_list.csv before updating the header.\
-               Do you want to continue updating header ?"
+    data = headcorr(file_list, location='')
+    print("Check the object_list.csv before updating the header.")
+    message = "Do you want to continue updating header ?"
     choices = ['Yes', 'No']
     answer = options(message, choices)
     if answer == 'Yes':
