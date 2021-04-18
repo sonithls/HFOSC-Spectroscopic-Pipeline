@@ -1,12 +1,10 @@
 # -------------------------------------------------------------------------------------------------------------------- #
-# This script is to semi-automate basic reduction of HFOSC spectrosopic data
-__author__ = 'Sonith L.S'
-__contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.8'
+"""This script is to semi-automate basic reduction of HFOSC spectrosopic data.
+
 # Code is  written serially to check every functions are working properly
-# Adiitional formatting required for running in for multiple number of folder in faster way.
-# -------------------------------------------------------------------------------------------------------------------- #
-'''
+# Additional formatting required for running in for multiple number of folder\
+in faster way.
+
 Important header terms which is required for running the HFOSC
 Spectroscopic Pipeline
 1) 'OBJECT'
@@ -17,7 +15,12 @@ Spectroscopic Pipeline
 6) 'INSTRUME'
 7) 'LAMP'       for HFOSC
 8) 'DATE-AVG'   for HFOSC2
-'''
+"""
+__author__ = 'Sonith L.S'
+__contact__ = 'sonith.ls@iiap.res.in'
+__version__ = '0.0.8'
+# -------------------------------------------------------------------------------------------------------------------- #
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required libraries
 # -------------------------------------------------------------------------------------------------------------------- #
