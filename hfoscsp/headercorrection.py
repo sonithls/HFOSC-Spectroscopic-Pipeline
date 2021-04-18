@@ -7,7 +7,7 @@ from astroquery.simbad import Simbad
 
 def headcorr(file_list):
     """Header correction for files in the file list."""
-    dicts = {}
+    data = {}
 
     for filename in file_list:
         hdu = fits.open(filename, mode='update')
@@ -34,30 +34,31 @@ def headcorr(file_list):
                 ra = 'NaN'
                 dec = 'NaN'
 
-        dicts.setdefault(filename, [])
-        dicts[filename].extend([object_name, ra, dec])
+        data[filename]= [object_name, ra, dec]
 
     # Finding the RA and DEC using astroquery.
-    for i in dicts.keys():
+    for i in data.keys():
         try:
-            result_table = Simbad.query_object(dicts[i][0])
-            obj = result_table[0]
-            ra = result_table[1]
-            dec = result_table[2]
+            result_table = Simbad.query_object(data[i][0])
+            print(result_table)
+            obj = result_table[0][0]
+            print(obj)
+            ra = str(result_table[0][1])
+            dec = str(result_table[0][2])
+            data[i] = [data[i][0], ra, dec]
             # replace the ra dec here.
         except:
+            print("Some problem in astroquery")
             pass
-        print(obj, ra, dec)
-        # print(result_table)
 
     # Write table in to a csv file.
-    if len(dicts.keys()) != 0:
+    if len(data.keys()) != 0:
         location = os.getcwd()+'/object_list.csv'
         with open(location, 'w') as f:
-            for i in dicts.keys():
-                f.write(i+','+dicts[i][0]+','+dicts[i][1]+','+dicts[i][2]+'\n')
+            for i in data.keys():
+                f.write(i+','+data[i][0]+','+data[i][1]+','+data[i][2]+'\n')
 
-    return dicts
+    return data
 
 
 def main():
