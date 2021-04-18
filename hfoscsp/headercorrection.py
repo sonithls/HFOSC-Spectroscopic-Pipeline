@@ -3,6 +3,7 @@ from astropy.io import fits
 from file_management import search_files
 import os
 from astroquery.simbad import Simbad
+from hfoscsp.interactive import options
 
 
 def headcorr(file_list):
@@ -10,7 +11,7 @@ def headcorr(file_list):
     data = {}
 
     for filename in file_list:
-        hdu = fits.open(filename, mode='update')
+        hdu = fits.open(filename)
         header = hdu[0].header
 
         # HFOSC
@@ -61,10 +62,38 @@ def headcorr(file_list):
     return data
 
 
+def updateheader(data, location=''):
+    """Update header."""
+    for i in data.keys():
+        filename = i
+        hdu = fits.open(filename, mode='update')
+        header = hdu[0].header
+
+        ra = data[i][1]
+        dec = data[i][2]
+
+        list_keywords = ['RA', 'DEC']
+        data_header = {'RA': ra, 'DEC': dec}
+
+        for key in list_keywords:
+            if key in header.keys():
+                header.remove(key, remove_all=True)
+            header.append(card=(key, data_header[key]))
+
+        hdu.flush()
+        hdu.close()
+
+
 def main():
     """Run the code."""
     file_list = search_files(location='', keyword='*.fits')
-    headcorr(file_list)
+    data = headcorr(file_list)
+    message = "Check the object_list.csv before updating the header.\
+               Do you want to continue updating header ?"
+    choices = ['Yes', 'No']
+    answer = options(message, choices)
+    if answer == 'Yes':
+        updateheader(data, location='')
 
 
 if __name__ == "__main__":
