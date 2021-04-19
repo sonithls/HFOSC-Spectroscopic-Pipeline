@@ -4,11 +4,12 @@ from file_management import search_files
 import os
 from astroquery.simbad import Simbad
 from interactive import options
+from astropy.io import ascii
 
 
 def headcorr(file_list, location=''):
     """Header correction for files in the file list."""
-    data = {}
+    data = []
 
     for filename in file_list:
         if location != '':  # change location
@@ -40,38 +41,40 @@ def headcorr(file_list, location=''):
                 ra = 'NaN'
                 dec = 'NaN'
 
-        data[filename]= [object_name, ra, dec]
+        data.append([filename, object_name, ra, dec])
 
     # Finding the RA and DEC using astroquery.
-    for i in data.keys():
+    data_ = []
+    for i in range(0, len(data)):
         try:
-            result_table = Simbad.query_object(data[i][0])
+            result_table = Simbad.query_object(data[i][1])
             # print(result_table)
-            obj = result_table[0][0]
+            # obj = result_table[0][0]
             # print(obj)
             ra = str(result_table[0][1])
             dec = str(result_table[0][2])
-            data[i] = [data[i][0], ra, dec]
+            data_.append([data[i][0], data[i][1], ra, dec])
             # replace the ra dec here.
         except:
             print("Some problem in astroquery")
             pass
+    data = data_
 
     # Write table in to a csv file.
-    if len(data.keys()) != 0:
-        location = os.getcwd()+'/object_list.csv'
+    if len(data) != 0:
+        location = os.getcwd()+'/object_info.csv'
         with open(location, 'w') as f:
-            for i in data.keys():
-                f.write(i+','+data[i][0]+','+data[i][1]+','+data[i][2]+'\n')
-    print(data)
-
+            f.write('FILENAME'+','+'OBJECT'+','+'RA'+','+'DEC'+'\n')
+            for i in range(0, len(data)):
+                f.write(data[i][0]+','+data[i][1]+','+data[i][2]+','+data[i][3]+'\n')
+                print(data[i][1]+','+data[i][2]+','+data[i][3]+','+data[i][0]+'\n')
     return data
 
 
 def updateheader(data, location=''):
     """Update header."""
-    for i in data.keys():
-        filename = i
+    for i in range(0, len(data)):
+        filename = data[i][0]
         if location != '':  # change location
             loc = os.path.join(os.getcwd(), location, filename)
         else:
@@ -80,8 +83,8 @@ def updateheader(data, location=''):
         hdu = fits.open(loc, mode='update')
         header = hdu[0].header
 
-        ra = data[i][1]
-        dec = data[i][2]
+        ra = data[i][2]
+        dec = data[i][3]
 
         list_keywords = ['RA', 'DEC']
         data_header = {'RA': ra, 'DEC': dec}
@@ -95,6 +98,57 @@ def updateheader(data, location=''):
         hdu.close()
 
 
+def read_info(location=''):
+    """Read file information."""
+    if location != '':  # change location
+        loc = os.path.join(os.getcwd(), location, 'object_info.csv')
+    else:
+        loc = os.path.join(os.getcwd(), 'object_info.csv')
+    obj_info = ascii.read(loc)
+
+    print(obj_info)
+
+    data = []
+    for i in range(0, len(obj_info)):
+        # print(i)
+        filename = obj_info['FILENAME'][i]
+        object_name = obj_info['OBJECT'][i]
+        ra = obj_info['RA'][i]
+        dec = obj_info['DEC'][i]
+        # print(filename)
+        data.append([filename, object_name, ra, dec])
+    # print(data)
+
+    # Finding the RA and DEC using astroquery.
+    data_ = []
+    for i in range(0, len(data)):
+        # print(i)
+        try:
+            result_table = Simbad.query_object(data[i][1])
+            # print(result_table)
+            obj = result_table[0][0]
+            # print(obj)
+            ra = str(result_table[0][1])
+            dec = str(result_table[0][2])
+            data_.append([data[i][0],data[i][1], ra, dec])
+            # replace the ra dec here.
+        except:
+            print("Some problem in astroquery")
+            pass
+    data = data_
+
+    # Write table in to a csv file.
+    if len(data) != 0:
+        location = os.getcwd()+'/object_info.csv'
+        with open(location, 'w') as f:
+            f.write('FILENAME'+','+'OBJECT'+','+'RA'+','+'DEC'+'\n')
+            for i in range(0, len(data)):
+                f.write(data[i][0]+','+data[i][1]+','+data[i][2]+','+data[i][3]+'\n')
+                print(data[i][1]+','+data[i][2]+','+data[i][3]+','+data[i][0]+'\n')
+    # print(data)
+    return data
+
+
 def headercorr(file_list, location=''):
     """Run the code."""
     data = headcorr(file_list, location='')
@@ -104,8 +158,11 @@ def headercorr(file_list, location=''):
     answer = options(message, choices)
     if answer == 'Yes':
         updateheader(data, location='')
+    else:
+        print("Not OK")
+        read_info(location='')
 
 
 if __name__ == "__main__":
     file_list = search_files(location='', keyword='*.fits')
-    headercorr()
+    headercorr(file_list, location='')
