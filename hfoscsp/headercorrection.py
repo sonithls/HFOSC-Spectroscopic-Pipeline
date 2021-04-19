@@ -95,9 +95,8 @@ def updateheader(data, location=''):
         hdu.close()
 
 
-def main():
+def headercorr(file_list, location=''):
     """Run the code."""
-    file_list = search_files(location='', keyword='*.fits')
     data = headcorr(file_list, location='')
     print("Check the object_list.csv before updating the header.")
     message = "Do you want to continue updating header ?"
@@ -108,4 +107,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    file_list = search_files(location='', keyword='*.fits')
+    headercorr()
