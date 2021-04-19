@@ -2,13 +2,19 @@
 from astropy.io import fits
 import astropy.units as u
 from astropy.time import Time
-from astropy.coordinates import SkyCoord, EarthLocation, AltAz
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz, Angle
 import datetime
+from astropy.utils import iers
+import ephem
+import math
+
+iers.Conf.iers_auto_url.set('https://datacenter.iers.org/data/9/finals2000A.all')
+
 
 # HCT location information
 latitude = 32.7794
-longitude = 281.03583
-altitude = 4500
+longitude = -281.03583
+altitude = 4500.0
 hct = EarthLocation.from_geodetic(lat=latitude, lon=longitude, height=altitude)
 
 
@@ -32,12 +38,19 @@ def airmass(filename, observatory=hct):
     if 'TM_START' in header.keys():
         date_obs = header['DATE-OBS']
         time_start = header['TM_START']
+        object = header['OBJECT']
+        print(object)
+        ra_ = header['RA']
+        dec_ = header['DEC']
+        print(ra_, dec_)
+        c = SkyCoord(ra_, dec_, unit=(u.hourangle, u.deg))
+        ra = c.ra.deg
+        dec = c.dec.deg
 
-        ra = header['RA']
-        dec = header['DEC']
         time_utc = str(datetime.timedelta(seconds=int(time_start)))
         datetime_utc = date_obs+' '+time_utc
         time = Time(datetime_utc)
+        print(time)
 
     # HFOSC2
     else:
@@ -48,14 +61,23 @@ def airmass(filename, observatory=hct):
         dec = header['DEC']
 
     #  calculation of airmass
-    coord = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
+    coord = SkyCoord(ra, dec, unit='deg')
     altaz_ = coord.transform_to(AltAz(obstime=time, location=observatory))
-    airmass = altaz_.secz.value
-    print('The image %s has been observed at an airmass of %f and ra: %r, dec: %d'
-          % (filename, ra, dec, airmass))
+    airmass = float(altaz_.secz.value)
+
+    # airmass = observer.altaz(time_ut, target).secz
+    # altaz = AltAz(obstime=time, location=observatory)
+    # altaz_ = coord.transform_to(altaz)
+    # airmass = altaz_.secz.value
+
+    # print('The image %s has been observed at an airmass of %f and ra: %r, dec: %d'
+    #       % (filename, ra, dec, float(airmass)))
+
+    print("altitude", altaz_.alt.value)
+    print("airmass =", airmass)
 
     list_keywords = ['AIRMASS']
-    dict_header = {'AIRMASS': airmass}
+    dict_header = {'AIRMASS': float(airmass)}
 
     for key in list_keywords:
         if key in header.keys():
