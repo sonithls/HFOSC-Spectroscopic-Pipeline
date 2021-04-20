@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------------------------- #
-"""This script is to semi-automate basic reduction of HFOSC spectrosopic data.
+"""This script is to semi-automate basic reduction of HFOSC spectroscopic data.
 
 # Code is  written serially to check every functions are working properly
 # Additional formatting required for running in for multiple number of folder\
@@ -117,7 +117,7 @@ def part1(flat_flag, CCD):
     list_files = search_files(location=folder_name, keyword='*.fits')
     # print list_files
 
-    # Seperating photometric and spectrosopic files
+    # Separating photometric and spectroscopic files
     speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')
     # file_list is updated from passing list
     # print (speclist)
@@ -150,7 +150,7 @@ def part1(flat_flag, CCD):
     for file in cr_check_list:
         remove_file(str(file))
 
-    # cosmicray correction manually for individual files or all files automatically
+    # cosmic-ray correction manually for individual files or all files automatically
     message = "How do you like to proceed Cosmic ray correction?"
     choices = ['Default', 'Manually']
     input = options(message, choices)
@@ -230,13 +230,13 @@ def part2(folder_name, PATH, CCD):
 
 
 def main():
-    """Main function of the HFOSC Spectrosopic Pipeline"""
+    """Main function of the HFOSC Spectroscopic Pipeline"""
     working_dir_path = os.getcwd()
 
     logo = """
 ###############################################################################
 ###############################################################################
-                          HFOSC Spectrosopic Pipeline
+                          HFOSC Spectroscopic Pipeline
                                 Version: 0.0.8
 ###############################################################################
 ###############################################################################
@@ -256,7 +256,7 @@ def main():
     message = "Do you want to do flatfielding ?"
     choices = ['Yes', 'No']
     flat_flag = options(message, choices)
-    # Question for flatfielding using flat_flag
+    # Question for flat-fielding using flat_flag
 
     message = "Select the mode of running the Pipeline"
     choices = ['Complete Code', 'Only Flux Calibration']
@@ -271,7 +271,7 @@ def main():
         os.chdir(working_dir_path)
 
     # print("Press Enter for running complete code")
-    # print("Press 1 and Entre for running only flux calibration")
+    # print("Press 1 and Entire for running only flux calibration")
     # input = raw_input()
     # if input == '1':
     #     part2(folder_name=folder_name, PATH=PATH)
