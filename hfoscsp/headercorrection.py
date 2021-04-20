@@ -152,15 +152,26 @@ def read_info(location=''):
 def headercorr(file_list, location=''):
     """Run the code."""
     data = headcorr(file_list, location='')
+
     print("Check the object_list.csv before updating the header.")
     message = "Do you want to continue updating header ?"
     choices = ['Yes', 'No']
     answer = options(message, choices)
-    if answer == 'Yes':
-        updateheader(data, location='')
-    else:
-        print("Not OK")
-        read_info(location='')
+
+    while answer != 'Yes':
+        data = read_info(location='')
+
+        print("object_list.csv is updated, check it before updating the header.")
+        message = "Do you want to continue updating header ?"
+        choices = ['Yes', 'No']
+        answer = options(message, choices)
+
+    updateheader(data, location='')
+
+    # while True:
+    # do_something()
+    # if answer == 'Yes':
+    # break
 
 
 if __name__ == "__main__":
