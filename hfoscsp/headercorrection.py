@@ -5,6 +5,7 @@ import os
 from astroquery.simbad import Simbad
 from interactive import options
 from astropy.io import ascii
+from tabulate import tabulate
 
 
 def headcorr(file_list, location=''):
@@ -67,7 +68,10 @@ def headcorr(file_list, location=''):
             f.write('FILENAME'+','+'OBJECT'+','+'RA'+','+'DEC'+'\n')
             for i in range(0, len(data)):
                 f.write(data[i][0]+','+data[i][1]+','+data[i][2]+','+data[i][3]+'\n')
-                print(data[i][1]+','+data[i][2]+','+data[i][3]+','+data[i][0]+'\n')
+                # print(data[i][1]+','+data[i][2]+','+data[i][3]+','+data[i][0]+'\n')
+    print("")
+    print(tabulate(data, headers=['FILENAME', 'OBJECT', 'RA', 'DEC']))
+    print("")
     return data
 
 
@@ -106,7 +110,7 @@ def read_info(location=''):
         loc = os.path.join(os.getcwd(), 'object_info.csv')
     obj_info = ascii.read(loc)
 
-    print(obj_info)
+    # print(obj_info)
 
     data = []
     for i in range(0, len(obj_info)):
@@ -144,8 +148,10 @@ def read_info(location=''):
             f.write('FILENAME'+','+'OBJECT'+','+'RA'+','+'DEC'+'\n')
             for i in range(0, len(data)):
                 f.write(data[i][0]+','+data[i][1]+','+data[i][2]+','+data[i][3]+'\n')
-                print(data[i][1]+','+data[i][2]+','+data[i][3]+','+data[i][0]+'\n')
-    # print(data)
+                # print(data[i][1]+','+data[i][2]+','+data[i][3]+','+data[i][0]+'\n')
+    print("")
+    print(tabulate(data, headers=['FILENAME', 'OBJECT', 'RA', 'DEC']))
+    print("")
     return data
 
 
