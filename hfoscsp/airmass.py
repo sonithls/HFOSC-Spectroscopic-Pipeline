@@ -2,11 +2,9 @@
 from astropy.io import fits
 import astropy.units as u
 from astropy.time import Time
-from astropy.coordinates import SkyCoord, EarthLocation, AltAz, Angle
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 import datetime
 from astropy.utils import iers
-import ephem
-import math
 
 iers.Conf.iers_auto_url.set('https://datacenter.iers.org/data/9/finals2000A.all')
 

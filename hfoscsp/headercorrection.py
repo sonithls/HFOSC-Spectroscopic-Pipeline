@@ -1,17 +1,21 @@
 """Header term correction."""
-from astropy.io import fits
-from file_management import search_files
 import os
-from astroquery.simbad import Simbad
-from interactive import options
+from astropy.io import fits
 from astropy.io import ascii
+# from hfoscsp.file_management import search_files
+from hfoscsp.interactive import options
+from astroquery.simbad import Simbad
 from tabulate import tabulate
 
 
 def headcorr(file_list, location=''):
     """Header correction for files in the file list."""
-    data = []
+    if location != '':  # change location
+        loc_object_info = os.path.join(os.getcwd(), location, 'object_info')
+    else:
+        loc_object_info = os.path.join(os.getcwd(), 'object_info')
 
+    data = []
     for filename in file_list:
         if location != '':  # change location
             loc = os.path.join(os.getcwd(), location, filename)
@@ -63,8 +67,7 @@ def headcorr(file_list, location=''):
 
     # Write table in to a csv file.
     if len(data) != 0:
-        location = os.getcwd()+'/object_info.csv'
-        with open(location, 'w') as f:
+        with open(loc_object_info, 'w') as f:
             f.write('FILENAME'+','+'OBJECT'+','+'RA'+','+'DEC'+'\n')
             for i in range(0, len(data)):
                 f.write(data[i][0]+','+data[i][1]+','+data[i][2]+','+data[i][3]+'\n')
@@ -105,10 +108,10 @@ def updateheader(data, location=''):
 def read_info(location=''):
     """Read file information."""
     if location != '':  # change location
-        loc = os.path.join(os.getcwd(), location, 'object_info.csv')
+        loc_object_info = os.path.join(os.getcwd(), location, 'object_info')
     else:
-        loc = os.path.join(os.getcwd(), 'object_info.csv')
-    obj_info = ascii.read(loc)
+        loc_object_info = os.path.join(os.getcwd(), 'object_info')
+    obj_info = ascii.read(loc_object_info)
 
     # print(obj_info)
 
@@ -143,8 +146,7 @@ def read_info(location=''):
 
     # Write table in to a csv file.
     if len(data) != 0:
-        location = os.getcwd()+'/object_info.csv'
-        with open(location, 'w') as f:
+        with open(loc_object_info, 'w') as f:
             f.write('FILENAME'+','+'OBJECT'+','+'RA'+','+'DEC'+'\n')
             for i in range(0, len(data)):
                 f.write(data[i][0]+','+data[i][1]+','+data[i][2]+','+data[i][3]+'\n')
@@ -157,7 +159,7 @@ def read_info(location=''):
 
 def headercorr(file_list, location=''):
     """Run the code."""
-    data = headcorr(file_list, location='')
+    data = headcorr(file_list, location=location)
 
     print("Check the object_list.csv before updating the header.")
     message = "Do you want to continue updating header ?"
@@ -165,14 +167,14 @@ def headercorr(file_list, location=''):
     answer = options(message, choices)
 
     while answer != 'Yes':
-        data = read_info(location='')
+        data = read_info(location=location)
 
         print("object_list.csv is updated, check it before updating the header.")
         message = "Do you want to continue updating header ?"
         choices = ['Yes', 'No']
         answer = options(message, choices)
 
-    updateheader(data, location='')
+    updateheader(data, location=location)
 
     # while True:
     # do_something()
@@ -180,6 +182,6 @@ def headercorr(file_list, location=''):
     # break
 
 
-if __name__ == "__main__":
-    file_list = search_files(location='', keyword='*.fits')
-    headercorr(file_list, location='')
+# if __name__ == "__main__":
+#     file_list = search_files(location='', keyword='*.fits')
+#     headercorr(file_list, location='')

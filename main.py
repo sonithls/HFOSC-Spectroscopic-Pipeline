@@ -59,6 +59,7 @@ from hfoscsp.cosmicray import cosmic_correction_individual
 from hfoscsp.cosmicray import cosmic_correction_batch
 from hfoscsp.cosmicray import cosmic_correction
 
+from hfoscsp.headercorrection import headercorr
 from hfoscsp.interactive import options
 # from hfoscsp.interactive import multioptions
 
@@ -214,9 +215,14 @@ def part2(folder_name, PATH, CCD):
     choices = ['Yes']
     options(message, choices)
 
+    # Header correction
+    list_files = search_files(location=folder_name, keyword='*.ms.fits')
+    headercorr(file_list=list_files, location=folder_name)
+
     # Running Flux calibration
     list_files = search_files(location=folder_name, keyword='*.fits')
     print(list_files)
+
     obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
     print(obj_list_gr7)
     flux_calibrate(obj_list=obj_list_gr8, location=PATH, default_path=default_path, CCD=CCD)
