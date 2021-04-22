@@ -10,7 +10,7 @@ import shutil
 # import re
 # import shutil
 from astropy.io import fits
-
+from hfoscsp.interactive import multioptions
 from hfoscsp.interactive import options
 from hfoscsp.airmass import airmass
 
@@ -514,14 +514,25 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     # Running standard task in IRAF
     file_name = std_stars[0]
 
-    standard_star_name = raw_input("Type standard star name to continue :")
+    std = {'feige34': 'onedstds$spec50cal/',
+           'feige66': 'onedstds$spec50cal/',
+           'feige110': 'onedstds$spec50cal/',
+           'bd284211': 'onedstds$spec50cal/',
+           'hz44': 'onedstds$spec50cal/'}  # Emtry string is for while loop. Don't remove it.
 
-    # standard_star_name = 'feige34'        # Need to set an option to change this for different std stars
+    # standard_star_name = raw_input("Type standard star name to continue :")
+    message = "Select standard star and 'Enter' to continue"
+    choices = std.keys()
+    standard_star_name = options(message, choices)
+    caldir = std[standard_star_name]
+
+    # standard_star_name = 'feige34'
+    # Need to set an option to change this for different std stars
     # mag = 11.18 # Magnitude of standard star.
 
     standard_data_file = os.path.splitext(file_name)[0]
     iraf.imred.specred.standard(input=file_name, output=standard_data_file, extinct=iaoextinct_path,
-                                caldir='onedstds$iidscal/', observa='iao', star_nam=standard_star_name)
+                                caldir=caldir, observa='iao', star_nam=standard_star_name)
     # , mag = float(mag), magband = 'V'
     # fnuzero= ? (Absolute flux zero point), teff= ?
     # mag = float(mag)Magnitude Of The Standard Star
