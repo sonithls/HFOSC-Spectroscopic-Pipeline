@@ -387,12 +387,52 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         ''')
 
         # Running apall (aperture extract)
-        iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
-                   background='fit', weights='none', saturation=int(CCD.max_count), readnoi=CCD.read_noise,
-                   gain=CCD.ccd_gain, t_niterate=1, interactive='yes')
+        # iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
+        #            background='fit', weights='none', saturation=int(CCD.max_count), readnoi=CCD.read_noise,
+        #            gain=CCD.ccd_gain, t_niterate=1, interactive='yes')
         # weights= 'variance' seems to be unstable for our high effective gain
         # t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
         # saturation=maximum count ?
+
+        # Running apall (aperture extract) with error
+        iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
+                   background='fit', weights='variance', saturation=int(CCD.max_count), readnoi=CCD.read_noise,
+                   gain=CCD.ccd_gain, t_niterate=1, interactive='yes')
+
+        """
+        1.  extras = no
+
+            only the spectrum is produced (whether weighted or cleaned or not)
+
+        2.  background=none, fit=none, and clean=no
+
+            only a simple aperture sum spectrum is produced
+
+        3.  background=fit (or other options), fit=none, and clean=no
+
+            background subtracted spectrum
+            background spectrum
+
+        4.  background=none, fit=variance
+
+            weighted spectrum with no background subtraction
+            unweighted spectrum with no background subtraction
+            uncertainties
+
+        5.  background=fit (or other options), fit=variance
+
+            weighted spectrum with background subtraction
+            unweighted spectrum with background subtraction
+            background spectrum
+            uncertainties
+
+        6.  background=fit, fit=variance, clean=yes
+
+            weighted spectrum with background subtraction and cosmic rays removed
+            unweighted spectrum with background subtraction but not cleaned
+            background spectrum
+            uncertainties,
+        """
 
         # Extracting the lamp (FeAr OR FeNe) for this spectra as obj_name_lamp.fits
         iraf.apall(input=lamp, reference=file_name, out=os.path.splitext(file_name)[0]+'_lamp', recenter='no',
