@@ -18,7 +18,7 @@ Spectroscopic Pipeline
 """
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.8'
+__version__ = '0.0.9'
 # -------------------------------------------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -99,9 +99,15 @@ bar = """
 """
 
 
-def part1(flat_flag, CCD):
+def part1(CCD):
+    """Part one - wavelength calibration."""
     # Backing up the whole directory
     # Backup (BACKUP)
+
+    message = "Do you want to do flat-fielding ?"
+    choices = ['Yes', 'No']
+    flat_flag = options(message, choices)
+    # Question for flat-fielding using flat_flag
 
     # Selecting the folder for reducing the data
     print(list_subdir())
@@ -230,7 +236,7 @@ def part2(folder_name, PATH, CCD):
 
 
 def main():
-    """Main function of the HFOSC Spectroscopic Pipeline"""
+    """Run the HFOSC Spectroscopic Pipeline."""
     working_dir_path = os.getcwd()
 
     logo = """
@@ -248,38 +254,21 @@ def main():
     folder_name = list_subdir()[0]
 
     list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
+
     # read_noise, ccd_gain, max_count, ccd = setccd(file_list=list_files_ccdcheck, location=PATH)
     CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
-    # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
-    # print("flat_flag :", flat_flag)
-
-    message = "Do you want to do flatfielding ?"
-    choices = ['Yes', 'No']
-    flat_flag = options(message, choices)
-    # Question for flat-fielding using flat_flag
 
     message = "Select the mode of running the Pipeline"
     choices = ['Complete Code', 'Only Flux Calibration']
     input = options(message, choices)
 
     if input == 'Complete Code':
-        part1(flat_flag=flat_flag, CCD=CCD)
+        part1(CCD=CCD)
         os.chdir(working_dir_path)
         part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
     elif input == 'Only Flux Calibration':
         part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
         os.chdir(working_dir_path)
-
-    # print("Press Enter for running complete code")
-    # print("Press 1 and Entire for running only flux calibration")
-    # input = raw_input()
-    # if input == '1':
-    #     part2(folder_name=folder_name, PATH=PATH)
-    #     os.chdir(working_dir_path)
-    # else:
-    #     part1(flat_flag=flat_flag)
-    #     os.chdir(working_dir_path)
-    #     part2(folder_name=folder_name, PATH=PATH)
 
 
 if __name__ == "__main__":
