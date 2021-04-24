@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------------------------------------------------- #
 """This script is to semi-automate basic reduction of HFOSC spectroscopic data.
 
-# Code is  written serially to check every functions are working properly
-# Additional formatting required for running in for multiple number of folder\
+Additional formatting required for running in for multiple number of folder\
 in faster way.
 
-Important header terms which is required for running the HFOSC
+>Important header terms which is required for running the HFOSC
 Spectroscopic Pipeline
+
 1) 'OBJECT'
 2) 'GRISM'
 3) 'NAXIS1'
@@ -15,7 +15,22 @@ Spectroscopic Pipeline
 6) 'INSTRUME'
 7) 'LAMP'       for HFOSC
 8) 'DATE-AVG'   for HFOSC2
+
+>CCD Information provided for running of IRAF module
+
+HFOSC1
+------
+# read_noise = 4.87
+# ccd_gain   = 1.22
+# data_max   = 55000
+
+HFOSC2
+------
+# read_noise = 5.75
+# ccd_gain = 0.28
+# max_count = 700000
 """
+# -------------------------------------------------------------------------------------------------------------------- #
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
 __version__ = '0.0.9'
@@ -79,16 +94,7 @@ iraf.onedspec(_doprint=0)
 iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 
 # -------------------------------------------------------------------------------------------------------------------- #
-"""CCD Information provided for running of IRAF module"""
-# HFOSC1 #
-# read_noise = 4.87
-# ccd_gain   = 1.22
-# data_max   = 55000
 
-# HFOSC2 #
-# read_noise = 5.75
-# ccd_gain = 0.28
-# max_count = 700000
 # -------------------------------------------------------------------------------------------------------------------- #
 default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
@@ -243,7 +249,7 @@ def main():
 ###############################################################################
 ###############################################################################
                           HFOSC Spectroscopic Pipeline
-                                Version: 0.0.8
+                                Version: 0.0.9
 ###############################################################################
 ###############################################################################
 """
@@ -255,7 +261,6 @@ def main():
 
     list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
 
-    # read_noise, ccd_gain, max_count, ccd = setccd(file_list=list_files_ccdcheck, location=PATH)
     CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
 
     message = "Select the mode of running the Pipeline"
