@@ -4,7 +4,7 @@
 Additional formatting required for running in for multiple number of folder\
 in faster way.
 
->Important header terms which is required for running the HFOSC
+>>>Important header terms which is required for running the HFOSC
 Spectroscopic Pipeline
 
 1) 'OBJECT'
@@ -16,7 +16,7 @@ Spectroscopic Pipeline
 7) 'LAMP'       for HFOSC
 8) 'DATE-AVG'   for HFOSC2
 
->CCD Information provided for running of IRAF module
+>>>CCD Information provided for running of IRAF module
 
 HFOSC1
 ------

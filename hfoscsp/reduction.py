@@ -1,16 +1,19 @@
-# Author : Sonith L.S
-# Contact : sonith.ls@iiap.res.in
+"""
+This script is written for HFOSC spectroscopic-Pipeline.
+
+It is containing spectroscopic reduction utilities for running the
+HFOSC spectroscopic-Pipeline.
+"""
+__author__ = 'Sonith L.S'
+__contact__ = 'sonith.ls@iiap.res.in'
 __version__ = '0.0.9'
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required libraries
 # -------------------------------------------------------------------------------------------------------------------- #
 import os
-# import glob
 import shutil
-# import re
-# import shutil
 from astropy.io import fits
-from hfoscsp.interactive import multioptions
 from hfoscsp.interactive import options
 from hfoscsp.airmass import airmass
 
@@ -18,7 +21,6 @@ try:
     from pyraf import iraf
 except ImportError as error:
     print(error + "Please install pyraf and iraf")
-
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
@@ -36,16 +38,21 @@ iraf.onedspec(_doprint=0)
 iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 
 # -------------------------------------------------------------------------------------------------------------------- #
-"""CCD Information provided for running of IRAF module"""
-# HFOSC #
+"""
+>>>CCD Information provided for running of IRAF module
+
+HFOSC1
+------
 # read_noise = 4.87
 # ccd_gain   = 1.22
 # data_max   = 55000
 
-# HFOSC2 #
+HFOSC2
+------
 # read_noise = 5.75
 # ccd_gain = 0.28
 # max_count = 700000
+"""
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
@@ -53,10 +60,11 @@ def remove_file(file_name):
     """
     Remove a file from the directory.
 
-    Arguments:
-    ---------
+    Parameters
+    ----------
         file_name: file name of the file to remove from directory.
-    Returns :
+    Returns
+    -------
         none
     """
     try:
@@ -69,8 +77,8 @@ def ccdsec_removal(file_list, location=''):
     """
     Remove CCDSEC from header to avoid IRAF error in ccdproc etc tasks.
 
-    Arguments:
-    ---------
+    Parameters
+    ----------
         file_list: List of files need to remove CCDSEC
     Returns :
     --------
@@ -81,16 +89,18 @@ def ccdsec_removal(file_list, location=''):
 
     for file_name in file_list:
         file_name = os.path.join(location, file_name)
-        task(images=file_name, fields='CCDSEC', verify='no', delete='yes', show='no', update='yes')
+        task(images=file_name, fields='CCDSEC', verify='no', delete='yes',
+             show='no', update='yes')
 
 
-def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
+def bias_correction(bias_list, list_file, CCD, location='',
+                    prefix_string='b_'):
     """
     From the input bias_list make master-bias, do bias correction to rest of \
     files in the directory, remove all past files and backup master-bias file.
 
-    Arguments:
-    ---------
+    Parameters
+    ----------
         bias_list    : list
             List of bias files to make master bias.
         list_file    : list
@@ -99,7 +109,7 @@ def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
             location of the files if it is not in the working directory.
         prefix_string: str
             prefix which add after doing bias correction to files.
-    Returns:
+    Returns
     -------
         none
         save bias_list in the location provided.
@@ -109,7 +119,8 @@ def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
     elif CCD.ccd == "HFOSC2":
         index = 1
 
-    if location != '':               # change location
+    # Change location
+    if location != '':
         pathloc = os.path.join(os.getcwd(), location, 'bias_list')
         master_bias = os.path.join(location, 'master-bias')
     else:
@@ -126,9 +137,11 @@ def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
 
     task = iraf.noao.imred.ccdred.zerocombine
     task.unlearn()
-    task(input='@' + pathloc, output=str(master_bias), combine='median', reject='avsigclip',
-         ccdtype='', process='no', delete='no', rdnoise=float(CCD.read_noise), gain=float(CCD.ccd_gain))
+    task(input='@' + pathloc, output=str(master_bias), combine='median',
+         reject='avsigclip', ccdtype='', process='no', delete='no',
+         rdnoise=float(CCD.read_noise), gain=float(CCD.ccd_gain))
 
+    # Bias correction using master_bias
     task = iraf.images.imutil.imarith
     task.unlearn()
 
@@ -138,49 +151,40 @@ def bias_correction(bias_list, list_file, CCD, location='', prefix_string='b_'):
         file_name = os.path.join(location, file_name)
         file_name_1 = file_name+str([index])
         remove_file(str(output_file_name))
-        task(operand1=str(file_name_1), op='-', operand2=str(master_bias), result=str(output_file_name))
-        remove_file(str(file_name))   # removing the older files which is needed to bias correct.
+        task(operand1=str(file_name_1), op='-', operand2=str(master_bias),
+             result=str(output_file_name))
 
+        # removing the older files which is needed to bias correct.
+        remove_file(str(file_name))
+
+    # Removing the older bias files
     for file_name in bias_list:
-        remove_file(str(os.path.join(location, file_name)))  # removing the older bias files
+        remove_file(str(os.path.join(location, file_name)))
 
+    # Backup the master_bias
     pathloc = os.path.join(location, 'Backup')
     os.makedirs(pathloc)
     print("copying master-bias to "+location+"/Backup")
-    shutil.move(location+'/'+'master-bias.fits', pathloc)   # backup the master_bias
+    shutil.move(location+'/'+'master-bias.fits', pathloc)
 
 
 def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
     """
     Corrects for cosmic rays in the OBJECT image.
 
-    Arguments:
-    ---------
+    Parameters
+    ----------
         cosmic_curr_list: list
             List of files which need to do cosmic-ray correction.
         location        : str
             Location of the files if it is not in the working directory.
         prefix_string   : str
             Prefix to distinguish FITS file from the original FITS file
-    Return:
+    Return
     ------
         cr_check_list   : list
             List of files to check how good is the cosmic ray correction.
     """
-#     if location != '':
-#         pathloc = os.path.join(os.getcwd(), location, 'cosmic_curr_list')
-#     else :
-#         pathloc = os.path.join(os.getcwd(), 'cosmic_curr_list')
-
-#     cosmic_curr_list.sort()
-#     if len(cosmic_curr_list) != 0:
-#         with open(pathloc, 'w') as f:
-#             for file in cosmic_curr_list:
-#                 if location != '':                  #important change, check with other functions
-#                     f.write(location+"/"+file+'\n')
-#                 else :
-#                     f.write(file+'\n')
-
     task = iraf.noao.imred.crutil.cosmicrays
     task.unlearn()
 
@@ -192,7 +196,10 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
         file_name = os.path.join(location, file_name)
         remove_file(output_file_name)
 
-        task(input=file_name, output=output_file_name, interac='no', train='no')
+        task(input=file_name, output=output_file_name,
+             interac='no', train='no')
+
+        # cosmic ray correction
         cr_currected_list.append(output_file_name)
 
     task = iraf.images.imutil.imarith
@@ -208,28 +215,42 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
         cr_check_file_name2 = os.path.join(location, cr_check_file_name)
         cr_check_list.append(cr_check_file_name2)
 
-        task(operand1=str(file_name), op='-', operand2=str(output_file_name2), result=str(cr_check_file_name2))
-        remove_file(str(file_name))   # removing the older files which is needed to bias correct.
+        # producing the residual files after cosmic ray correction.
+        task(operand1=str(file_name), op='-', operand2=str(output_file_name2),
+             result=str(cr_check_file_name2))
+
+        # removing the older files which is needed to bias correct.
+        remove_file(str(file_name))
+
     return cr_check_list
 
 
-def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string='f'):
+def flat_correction(flat_list, file_list, grism, CCD, location='',
+                    prefix_string='f'):
     """
     Flat correction to object files.
 
-    Arguments:
-    ---------
-        flat_list     : List of flat files in a particular grism.
-        file_list     : List of files which need to do flat correction.
-        location      : Location of the files if it is not in the working directory.
-        grism         : Type of grism used.
-        prefix_string : Prefix added after flat fielding.
-    Returns:
-        flat_curr_list: List of flat corrected files.
+    Parameters
+    ----------
+        flat_list     : list
+            List of flat files in a particular grism.
+        file_list     : list
+            List of files which need to do flat correction.
+        location      : str
+            Location of the files if it is not in the working directory.
+        grism         : str
+            Type of grism used.
+        prefix_string : str
+            Prefix added after flat fielding.
+    Returns
+    -------
+        flat_curr_list: list
+            List of flat corrected files.
         none
     """
     if location != '':
-        pathloc = os.path.join(os.getcwd(), location, 'flat_corr_list'+str(grism))
+        pathloc = os.path.join(os.getcwd(), location,
+                               'flat_corr_list'+str(grism))
         master_flat = os.path.join(location, 'master-flat'+str(grism))
         response_file = os.path.join(location, 'nflat'+str(grism))
     else:
@@ -251,8 +272,9 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
     # Make master flat file
     task = iraf.noao.ccdred.flatcombine
     task.unlearn()
-    task(input='@' + pathloc, output=str(master_flat), combine='average', reject='avsigclip',
-         ccdtype='', process='no', delete='no', rdnoise=float(CCD.read_noise), gain=float(CCD.ccd_gain))
+    task(input='@' + pathloc, output=str(master_flat), combine='average',
+         reject='avsigclip', ccdtype='', process='no', delete='no',
+         rdnoise=float(CCD.read_noise), gain=float(CCD.ccd_gain))
 
     for file in flat_list:
         file_name = os.path.join(location, file)
@@ -261,13 +283,14 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
     # Edit dispersion axis of flat files into 2
     task = iraf.hedit
     task.unlearn()
-    task(images=str(master_flat), fields='dispaxis', value=2, verify='no', add='yes', show='no', update='yes')
+    task(images=str(master_flat), fields='dispaxis', value=2, verify='no',
+         add='yes', show='no', update='yes')
 
     # create response file from master flat
     task = iraf.noao.imred.specred.response
     task.unlearn()
-    task(calibrat=str(master_flat), normaliz=str(master_flat), response=str(response_file), functio='spline3',
-         order='50')
+    task(calibrat=str(master_flat), normaliz=str(master_flat),
+         response=str(response_file), functio='spline3', order='50')
 
     # # Flat fielding of object and standard stars.
     # task = iraf.noao.imred.ccdred.ccdproc
@@ -278,24 +301,31 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
     task1.unlearn()
 
     flat_curr_list = []
-
     for file_name in file_list:
-        output_file_name = str(prefix_string) + str(os.path.splitext(file_name)[0]) + '_'+str(grism)
+
+        output_file_name = str(prefix_string) + str(
+            os.path.splitext(file_name)[0]) + '_'+str(grism)
+
         output_file_name2 = os.path.join(location, output_file_name)
         file_name = os.path.join(location, file_name)
         flat_curr_list.append(output_file_name2)
 
-        # task(images=file_name, output=output_file_name2, ccdtype='', fixpix='no', oversca='no', trim='no',
-        #      zerocor='no', darkcor='no', flatcor='yes', flat=response_file)
+        # Obsolete
+        # task(images=file_name, output=output_file_name2, ccdtype='',
+        #      fixpix='no', oversca='no', trim='no', zerocor='no',
+        #      darkcor='no', flatcor='yes', flat=response_file)
 
-        task1(operand1=file_name, op='/', operand2=response_file, result=output_file_name2)
+        task1(operand1=file_name, op='/', operand2=response_file,
+              result=output_file_name2)
 
         remove_file(str(file_name))
 
     # Creating backup files
-    backuploc = os.path.join(location, 'Backup')      # pathlocation changes here caution!!!
+    backuploc = os.path.join(location, 'Backup')
+    # Location changes here caution!!!
     print("copying master-flat"+str(grism)+"to "+location+"/Backup")
-    shutil.move(location+'/'+'master-flat'+str(grism)+'.fits', backuploc)   # backup the master_flat
+    # backup the master_flat
+    shutil.move(location+'/'+'master-flat'+str(grism)+'.fits', backuploc)
     print("copying nflat"+str(grism)+"to "+location+"/Backup")
     shutil.move(location+'/'+'nflat'+str(grism)+'.fits', backuploc)
 
@@ -304,7 +334,7 @@ def flat_correction(flat_list, file_list, grism, CCD, location='', prefix_string
 
 def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
     """
-    This function do spectral extraction and calibration of wavelength. After\
+    Spectral extraction and calibration of wavelength. After\
     running this function a header term "Waveleng" added after successfully\
     finishing this task.
 
@@ -386,18 +416,23 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         q - quit
         ''')
 
-        # Running apall (aperture extract)
-        # iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
-        #            background='fit', weights='none', saturation=int(CCD.max_count), readnoi=CCD.read_noise,
-        #            gain=CCD.ccd_gain, t_niterate=1, interactive='yes')
+        # Running apall (aperture extract) with out error. See No. 2
+        # iraf.apall(input=file_name, format='multispec', extras='yes',
+        #            lower=-15, upper=15, nfind=1, background='fit',
+        #            weights='none', saturation=int(CCD.max_count),
+        #            readnoi=CCD.read_noise, gain=CCD.ccd_gain, t_niterate=1,
+        #            interactive='yes')
+
         # weights= 'variance' seems to be unstable for our high effective gain
         # t_function=, t_order=,llimit=, ulimit=,ylevel=,b_sample=, background ='fit'
         # saturation=maximum count ?
 
-        # Running apall (aperture extract) with error
-        iraf.apall(input=file_name, format='multispec', extras='yes', lower=-15, upper=15, nfind=1,
-                   background='fit', weights='variance', saturation=int(CCD.max_count), readnoi=CCD.read_noise,
-                   gain=CCD.ccd_gain, t_niterate=1, interactive='yes')
+        # Running apall (aperture extract) with error See No. 5
+        iraf.apall(input=file_name, format='multispec', extras='yes',
+                   lower=-15, upper=15, nfind=1, background='fit',
+                   weights='variance', saturation=int(CCD.max_count),
+                   readnoi=CCD.read_noise, gain=CCD.ccd_gain, t_niterate=1,
+                   interactive='yes')
 
         """
         1.  extras = no
@@ -435,8 +470,10 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         """
 
         # Extracting the lamp (FeAr OR FeNe) for this spectra as obj_name_lamp.fits
-        iraf.apall(input=lamp, reference=file_name, out=os.path.splitext(file_name)[0]+'_lamp', recenter='no',
-                   trace='no', background='none', interactive='no')
+        iraf.apall(input=lamp, reference=file_name,
+                   out=os.path.splitext(file_name)[0]+'_lamp',
+                   recenter='no', trace='no', background='none',
+                   interactive='no')
 
         # Now reidentify the lines lamp files during the observation.
         if grism == 'gr7':
@@ -446,13 +483,14 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         else:
             print("ERROR: grism is not specified")
 
-        iraf.reidentify(reference=Lamp, images=os.path.splitext(file_name)[0]+'_lamp',
+        iraf.reidentify(reference=Lamp,
+                        images=os.path.splitext(file_name)[0]+'_lamp',
                         verbose='yes', interactive='yes')
         # interactive='no'
 
         # Edit the header of obj_name to add ref lamp
-        iraf.hedit(os.path.splitext(file_name)[0]+'.ms.fits', "REFSPEC1", os.path.splitext(file_name)[0]+'_lamp.fits',
-                   add=1, ver=0)
+        iraf.hedit(os.path.splitext(file_name)[0]+'.ms.fits', "REFSPEC1",
+                   os.path.splitext(file_name)[0]+'_lamp.fits', add=1, ver=0)
 
         file_name_chk = os.path.join(location, file_name)
         hdul = fits.open(file_name_chk)  # HDU_List
@@ -469,8 +507,8 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
 
 def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     """
-    This function is for flux calibration of the object spectra if standard\
-    star is also observed in the same night.
+    Flux calibration of the object spectra if standard star is also observed\
+    and provided in the folder.
 
     Parameters
     ----------
@@ -490,17 +528,23 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     -------
         none
     """
-    # This become obsolete
+    # Obsolete
     # if CCD.ccd == "HFOSC":
-    #     command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC')
+    #     command_file_path = os.path.join(default_path, 'Database/database',
+    #                                      'setst_HFOSC')
     # elif CCD.ccd == "HFOSC2":
-    #     command_file_path = os.path.join(default_path, 'Database/database', 'setst_HFOSC2')
+    #     command_file_path = os.path.join(default_path, 'Database/database',
+    #                                      'setst_HFOSC2')
 
-    iaoextinct_path = os.path.join(default_path, 'Database/database', 'iaoextinct.dat')
+    iaoextinct_path = os.path.join(default_path, 'Database/database',
+                                   'iaoextinct.dat')
+
     if location != '':
         iraf.cd(os.path.join(os.getcwd(), location))
 
-    # Check files are wavelength calibrated and separate object files and standard
+    # Check files are wavelength calibrated and separate object files and
+    # standard.
+
     # star files
     obj_stars = []
     std_stars = []
@@ -511,7 +555,8 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
         OBJECT = hdr['OBJECT']
         aperture = hdr['APERTUR']
         try:
-            Wavelength_cal = hdr['WAVELENG']  # checking weather Wavelength is done
+            # checking weather Wavelength is done
+            Wavelength_cal = hdr['WAVELENG']
             if Wavelength_cal == 'done':
                 if aperture == '2 1340 l':
                     std_stars.append(file_name)
@@ -530,7 +575,8 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     iraf.observatory(command='list', obsid='set', observatory='iao')
 
     star_list = list(set(obj_stars).union(std_stars))
-    # This become obsolete
+
+    # This became obsolete
     # for file_name in star_list:
     #
     #     # Calculating ST and adding in the header
@@ -538,10 +584,10 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     #     iraf.astutil.asthedit(images=file_name, commands=command_file_path,
     #                           update='yes')
     #
-    #     # Setting Airmass to all files before flux calibration. (ST should be there in the header)
+    #     # Setting Airmass to all files before flux calibration.
+    #     # (ST should be there in the header)
     #     iraf.noao.imred.specred.setairmass(images=file_name, observa='iao')
-    #
-    # print("Airmass correction is done for all stars")
+
     for filename in star_list:
         airmass(filename=filename)
     print("Airmass correction is done for all stars")
@@ -558,7 +604,7 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
            'feige66': 'onedstds$spec50cal/',
            'feige110': 'onedstds$spec50cal/',
            'bd284211': 'onedstds$spec50cal/',
-           'hz44': 'onedstds$spec50cal/'}  # Emtry string is for while loop. Don't remove it.
+           'hz44': 'onedstds$spec50cal/'}
 
     # standard_star_name = raw_input("Type standard star name to continue :")
     message = "Select standard star and 'Enter' to continue"
@@ -571,21 +617,25 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     # mag = 11.18 # Magnitude of standard star.
 
     standard_data_file = os.path.splitext(file_name)[0]
-    iraf.imred.specred.standard(input=file_name, output=standard_data_file, extinct=iaoextinct_path,
-                                caldir=caldir, observa='iao', star_nam=standard_star_name)
+    iraf.imred.specred.standard(input=file_name, output=standard_data_file,
+                                extinct=iaoextinct_path, caldir=caldir,
+                                observa='iao', star_nam=standard_star_name)
     # , mag = float(mag), magband = 'V'
     # fnuzero= ? (Absolute flux zero point), teff= ?
     # mag = float(mag)Magnitude Of The Standard Star
     # magband = 'V' Magnitude Band
 
     # Running Sensfunc task in IRAF
-    iraf.imred.specred.sensfunc(standard=standard_data_file, sensitiv=str(standard_data_file)+'sens',
+    iraf.imred.specred.sensfunc(standard=standard_data_file,
+                                sensitiv=str(standard_data_file)+'sens',
                                 extinct=iaoextinct_path, observa='iao')
     # extinct='onedstds$ctioextinct.dat'
 
     # Running calibrate task in IRAF
     for file_name in obj_stars:
-        iraf.imred.specred.calibrate(input=file_name, output=str(prefix_string)+str(file_name), extinct='yes',
-                                     flux='yes', extinction=iaoextinct_path, observa='iao',
+        iraf.imred.specred.calibrate(input=file_name,
+                                     output=str(prefix_string)+str(file_name),
+                                     extinct='yes', flux='yes',
+                                     extinction=iaoextinct_path, observa='iao',
                                      sensiti=str(standard_data_file)+'sens')
     # extinct='onedstds$ctioextinct.dat'
