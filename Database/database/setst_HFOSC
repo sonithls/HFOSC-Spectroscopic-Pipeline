@@ -1,0 +1,2 @@
+observat = "iao"
+st = mst (@'date-obs', @'ut', obsdb (observat, "longitude"))

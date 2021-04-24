@@ -1,10 +1,39 @@
 # -------------------------------------------------------------------------------------------------------------------- #
-# This script is to semi-automate basic reduction of HFOSC spectrosopic data
-# Author : Sonith L.S
-# Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.8'
-# Code is  written serially to check every functions are working properly
-# Adiitional formatting required for running in for multiple number of folder in faster way.
+"""This script is to semi-automate basic reduction of HFOSC spectroscopic data.
+
+Additional formatting required for running in for multiple number of folder\
+in faster way.
+
+>>>Important header terms which is required for running the HFOSC
+Spectroscopic Pipeline
+
+1) 'OBJECT'
+2) 'GRISM'
+3) 'NAXIS1'
+4) 'NAXIS2'
+5) 'APERTUR'
+6) 'INSTRUME'
+7) 'LAMP'       for HFOSC
+8) 'DATE-AVG'   for HFOSC2
+
+>>>CCD Information provided for running of IRAF module
+
+HFOSC1
+------
+# read_noise = 4.87
+# ccd_gain   = 1.22
+# data_max   = 55000
+
+HFOSC2
+------
+# read_noise = 5.75
+# ccd_gain = 0.28
+# max_count = 700000
+"""
+# -------------------------------------------------------------------------------------------------------------------- #
+__author__ = 'Sonith L.S'
+__contact__ = 'sonith.ls@iiap.res.in'
+__version__ = '0.0.9'
 # -------------------------------------------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -31,6 +60,8 @@ from hfoscsp.file_management import write_list
 from hfoscsp.file_management import list_flat
 from hfoscsp.file_management import list_lamp
 from hfoscsp.file_management import list_object
+# from hfoscsp.file_management import setccd
+from hfoscsp.file_management import SetCCD
 
 from hfoscsp.reduction import ccdsec_removal
 from hfoscsp.reduction import bias_correction
@@ -43,8 +74,10 @@ from hfoscsp.cosmicray import cosmic_correction_individual
 from hfoscsp.cosmicray import cosmic_correction_batch
 from hfoscsp.cosmicray import cosmic_correction
 
+from hfoscsp.headercorrection import headercorr
 from hfoscsp.interactive import options
 # from hfoscsp.interactive import multioptions
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -61,16 +94,7 @@ iraf.onedspec(_doprint=0)
 iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 
 # -------------------------------------------------------------------------------------------------------------------- #
-"""CCD Information provided for running of IRAF module"""
-# HFOSC1 #
-# read_noise = 4.87
-# ccd_gain   = 1.22
-# data_max   = 55000
 
-# HFOSC2 #
-read_noise = 5.75
-ccd_gain = 0.28
-max_count = 700000
 # -------------------------------------------------------------------------------------------------------------------- #
 default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
@@ -81,9 +105,15 @@ bar = """
 """
 
 
-def part1(flat_flag):
+def part1(CCD):
+    """Part one - wavelength calibration."""
     # Backing up the whole directory
     # Backup (BACKUP)
+
+    message = "Do you want to do flat-fielding ?"
+    choices = ['Yes', 'No']
+    flat_flag = options(message, choices)
+    # Question for flat-fielding using flat_flag
 
     # Selecting the folder for reducing the data
     print(list_subdir())
@@ -99,8 +129,8 @@ def part1(flat_flag):
     list_files = search_files(location=folder_name, keyword='*.fits')
     # print list_files
 
-    # Seperating photometric and spectrosopic files
-    speclist, photlist = spec_or_phot(list_files, PATH, 'spec')
+    # Separating photometric and spectroscopic files
+    speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')
     # file_list is updated from passing list
     # print (speclist)
 
@@ -112,7 +142,7 @@ def part1(flat_flag):
     # print (passing_list)
 
     # Running bias corrections
-    bias_correction(bias_list, passing_list, PATH)
+    bias_correction(bias_list, passing_list, CCD, PATH)
     list_files = search_files(location=folder_name, keyword='*.fits')
     ccdsec_removal(file_list=list_files, location=PATH)
 
@@ -132,15 +162,15 @@ def part1(flat_flag):
     for file in cr_check_list:
         remove_file(str(file))
 
-    # cosmicray correction manually for individual files or all files automatically
+    # cosmic-ray correction manually for individual files or all files automatically
     message = "How do you like to proceed Cosmic ray correction?"
     choices = ['Default', 'Manually']
     input = options(message, choices)
 
     if input.lower() == 'manually':
-        cr_check_list = cosmic_correction_individual(cosmic_curr_list, location=PATH)
+        cr_check_list = cosmic_correction_individual(cosmic_curr_list, CCD=CCD, location=PATH)
     else:
-        cr_check_list = cosmic_correction_batch(cosmic_curr_list, location=PATH)
+        cr_check_list = cosmic_correction_batch(cosmic_curr_list, CCD=CCD, location=PATH)
 
     # Stop running code for checking the cosmic ray corrected files
     print("Cosmic ray correction is done. Please check chk files then continue")
@@ -163,11 +193,11 @@ def part1(flat_flag):
         obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
         flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files, PATH)
         # Flat correction using file lists made.
-        flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, location=PATH, grism='gr8',
-                                         prefix_string='f')
+        flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, grism='gr8', CCD=CCD,
+                                         location=PATH, prefix_string='f')
         print("Flat correction grism 8 is done.")
-        flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, location=PATH, grism='gr7',
-                                         prefix_string='f')
+        flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, grism='gr7', CCD=CCD,
+                                         location=PATH, prefix_string='f')
         print("Flat correction grism 7 is done.")
 
     # making list for spectral extraction and wavelength calibration
@@ -182,13 +212,13 @@ def part1(flat_flag):
     options(message, choices)
 
     # Running spectral_extraction function using file lists made
-    spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, grism='gr7')
-    spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, grism='gr8')
+    spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, CCD=CCD, grism='gr7')
+    spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, CCD=CCD, grism='gr8')
 
     print("Wavelength calibration of spectra is done")
 
 
-def part2(folder_name, PATH):
+def part2(folder_name, PATH, CCD):
     print(PATH)
     print(folder_name)
 
@@ -197,24 +227,29 @@ def part2(folder_name, PATH):
     choices = ['Yes']
     options(message, choices)
 
+    # Header correction
+    list_files = search_files(location=folder_name, keyword='*.ms.fits')
+    headercorr(file_list=list_files, location=folder_name)
+
     # Running Flux calibration
     list_files = search_files(location=folder_name, keyword='*.fits')
     print(list_files)
+
     obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
     print(obj_list_gr7)
-    flux_calibrate(obj_list=obj_list_gr8, location=PATH, default_path=default_path)
-    flux_calibrate(obj_list=obj_list_gr7, location=PATH, default_path=default_path)
+    flux_calibrate(obj_list=obj_list_gr8, location=PATH, default_path=default_path, CCD=CCD)
+    flux_calibrate(obj_list=obj_list_gr7, location=PATH, default_path=default_path, CCD=CCD)
 
 
 def main():
-    """Main function of the HFOSC Spectrosopic Pipeline"""
+    """Run the HFOSC Spectroscopic Pipeline."""
     working_dir_path = os.getcwd()
 
     logo = """
 ###############################################################################
 ###############################################################################
-                          HFOSC Spectrosopic Pipeline
-                                Version: 0.0.7
+                          HFOSC Spectroscopic Pipeline
+                                Version: 0.0.9
 ###############################################################################
 ###############################################################################
 """
@@ -224,36 +259,21 @@ def main():
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
 
-    # flat_flag = raw_input("If you are not using flats please type -- no -- and enter :")
-    # print("flat_flag :", flat_flag)
+    list_files_ccdcheck = search_files(location=folder_name, keyword='*.fits')
 
-    message = "Do you want to do flatfielding ?"
-    choices = ['Yes', 'No']
-    flat_flag = options(message, choices)
-    # Question for flatfielding using flat_flag
+    CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
 
     message = "Select the mode of running the Pipeline"
     choices = ['Complete Code', 'Only Flux Calibration']
     input = options(message, choices)
 
     if input == 'Complete Code':
-        part1(flat_flag=flat_flag)
+        part1(CCD=CCD)
         os.chdir(working_dir_path)
-        part2(folder_name=folder_name, PATH=PATH)
+        part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
     elif input == 'Only Flux Calibration':
-        part2(folder_name=folder_name, PATH=PATH)
+        part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
         os.chdir(working_dir_path)
-
-    # print("Press Enter for running complete code")
-    # print("Press 1 and Entre for running only flux calibration")
-    # input = raw_input()
-    # if input == '1':
-    #     part2(folder_name=folder_name, PATH=PATH)
-    #     os.chdir(working_dir_path)
-    # else:
-    #     part1(flat_flag=flat_flag)
-    #     os.chdir(working_dir_path)
-    #     part2(folder_name=folder_name, PATH=PATH)
 
 
 if __name__ == "__main__":

@@ -99,7 +99,7 @@ def la_cosmic(input, output, sigclip, sigfrac, objlim, read_noise, data_max):
     hdul.writeto(output, overwrite=True)
 
 
-def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c'):
+def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_string='c'):
     """
     Corrects for cosmic rays in the individually for each OBJECT images and allow to adjust the
     parameters manually
@@ -141,8 +141,8 @@ def cosmic_correction_individual(cosmic_curr_list, location='', prefix_string='c
     sigclip = 15.0
     sigfrac = 0.5
     objlim = 5.0
-    data_max = 700000  # Depend up on CCD
-    read_noise = 5.75  # Depend up on CCD
+    data_max = CCD.max_count  # 700000  # Depend up on CCD
+    read_noise = CCD.read_noise  # 5.75  # Depend up on CCD
 
     # Create guaranteed unique sentinel (can't use None since iterator might produce None)
     sentinel = object()
@@ -303,7 +303,7 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
     return cr_check_list
 
 
-def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
+def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='c'):
     """
     Corrects for cosmic rays in the OBJECT image.
     Arguments:
@@ -340,8 +340,8 @@ def cosmic_correction_batch(cosmic_curr_list, location='', prefix_string='c'):
     sigclip = 15.0
     sigfrac = 0.5
     objlim = 5.0
-    data_max = 700000  # Depend up on CCD
-    read_noise = 5.75  # Depend up on CCD
+    data_max = CCD.max_count  # 700000  # Depend up on CCD
+    read_noise = CCD.read_noise  # 5.75  # Depend up on CCD
 
     # Cosmic ray correction loop
     for file_name in cosmic_curr_list:

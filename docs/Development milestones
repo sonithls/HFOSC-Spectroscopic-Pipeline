@@ -41,9 +41,15 @@ version 0.0.8
 
 version 0.0.9
 =============
-> wavelength calibration verification using telluric input_lines
+> Including compatibility with HCT old CCD files and headers
+> Error propagation.
 
 version 0.0.10
+=============
+> Restructure the code
+> Plotting tools
+
+version 0.1.1
 =============
 Batch-wise reduction for single day.
 
