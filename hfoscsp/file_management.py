@@ -20,6 +20,14 @@ from astropy.io import fits
 default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
 
+# Kept every keywords in small letters in the list
+KEYWORDS = {'BIAS': ["bias_snspec", "bias_sn", "bias", "bias snspec",
+                     "bias-snspec"],
+            'FLAT': ["flat", "halogen"],
+            'LAMP': ["lamp", "fear", "fe-ar", "fene", "fe-ne"],
+            'FEAR': ["fear", "fe-ar"],
+            'FENE': ["fene", "fe-ne"]}
+
 
 class SetCCD:
     """Set CCD parameters from fits file provided."""
@@ -227,27 +235,18 @@ def list_bias(file_list, location=''):
         passing_list: list
             Remaining files after removing bias files from the file_list.
     """
+    KEYWORDS = {'BIAS': ["bias_snspec", "bias_sn", "bias", "bias snspec", "bias-snspec"],
+                'FLAT': ["flat", "halogen"],
+                'LAMP': ["lamp"]}
+
     bias_list = []
     for file in file_list:
         file_name = os.path.join(location, file)
         hdul = fits.open(file_name)  # HDU_List
         hdr = hdul[0].header        # Primary HDU header
         OBJECT = hdr['OBJECT']
-        if OBJECT == "Bias_Snspec":
-            bias_list.append(file)
-        elif OBJECT == "Bias_Sn":
-            bias_list.append(file)
-        elif OBJECT == "Bias_snspec":
-            bias_list.append(file)
-        elif OBJECT == "bias_snspec":
-            bias_list.append(file)
-        elif OBJECT.lower() == "bias":
-            bias_list.append(file)
-        elif OBJECT == "Bias snspec":
-            bias_list.append(file)
-        elif OBJECT == "bias-snspec":
-            bias_list.append(file)
-        elif OBJECT.lower() == "bias snspec":
+
+        if OBJECT.lower() in KEYWORDS['BIAS']:
             bias_list.append(file)
 
     passing_list = list(set(file_list).difference(bias_list))
