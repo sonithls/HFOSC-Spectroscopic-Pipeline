@@ -1,6 +1,12 @@
-# Author : Sonith L.S
-# Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.8'
+"""
+This script is written for HFOSC spectroscopic-Pipeline.
+
+It is containing cosmic ray correction utilities for running the
+HFOSC spectroscopic-Pipeline.
+"""
+__author__ = 'Sonith L.S'
+__contact__ = 'sonith.ls@iiap.res.in'
+__version__ = '0.0.9'
 
 # Warning : Please check any variable depends on CCD
 
@@ -25,13 +31,16 @@ bar = """
 
 def remove_file(file_name):
     """
-    Removing a file from the directory
-    Argument:
-        file_name: file name of the file to remove from directory.
-    Returns :
+    Remove a file from the directory.
+
+    Parameters
+    ----------
+        file_name: str
+            File name of the file to remove from directory.
+    Returns
+    -------
         none
     """
-
     try:
         os.remove(file_name)
     except OSError:
@@ -40,18 +49,25 @@ def remove_file(file_name):
 
 def irafcosmicrays(input, output, threshold, fluxrate, npasses, window):
     """
-    Function utilise IRAF cosmicray correction module.
-    Argument:
-        input   : file name of file to correct cosmic rays.
-        output  : file name of cosmic ray corrected file.
-        threshol:
-        fluxrate:
-        npasses :
+    IRAF cosmicray correction module.
+
+    Parameters
+    ----------
+        input   : str
+            File name of file to correct cosmic rays.
+        output  : str
+            File name of cosmic ray corrected file.
+        threshol: float
+            Threshold value.
+        fluxrate: float
+            Flux rate.
+        npasses : float
+            Number of passes.
         window  :
-    Returns :
+    Returns
+    -------
         none
     """
-
     iraf.noao.imred.crutil.cosmicrays.unlearn()
     iraf.noao.imred.crutil.cosmicrays(input=input, output=output, thresho=threshold, fluxrat=fluxrate,
                                       npasses=npasses, window=window, interac='no', train='no')
@@ -59,16 +75,22 @@ def irafcosmicrays(input, output, threshold, fluxrate, npasses, window):
 
 def irafcrmedian(input, output, lsigma, hsigma, ncmed, nlmed, ncsig, nlsig):
     """
-    Function utilise IRAF cosmicray correction module.
-    Argument:
-        input   : file name of file to correct cosmic rays.
-        output  : file name of cosmic ray corrected file.
-        lsigma  : Low Clipping Sigma Factor
-        ncsig   : Column Box Size For Sigma Calculation
-    Returns :
+    IRAF cosmic-ray correction module.
+
+    Parameters
+    ----------
+        input   : str
+            File name of file to correct cosmic rays.
+        output  : str
+            File name of cosmic ray corrected file.
+        lsigma  : float
+            Low Clipping Sigma Factor
+        ncsig   : float
+            Column Box Size For Sigma Calculation
+    Returns
+    -------
         none
     """
-
     iraf.noao.imred.crutil.crmedian.unlearn()
     iraf.noao.imred.crutil.crmedian(input=input, output=output, crmask='', median='', sigma='', residua='',
                                     lsigma=lsigma, hsigma=hsigma, ncmed=ncmed, ncsig=ncsig, nlsig=nlsig)
@@ -76,15 +98,17 @@ def irafcrmedian(input, output, lsigma, hsigma, ncmed, nlmed, ncsig, nlsig):
 
 def la_cosmic(input, output, sigclip, sigfrac, objlim, read_noise, data_max):
     """
-    Function utilise la cosmic cosmicray correction module from Astropy.
-    Argument:
+    La cosmic cosmic-ray correction module from Astropy.
+
+    Parameters
+    ----------
         input   : file name of file to correct cosmic rays.
         output  : file name of cosmic ray corrected file.
         sigclip :
-    Returns :
+    Returns
+    -------
         none
     """
-
     hdul = fits.open(input)
     gain_corrected = hdul[0].data
 
@@ -101,16 +125,22 @@ def la_cosmic(input, output, sigclip, sigfrac, objlim, read_noise, data_max):
 
 def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_string='c'):
     """
-    Corrects for cosmic rays in the individually for each OBJECT images and allow to adjust the
-    parameters manually
-    Arguments:
-        cosmic_curr_list: List of files which need to do cosmicray correction.
-        location        : Location of the files if it is not in the working directory.
-        prefix_string   : Prefix to distinguish FITS file from the original FITS file
-    Return:
-        cr_check_list   : List of files to check how good is the cosmic ray correction.
-    """
+    Corrects for cosmic rays in the individually for each OBJECT images and\
+    allow to adjust the parameters manually.
 
+    Parameters
+    ----------
+        cosmic_curr_list: list
+            List of files which need to do cosmic-ray correction.
+        location        : str
+            Location of the files if it is not in the working directory.
+        prefix_string   : str
+            Prefix to distinguish FITS file from the original FITS file
+    Returns
+    -------
+        cr_check_list   : list
+            List of files to check how good is the cosmic ray correction.
+    """
     print(cosmic_curr_list)
     cr_currected_list = []
     cr_check_list = []
@@ -250,12 +280,19 @@ def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_stri
 def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
     """
     Corrects for cosmic rays in the OBJECT image.
-    Arguments:
-        cosmic_curr_list: List of files which need to do cosmicray correction.
-        location        : Location of the files if it is not in the working directory.
-        prefix_string   : Prefix to distinguish FITS file from the original FITS file
-    Return:
-        cr_check_list   : List of files to check how good is the cosmic ray correction.
+
+    Parameters
+    ----------
+        cosmic_curr_list: list
+            List of files which need to do cosmic-ray correction.
+        location        : str
+            Location of the files if it is not in the working directory.
+        prefix_string   : str
+            Prefix to distinguish FITS file from the original FITS file
+    Returns
+    -------
+        cr_check_list   : list
+            List of files to check how good is the cosmic ray correction.
     """
 #     if location != '':
 #         pathloc = os.path.join(os.getcwd(), location, 'cosmic_curr_list')
@@ -306,14 +343,20 @@ def cosmic_correction(cosmic_curr_list, location='', prefix_string='c'):
 def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='c'):
     """
     Corrects for cosmic rays in the OBJECT image.
-    Arguments:
-        cosmic_curr_list: List of files which need to do cosmicray correction.
-        location        : Location of the files if it is not in the working directory.
-        prefix_string   : Prefix to distinguish FITS file from the original FITS file
-    Return:
-        cr_check_list   : List of files to check how good is the cosmic ray correction.
-    """
 
+    Parameters
+    ----------
+        cosmic_curr_list: list
+            List of files which need to do cosmic-ray correction.
+        location        : str
+            Location of the files if it is not in the working directory.
+        prefix_string   : str
+            Prefix to distinguish FITS file from the original FITS file
+    Returns
+    -------
+        cr_check_list   : list
+            List of files to check how good is the cosmic ray correction.
+    """
     print(cosmic_curr_list)
     cr_currected_list = []
     cr_check_list = []
