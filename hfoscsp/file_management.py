@@ -23,10 +23,12 @@ BACKUP = "HFOSC_PIPELINE_DataBackup"
 # Kept every keywords in small letters in the list
 KEYWORDS = {'BIAS': ["bias_snspec", "bias_sn", "bias", "bias snspec",
                      "bias-snspec"],
-            'FLAT': ["flat", "halogen"],
+            'FLAT': ["flat", "halogen", "spectral flat"],
             'LAMP': ["lamp", "fear", "fe-ar", "fene", "fe-ne"],
             'FEAR': ["fear", "fe-ar"],
-            'FENE': ["fene", "fe-ne"]}
+            'FENE': ["fene", "fe-ne"],
+            'GR7': ["grism 7", "4 grism 7", "gr7"],
+            'GR8': ["grism 8", "3 grism 8", "gr8"]}
 
 
 class SetCCD:
@@ -216,7 +218,7 @@ def spec_or_phot(file_list, location, CCD, func=''):
     return spec_list, phot_list
 
 
-def list_bias(file_list, location=''):
+def list_bias(file_list, location='', keywords=KEYWORDS):
     """
     Identify bias files from file_list provided by looking the header keyword\
     in the files.
@@ -235,10 +237,6 @@ def list_bias(file_list, location=''):
         passing_list: list
             Remaining files after removing bias files from the file_list.
     """
-    KEYWORDS = {'BIAS': ["bias_snspec", "bias_sn", "bias", "bias snspec", "bias-snspec"],
-                'FLAT': ["flat", "halogen"],
-                'LAMP': ["lamp"]}
-
     bias_list = []
     for file in file_list:
         file_name = os.path.join(location, file)
@@ -246,7 +244,7 @@ def list_bias(file_list, location=''):
         hdr = hdul[0].header        # Primary HDU header
         OBJECT = hdr['OBJECT']
 
-        if OBJECT.lower() in KEYWORDS['BIAS']:
+        if OBJECT.lower() in keywords['BIAS']:
             bias_list.append(file)
 
     passing_list = list(set(file_list).difference(bias_list))
@@ -299,7 +297,7 @@ def write_list(file_list, file_name, location=''):
                 f.write(file+'\n')
 
 
-def list_flat(file_list, location=''):
+def list_flat(file_list, location='', keywords=KEYWORDS):
     """
     From the file_list provided, separate files into flat files and further\
     separate them into grism7 and grism8 files.
@@ -333,11 +331,11 @@ def list_flat(file_list, location=''):
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
-        if (OBJECT.lower() == "halogen") or (OBJECT.lower() == "spectral flat") or (OBJECT == "flat"):
+        if OBJECT.lower() in keywords['FLAT']:
             flat_list.append(file)
-            if GRISM == "4 Grism 7":
+            if GRISM.lower() in keywords['GR7']:
                 flat_list_gr7.append(file)
-            elif GRISM == "3 Grism 8":
+            elif GRISM.lower() in keywords['GR8']:
                 flat_list_gr8.append(file)
             else:
                 print(file)
@@ -352,7 +350,7 @@ def list_flat(file_list, location=''):
     return flat_list, flat_list_gr7, flat_list_gr8, passing_list
 
 
-def list_lamp(file_list, location=''):
+def list_lamp(file_list, location='', keywords=KEYWORDS):
     """
     From the file_list provided, separate files into lamp files and further\
     separate them into grism7 and grism8 files.
@@ -383,21 +381,22 @@ def list_lamp(file_list, location=''):
         GRISM = hdr['GRISM']
         LAMP = hdr['LAMP']
 
-        if (OBJECT == "FeAr"):
+        if OBJECT.lower() in keywords['FEAR']:
             lamp_list_gr7.append(file)
-        elif (OBJECT == "FeNe"):
+        elif OBJECT.lower() in keywords['FENE']:
             lamp_list_gr8.append(file)
-        elif (OBJECT.lower() == "lamp"):  # HFOSC old CCD
-            if (LAMP.lower() == "fe-ar"):
+        # For HFOSC1 old CCD, not kept using from KEYWORDS
+        elif (OBJECT.lower() == "lamp"):
+            if LAMP.lower() in keywords['FEAR']:
                 lamp_list_gr7.append(file)
-            elif (LAMP.lower() == "fe-ne"):
+            elif LAMP.lower() in keywords['FENE']:
                 lamp_list_gr8.append(file)
 
     passing_list = list(set(file_list).difference(lamp_list_gr7).difference(lamp_list_gr8))
     return lamp_list_gr7, lamp_list_gr8, passing_list
 
 
-def list_object(file_list, location=''):
+def list_object(file_list, location='', keywords=KEYWORDS):
     """
     From the file_list provided, separate files into object files and further\
     separate them into grism7 and grism8 files.
@@ -431,12 +430,12 @@ def list_object(file_list, location=''):
         print(file)
         GRISM = hdr['GRISM']
 
-        if ((OBJECT != "FeAr") and (OBJECT != "FeNe") and (OBJECT.lower() != "halogen") and (OBJECT != "Bias_Snspec")
-           and OBJECT.lower() != "spectral flat" and OBJECT.lower() != "lamp"):
+        if OBJECT.lower() not in (
+                keywords['BIAS'] + keywords['FLAT'] + keywords['LAMP']):
             obj_list.append(file)
-            if (GRISM == "4 Grism 7") or (GRISM == "Grism 7") or (GRISM == "gr7") or (GRISM == "grism 7"):
+            if GRISM.lower() in keywords['GR7']:
                 obj_list_gr7.append(file)
-            elif (GRISM == "3 Grism 8") or (GRISM == "Grism 8") or (GRISM == "gr8") or (GRISM == "grism 8"):
+            elif GRISM.lower() in keywords['GR8']:
                 obj_list_gr8.append(file)
             else:
                 print(file)
