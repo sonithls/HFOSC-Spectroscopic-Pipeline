@@ -2,7 +2,7 @@ import os
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
+# from matplotlib.ticker import MultipleLocator
 from hfoscsp.file_management import search_files
 from hfoscsp.interactive import options
 from hfoscsp.interactive import multioptions

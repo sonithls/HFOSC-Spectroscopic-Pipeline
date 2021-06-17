@@ -76,7 +76,7 @@ from hfoscsp.cosmicray import cosmic_correction
 
 from hfoscsp.headercorrection import headercorr
 from hfoscsp.interactive import options
-# from hfoscsp.interactive import multioptions
+from hfoscsp.interactive import multioptions
 from hfoscsp.plotspec import spectral_plot
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -196,10 +196,10 @@ def part1(CCD):
         # Flat correction using file lists made.
         flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, grism='gr8', CCD=CCD,
                                          location=PATH, prefix_string='f')
-        print("Flat correction grism 8 is done.")
+        print("Flat correction grism 8 is done.", flat_curr_list)
         flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, grism='gr7', CCD=CCD,
                                          location=PATH, prefix_string='f')
-        print("Flat correction grism 7 is done.")
+        print("Flat correction grism 7 is done.", flat_curr_list)
 
     # making list for spectral extraction and wavelength calibration
     list_files = search_files(location=folder_name, keyword='*.fits')
@@ -278,7 +278,12 @@ def main():
     elif input == 'Plot spectra':
         os.chdir(working_dir_path)
         list_files = search_files(location=folder_name, keyword='*ms.fits')
-        spectral_plot(file_list=list_files, location=PATH, type='flux')
+
+        message = "Select the files to plot"
+        choices = list_files
+        input_files = multioptions(message, choices)
+        spectral_plot(file_list=input_files, location=PATH, type='flux')
+
 
 if __name__ == "__main__":
     main()
