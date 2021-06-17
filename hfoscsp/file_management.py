@@ -142,7 +142,8 @@ def list_subdir():
     directory_contents = os.listdir(os.getcwd())
     sub_directories = []
     for item in directory_contents:
-        if os.path.isdir(item) and item[0].isdigit():  # list directories which have first charater a digit
+        # list directories which have first charater a digit
+        if os.path.isdir(item) and item[0].isdigit():
             sub_directories.append(item)
             sub_directories.sort()
     return sub_directories
@@ -331,12 +332,24 @@ def list_flat(file_list, location='', keywords=KEYWORDS):
         OBJECT = hdr['OBJECT']
         GRISM = hdr['GRISM']
 
+        try:
+            COMMENT = hdr['COMMENT']
+        except:
+            COMMENT = ''
+
+
         if OBJECT.lower() in keywords['FLAT']:
             flat_list.append(file)
             if GRISM.lower() in keywords['GR7']:
                 flat_list_gr7.append(file)
             elif GRISM.lower() in keywords['GR8']:
                 flat_list_gr8.append(file)
+            elif COMMENT != '':
+                GRISM = COMMENT[0][3:6]
+                if GRISM.lower() in keywords['GR7']:
+                    flat_list_gr7.append(file)
+                elif GRISM.lower() in keywords['GR8']:
+                    flat_list_gr8.append(file)
             else:
                 print(file)
                 print("There is error in header term : GRISM")
@@ -430,6 +443,11 @@ def list_object(file_list, location='', keywords=KEYWORDS):
         print(file)
         GRISM = hdr['GRISM']
 
+        try:
+            COMMENT = hdr['COMMENT']
+        except:
+            COMMENT = ''
+
         if OBJECT.lower() not in (
                 keywords['BIAS'] + keywords['FLAT'] + keywords['LAMP']):
             obj_list.append(file)
@@ -437,6 +455,15 @@ def list_object(file_list, location='', keywords=KEYWORDS):
                 obj_list_gr7.append(file)
             elif GRISM.lower() in keywords['GR8']:
                 obj_list_gr8.append(file)
+
+            elif COMMENT != '':
+                GRISM = COMMENT[0][3:6]
+                print("GRISM from comment term : ",GRISM)
+                if GRISM.lower() in keywords['GR7']:
+                    obj_list_gr7.append(file)
+                elif GRISM.lower() in keywords['GR8']:
+                    obj_list_gr8.append(file)
+
             else:
                 print(file)
                 print("There is error in header term : GRISM")
