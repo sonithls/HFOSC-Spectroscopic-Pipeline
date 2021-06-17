@@ -40,8 +40,8 @@ def load_fits(file_name, location=''):
 
     if spectrum[0].header['NAXIS'] == 3:
         # Create flux and wavelength array
-        flux = np.array(spectrum[0].data)
-        flux = flux[0][0]
+        data = np.array(spectrum[0].data)
+        flux = data[0][0]
         telluric = data[2][0]
         uncert = data[3][0]
         wave = np.ones(spectrum[0].header['NAXIS1'], dtype=float)

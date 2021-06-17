@@ -77,6 +77,7 @@ from hfoscsp.cosmicray import cosmic_correction
 from hfoscsp.headercorrection import headercorr
 from hfoscsp.interactive import options
 # from hfoscsp.interactive import multioptions
+from hfoscsp.plotspec import spectral_plot
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
@@ -264,7 +265,7 @@ def main():
     CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
 
     message = "Select the mode of running the Pipeline"
-    choices = ['Complete Code', 'Only Flux Calibration']
+    choices = ['Complete Code', 'Only Flux Calibration', 'Plot spectra']
     input = options(message, choices)
 
     if input == 'Complete Code':
@@ -274,7 +275,10 @@ def main():
     elif input == 'Only Flux Calibration':
         part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
         os.chdir(working_dir_path)
-
+    elif input == 'Plot spectra':
+        os.chdir(working_dir_path)
+        list_files = search_files(location=folder_name, keyword='*ms.fits')
+        spectral_plot(file_list=list_files, location=PATH, type='flux')
 
 if __name__ == "__main__":
     main()
