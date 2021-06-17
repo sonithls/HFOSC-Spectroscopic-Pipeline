@@ -6,7 +6,7 @@ HFOSC spectroscopic-Pipeline.
 """
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.9'
+__version__ = '0.0.10'
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required libraries
@@ -409,7 +409,7 @@ def spectral_extraction(obj_list, lamp_list, grism, CCD, location=''):
         u - set the upper limit for the aperture
         b - enter background editing
         z - delete background intervals
-        s s - mark new fit regions for the backgorund.
+        s s - mark new fit regions for the background.
               (Press s to select initial point at cursor
                position, press s again for complete the selection)
         f - fit
@@ -513,7 +513,7 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
     Parameters
     ----------
         obj_list : list
-            List of wavelength calibrated object spectra in a perticular grism.
+            List of wavelength calibrated object spectra in a particular grism.
         location : str
             Location of the files if it is not in the working directory.
         default_path :
@@ -565,7 +565,7 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
                 else:
                     print("Header error for "+str(file_name)+" Please check header term aperture")
             else:
-                print("File "+str(file_name)+" is not wavelenght calibrated.")
+                print("File "+str(file_name)+" is not wavelength calibrated.")
         except:
             pass
     print("stars :", obj_stars)

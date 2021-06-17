@@ -1,16 +1,30 @@
-# Author : Sonith L.S
-# Contact : sonith.ls@iiap.res.in
-__version__ = '0.0.7'
+"""Module provide interactive options."""
+
+__author__ = 'Sonith L.S'
+__contact__ = 'sonith.ls@iiap.res.in'
+__version__ = '0.0.10'
 
 import inquirer
 
 
 def options(message, choices):
     """
-    Funnction for giving multiple options while running code.
-    message : Message before giving different options.
-    choices : List of chioses
-    Ex : choices = ['Default', 'Manually']
+    Provide multiple options while running code, but can select only one\
+    option among them.
+
+    Parameters
+    ----------
+        message : str
+            Message before giving different options.
+        choices : list
+            List of choices
+    Returns
+    -------
+        answer  : str
+            Selected choice.
+    Example
+    -------
+        choices = ['Default', 'Manually']
     """
     question = [inquirer.List('x', message, choices)]
     answer = inquirer.prompt(question)
@@ -21,10 +35,19 @@ def options(message, choices):
 
 def multioptions(message, choices, default=''):
     """
-    Funnction for giving multiple options while running code.
-    message : Message before giving different options.
-    choices : List of chioses
-    Ex : choices = ['Default', 'Manually']
+    Provide multiple options while running code, also can select multiple\
+    option among them.
+
+    Parameters
+    ----------
+        message : str
+            Message before giving different options.
+        choices : list
+            List of choices
+    Returns
+    -------
+        answer  : list
+            List of selected choices.
     """
     question = [inquirer.Checkbox('x', message, choices, default)]
     answer = inquirer.prompt(question)
