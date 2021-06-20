@@ -85,10 +85,18 @@ def batch_q():
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
-def b_bias(bias_list, list_files, CCD):
+def b_bias(folder_name, PATH, CCD):
     """"""
-    bias_correction(bias_list=bias_list, list_file=list_files, CCD=CCD,
-                    location='', prefix_string='b_')
+
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')  # Check [Errno 17] File exists
+    bias_list, passing_list = list_bias(speclist, PATH)
+    print(bias_list, passing_list)
+
+    bias_correction(bias_list=bias_list, list_file=passing_list, CCD=CCD,
+                    location=PATH, prefix_string='b_')
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    ccdsec_removal(file_list=list_files, location=PATH)
 
 
 def batch_fuc(CCD):
@@ -98,11 +106,6 @@ def batch_fuc(CCD):
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
     print(folder_name)
-    list_files = search_files(location=folder_name, keyword='*.fits')
-    speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')  # Check [Errno 17] File exists
-    bias_list, passing_list = list_bias(speclist, PATH)
-    print(bias_list, passing_list)
 
-    #b_bias(bias_list=bias_list, list_files=passing_list, CCD=CCD)
-    #list_files = search_files(location=folder_name, keyword='*.fits')
-    #ccdsec_removal(file_list=list_files, location=PATH)
+    b_bias(folder_name, PATH, CCD)
+
