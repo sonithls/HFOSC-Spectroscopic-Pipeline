@@ -78,6 +78,7 @@ from hfoscsp.headercorrection import headercorr
 from hfoscsp.interactive import options
 from hfoscsp.interactive import multioptions
 from hfoscsp.plotspec import spectral_plot
+from hfoscsp.batch import batch_fuc
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
@@ -265,7 +266,7 @@ def main():
     CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
 
     message = "Select the mode of running the Pipeline"
-    choices = ['Complete Code', 'Only Flux Calibration', 'Plot spectra']
+    choices = ['Complete Code', 'Only Flux Calibration', 'Plot spectra', 'Batch']
     input = options(message, choices)
 
     if input == 'Complete Code':
@@ -283,6 +284,8 @@ def main():
         choices = list_files
         input_files = multioptions(message, choices)
         spectral_plot(file_list=input_files, location=PATH, type='flux')
+    elif input == 'Batch':
+        batch_fuc(CCD=CCD)
 
 
 if __name__ == "__main__":
