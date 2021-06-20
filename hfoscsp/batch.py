@@ -86,7 +86,7 @@ def batch_q():
 
 
 def b_bias(folder_name, PATH, CCD):
-    """"""
+    """Batch-wise bias correction"""
 
     list_files = search_files(location=folder_name, keyword='*.fits')
     speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')  # Check [Errno 17] File exists
@@ -99,6 +99,11 @@ def b_bias(folder_name, PATH, CCD):
     ccdsec_removal(file_list=list_files, location=PATH)
 
 
+def b_flat():
+    """Batch-wise flat correction"""
+    print('OK')
+
+
 def batch_fuc(CCD):
     """Main function of batch operations."""
     batch_q()
@@ -107,5 +112,12 @@ def batch_fuc(CCD):
     folder_name = list_subdir()[0]
     print(folder_name)
 
-    b_bias(folder_name, PATH, CCD)
+    message = "Select function"
+    choices = ['Bias correction', 'Flat correction', 'Cosmic-ray correction',
+               'Wavelength calibration', 'Flux calibration', 'Backup']
+    input = options(message, choices)
 
+    if input == 'Bias correction':
+        b_bias(folder_name, PATH, CCD)
+    elif input == 'Flat correction':
+        b_flat()
