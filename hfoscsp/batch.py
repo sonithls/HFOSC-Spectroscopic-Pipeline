@@ -79,11 +79,41 @@ def batch_q():
 ###############################################################################
 1) Bias correction          2) Cosmic-ray correction    3)Flat correction
 
-2) Wavelength calibration   3) Flux calibration         6)Backup & Restore
+2) Wavelength calibration   3) Flux calibration         6)Backup
+
+7) Restore
 """
     print(logo)
 
 # -------------------------------------------------------------------------------------------------------------------- #
+
+def list_sub(location=''):
+    """
+    List all sub directories which starts with a digit.
+
+    Parameters
+    ----------
+        none
+    Returns
+    -------
+        sub_directories: list
+            name of sub-directories
+    """
+    if location != '':
+        pathloc = os.path.join(os.getcwd(), location)
+    else:
+        pathloc = os.getcwd()
+
+    print(pathloc)
+
+    directory_contents = os.listdir(pathloc)
+    sub_directories = []
+    for item in directory_contents:
+        # list directories
+        if os.path.isdir(os.path.join(pathloc, item)):
+            sub_directories.append(item)
+            sub_directories.sort()
+    return sub_directories
 
 
 def b_bias(folder_name, PATH, CCD):
@@ -147,7 +177,7 @@ def b_flat():
 
 
 def b_backup(pathloc):
-    """Back up and restore function."""
+    """Back up function."""
 
     back_up = os.path.join(pathloc, 'Backup')
     if os.path.exists(back_up) is False:
@@ -171,6 +201,38 @@ def b_backup(pathloc):
         print("Backup is already exist with this name")
 
 
+def b_restore(pathloc):
+    """Restore function."""
+
+    back_up = os.path.join(pathloc, 'Backup')
+    if os.path.exists(back_up) is True:
+        message = "Select folder"
+        choices = list_sub(location=back_up)
+        input = options(message, choices)
+        backup_f = os.path.join(back_up, input)
+
+        files_restore = [f for f in os.listdir(backup_f) if
+                         os.path.isfile(os.path.join(backup_f, f))]
+
+        files_safe = [f for f in os.listdir(pathloc) if
+                      os.path.isfile(os.path.join(pathloc, f))]
+
+        safe = os.path.join(back_up, 'safe')
+        print(safe)
+        if not os.path.exists(safe):
+            os.mkdir(safe)
+
+        for f in files_safe:
+            f_loc = os.path.join(pathloc, f)
+            f_move = os.path.join(safe, f)
+            print(f, f_move)
+            shutil.move(f_loc, f_move)
+
+        for f in files_restore:
+            f = os.path.join(backup_f, f)
+            shutil.copy(f, pathloc)
+
+
 def batch_fuc(CCD):
     """Main function of batch operations."""
     batch_q()
@@ -181,7 +243,7 @@ def batch_fuc(CCD):
 
     message = "Select function"
     choices = ['Bias correction', 'Cosmic-ray correction', 'Flat correction',
-               'Wavelength calibration', 'Flux calibration', 'Backup & Restore']
+               'Wavelength calibration', 'Flux calibration', 'Backup', 'Restore']
     input = options(message, choices)
 
     if input == 'Bias correction':
@@ -190,5 +252,7 @@ def batch_fuc(CCD):
         b_cosmic(folder_name, PATH, CCD)
     elif input == 'Flat correction':
         b_flat()
-    elif input == 'Backup & Restore':
+    elif input == 'Backup':
         b_backup(pathloc=PATH)
+    elif input == 'Restore':
+        b_restore(pathloc=PATH)
