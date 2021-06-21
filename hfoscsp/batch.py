@@ -9,6 +9,7 @@ __version__ = '0.1.1'
 # -------------------------------------------------------------------------------------------------------------------- #
 import os
 import sys
+import shutil
 
 try:
     from pyraf import iraf
@@ -141,8 +142,33 @@ def b_cosmic(folder_name, PATH, CCD):
 
 
 def b_flat():
-    """Batch-wise flat correction"""
+    """Batch-wise flat correction."""
     print('OK')
+
+
+def b_backup(pathloc):
+    """Back up and restore function."""
+
+    back_up = os.path.join(pathloc, 'Backup')
+    if os.path.exists(back_up) is False:
+        os.makedirs(back_up)
+
+    files = [f for f in os.listdir(pathloc) if
+             os.path.isfile(os.path.join(pathloc, f))]
+    # print(files)
+
+    backup_folder = "Test1"  # user_input
+    path_new = os.path.join(back_up, backup_folder)
+    # print(path_new)
+
+    if os.path.exists(path_new) is False:
+        os.makedirs(path_new)
+
+        for f in files:
+            f = os.path.join(pathloc, f)
+            shutil.copy(f, path_new)
+    else:
+        print("Backup is already exist with this name")
 
 
 def batch_fuc(CCD):
@@ -165,4 +191,4 @@ def batch_fuc(CCD):
     elif input == 'Flat correction':
         b_flat()
     elif input == 'Backup & Restore':
-        b_flat()
+        b_backup(pathloc=PATH)
