@@ -76,9 +76,9 @@ def batch_q():
                                 Version: 0.1.1
 ###############################################################################
 ###############################################################################
-1) Bias correction          2) Flat correction          3)Cosmic-ray correction
+1) Bias correction          2) Cosmic-ray correction    3)Flat correction
 
-2) Wavelength calibration   3) Flux calibration         6)Backup
+2) Wavelength calibration   3) Flux calibration         6)Backup & Restore
 """
     print(logo)
 
@@ -99,6 +99,47 @@ def b_bias(folder_name, PATH, CCD):
     ccdsec_removal(file_list=list_files, location=PATH)
 
 
+def b_cosmic(folder_name, PATH, CCD):
+    """Batch-wise cosmic ray correction"""
+
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    # print list_files
+
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
+    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files, PATH)
+    # cosmic_curr_list = list(set(obj_list).union(flat_list))  # file which needed to correct for cosmic ray
+
+    cosmic_curr_list = obj_list  # file which needed to correct for cosmic ray
+    cosmic_curr_list_flats = flat_list
+    print(len(cosmic_curr_list))
+    write_list(file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
+
+    cr_check_list = cosmic_correction(cosmic_curr_list_flats, location=PATH)
+    for file in cr_check_list:
+        remove_file(str(file))
+
+    # cosmic-ray correction manually for individual files or all files automatically
+    message = "How do you like to proceed Cosmic ray correction?"
+    choices = ['Default', 'Manually']
+    input = options(message, choices)
+
+    if input.lower() == 'manually':
+        cr_check_list = cosmic_correction_individual(cosmic_curr_list, CCD=CCD, location=PATH)
+    else:
+        cr_check_list = cosmic_correction_batch(cosmic_curr_list, CCD=CCD, location=PATH)
+
+    # Stop running code for checking the cosmic ray corrected files
+    print("Cosmic ray correction is done. Please check chk files then continue")
+
+    # raw_input("Press Enter to continue...")  # Python 2
+    message = "Do you want to continue ?"
+    choices = ['Yes']
+    options(message, choices)
+
+    for file in cr_check_list:
+        remove_file(str(file))
+
+
 def b_flat():
     """Batch-wise flat correction"""
     print('OK')
@@ -113,11 +154,15 @@ def batch_fuc(CCD):
     print(folder_name)
 
     message = "Select function"
-    choices = ['Bias correction', 'Flat correction', 'Cosmic-ray correction',
-               'Wavelength calibration', 'Flux calibration', 'Backup']
+    choices = ['Bias correction', 'Cosmic-ray correction', 'Flat correction',
+               'Wavelength calibration', 'Flux calibration', 'Backup & Restore']
     input = options(message, choices)
 
     if input == 'Bias correction':
         b_bias(folder_name, PATH, CCD)
+    elif input == 'Cosmic-ray correction':
+        b_cosmic(folder_name, PATH, CCD)
     elif input == 'Flat correction':
+        b_flat()
+    elif input == 'Backup & Restore':
         b_flat()
