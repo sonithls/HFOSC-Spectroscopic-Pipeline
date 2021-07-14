@@ -190,8 +190,24 @@ def b_flat(folder_name, PATH, CCD):
 
 
 
-def b_wave():
-    print("OK")
+def b_wave(folder_name, PATH, CCD):
+
+     # making list for spectral extraction and wavelength calibration
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
+    lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files, PATH)
+
+    # raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
+
+    message = "Press Enter for spectral_extraction and wavelength calibration..."
+    choices = ['Yes']
+    options(message, choices)
+
+    # Running spectral_extraction function using file lists made
+    spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, CCD=CCD, grism='gr7')
+    spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, CCD=CCD, grism='gr8')
+
+    print("Wavelength calibration of spectra is done")
 
 
 def b_flux():
@@ -278,7 +294,7 @@ def batch_fuc(CCD):
     elif input == 'Flat correction':
         b_flat(folder_name, PATH, CCD)
     elif input == 'Wavelength calibration':
-        b_wave()
+        b_wave(folder_name, PATH, CCD)
     elif input == 'Flux calibration':
         b_flux()
     elif input == 'Backup':
