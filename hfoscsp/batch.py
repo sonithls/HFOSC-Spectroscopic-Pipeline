@@ -171,9 +171,31 @@ def b_cosmic(folder_name, PATH, CCD):
         remove_file(str(file))
 
 
-def b_flat():
+def b_flat(folder_name, PATH, CCD):
     """Batch-wise flat correction."""
-    print('OK')
+
+    # Making file list for flat-correction
+    list_files = search_files(location=folder_name, keyword='*.fits')
+
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
+    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files, PATH)
+
+    # Flat correction using file lists made.
+    flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, grism='gr8', CCD=CCD,
+                                        location=PATH, prefix_string='f')
+    print("Flat correction grism 8 is done.", flat_curr_list)
+    flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, grism='gr7', CCD=CCD,
+                                        location=PATH, prefix_string='f')
+    print("Flat correction grism 7 is done.", flat_curr_list)
+
+
+
+def b_wave():
+    print("OK")
+
+
+def b_flux():
+    print("OK")
 
 
 def b_backup(pathloc):
@@ -221,6 +243,9 @@ def b_restore(pathloc):
         print(safe)
         if not os.path.exists(safe):
             os.mkdir(safe)
+        else:
+            safe = safe+'1'
+            os.mkdir(safe)
 
         for f in files_safe:
             f_loc = os.path.join(pathloc, f)
@@ -251,7 +276,11 @@ def batch_fuc(CCD):
     elif input == 'Cosmic-ray correction':
         b_cosmic(folder_name, PATH, CCD)
     elif input == 'Flat correction':
-        b_flat()
+        b_flat(folder_name, PATH, CCD)
+    elif input == 'Wavelength calibration':
+        b_wave()
+    elif input == 'Flux calibration':
+        b_flux()
     elif input == 'Backup':
         b_backup(pathloc=PATH)
     elif input == 'Restore':
