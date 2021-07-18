@@ -210,7 +210,25 @@ def b_wave(folder_name, PATH, CCD):
     print("Wavelength calibration of spectra is done")
 
 
-def b_flux():
+def b_flux(folder_name, PATH, CCD, default_path):
+
+    # raw_input("Press Enter for Flux_Calibration...") # Python 2
+    message = "Press Enter for Flux_Calibration..."
+    choices = ['Yes']
+    options(message, choices)
+
+    # Header correction
+    list_files = search_files(location=folder_name, keyword='*.ms.fits')
+    headercorr(file_list=list_files, location=folder_name)
+
+    # Running Flux calibration
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    print(list_files)
+
+    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
+    print(obj_list_gr7)
+    flux_calibrate(obj_list=obj_list_gr8, location=PATH, default_path=default_path, CCD=CCD)
+    flux_calibrate(obj_list=obj_list_gr7, location=PATH, default_path=default_path, CCD=CCD)
     print("OK")
 
 
@@ -277,7 +295,7 @@ def b_restore(pathloc):
 def batch_fuc(CCD):
     """Main function of batch operations."""
     batch_q()
-
+    default_path = os.getcwd()
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
     print(folder_name)
@@ -296,7 +314,7 @@ def batch_fuc(CCD):
     elif input == 'Wavelength calibration':
         b_wave(folder_name, PATH, CCD)
     elif input == 'Flux calibration':
-        b_flux()
+        b_flux(folder_name, PATH, CCD, default_path)
     elif input == 'Backup':
         b_backup(pathloc=PATH)
     elif input == 'Restore':
