@@ -300,22 +300,28 @@ def batch_fuc(CCD):
     folder_name = list_subdir()[0]
     print(folder_name)
 
-    message = "Select function"
-    choices = ['Bias correction', 'Cosmic-ray correction', 'Flat correction',
-               'Wavelength calibration', 'Flux calibration', 'Backup', 'Restore']
-    input = options(message, choices)
+    A = True
 
-    if input == 'Bias correction':
-        b_bias(folder_name, PATH, CCD)
-    elif input == 'Cosmic-ray correction':
-        b_cosmic(folder_name, PATH, CCD)
-    elif input == 'Flat correction':
-        b_flat(folder_name, PATH, CCD)
-    elif input == 'Wavelength calibration':
-        b_wave(folder_name, PATH, CCD)
-    elif input == 'Flux calibration':
-        b_flux(folder_name, PATH, CCD, default_path)
-    elif input == 'Backup':
-        b_backup(pathloc=PATH)
-    elif input == 'Restore':
-        b_restore(pathloc=PATH)
+    while A is True:
+        message = "Select function"
+        choices = ['Bias correction', 'Cosmic-ray correction',
+                   'Flat correction', 'Wavelength calibration',
+                   'Flux calibration', 'Backup', 'Restore', 'Quit']
+        input = options(message, choices)
+
+        if input == 'Bias correction':
+            b_bias(folder_name, PATH, CCD)
+        elif input == 'Cosmic-ray correction':
+            b_cosmic(folder_name, PATH, CCD)
+        elif input == 'Flat correction':
+            b_flat(folder_name, PATH, CCD)
+        elif input == 'Wavelength calibration':
+            b_wave(folder_name, PATH, CCD)
+        elif input == 'Flux calibration':
+            b_flux(folder_name, PATH, CCD, default_path)
+        elif input == 'Backup':
+            b_backup(pathloc=PATH)
+        elif input == 'Restore':
+            b_restore(pathloc=PATH)
+        elif input == 'Quit':
+            A = False
