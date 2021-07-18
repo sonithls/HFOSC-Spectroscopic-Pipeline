@@ -10,11 +10,12 @@ from tabulate import tabulate
 
 def headcorr(file_list, location=''):
     """Header correction for files in the file list."""
+    print (os.getcwd())
     if location != '':  # change location
         loc_object_info = os.path.join(os.getcwd(), location, 'object_info')
     else:
         loc_object_info = os.path.join(os.getcwd(), 'object_info')
-
+    print (loc_object_info)
     data = []
     for filename in file_list:
         if location != '':  # change location
@@ -62,6 +63,7 @@ def headcorr(file_list, location=''):
             # replace the ra dec here.
         except:
             print("Some problem in astroquery")
+            data_.append([data[i][0], data[i][1], data[i][2], data[i][3]])
             pass
     data = data_
 
@@ -141,6 +143,7 @@ def read_info(location=''):
             # replace the ra dec here.
         except:
             print("Some problem in astroquery")
+            data_.append([data[i][0], data[i][1], data[i][2], data[i][3]])
             pass
     data = data_
 
