@@ -45,7 +45,8 @@ from hfoscsp.cosmicray import cosmic_correction
 
 from hfoscsp.headercorrection import headercorr
 from hfoscsp.interactive import options
-# from hfoscsp.interactive import multioptions
+from hfoscsp.interactive import multioptions
+from hfoscsp.plotspec import spectral_plot
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
@@ -233,6 +234,16 @@ def b_flux(folder_name, PATH, CCD, default_path):
     print("OK")
 
 
+def b_plots(folder_name, PATH, default_path):
+    os.chdir(default_path)
+    list_files = search_files(location=folder_name, keyword='*ms.fits')
+
+    message = "Select the files to plot"
+    choices = list_files
+    input_files = multioptions(message, choices)
+    spectral_plot(file_list=input_files, location=PATH, type='flux')
+
+
 def b_backup(pathloc):
     """Back up function."""
 
@@ -309,7 +320,8 @@ def batch_fuc(CCD):
         message = "Select function"
         choices = ['Bias correction', 'Cosmic-ray correction',
                    'Flat correction', 'Wavelength calibration',
-                   'Flux calibration', 'Backup', 'Restore', 'Quit']
+                   'Flux calibration',  'Plot tools', 'Backup',
+                   'Restore', 'Quit']
         input = options(message, choices)
 
         if input == 'Bias correction':
@@ -322,6 +334,8 @@ def batch_fuc(CCD):
             b_wave(folder_name, PATH, CCD, default_path)
         elif input == 'Flux calibration':
             b_flux(folder_name, PATH, CCD, default_path)
+        elif input == 'Plot tools':
+            b_plots(folder_name, PATH, default_path)
         elif input == 'Backup':
             b_backup(pathloc=PATH)
         elif input == 'Restore':
