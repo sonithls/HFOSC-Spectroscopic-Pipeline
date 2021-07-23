@@ -2,6 +2,7 @@ import os
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button
 # from matplotlib.ticker import MultipleLocator
 from hfoscsp.file_management import search_files
 from hfoscsp.interactive import options
@@ -62,16 +63,22 @@ def load_fits(file_name, location=''):
 
 def spectral_plot(file_list, location, type):
     """
+    Function for plotting the reduced spectra.
     """
-    # left = 3600
-    # right = 9400
-    # left = 5000
-    # right = 6000
+
+    y_init = 0   # Initial value for slider
+    y_min = -15  # Minimum value of slider
+    y_max = 15   # Maximum value of slider
+
+    left = 3400
+    right = 9400
 
     # bottom = -0.2*10**-14
     # top = 5*10**-14
     # plt.figure(figsize=(14, 10))
-    fig = plt.figure(figsize=(13, 9))  # setting the figure size
+
+    # setting the figure size
+    fig = plt.figure(figsize=(13, 9))  
 
     # file_list = search_files(keyword='*.fits')
     print("All fits files in the folder :", file_list)
@@ -85,12 +92,19 @@ def spectral_plot(file_list, location, type):
         # datafile_path = os.path.splitext(file_name)[0]+'.txt'
         # print(datafile_path)
         if type.lower() == 'flux':
-            plt.plot(wave, flux, label=file_name, linewidth=0.6)
+            ax.plot(wave, flux, label=file_name, linewidth=0.6)
         elif type.lower() == 'telluric':
-            plt.plot(wave, telluric, label=file_name, linewidth=0.6)
+            ax.plot(wave, telluric, label=file_name, linewidth=0.6)
 
-    # plt.xlim(left, right)
+    ax.set_xlim(left, right)
     # plt.ylim(bottom, top)
+
+    # Creates the axes for each slider
+    slidercolor = "blue"
+    y_slider_axe = plt.axes([0.13, 0.05, 0.73, 0.01])    
+
+    # Creates the slider
+    y_slider = Slider(y_slider_axe, "Y", y_min, y_max, valinit = y_init, valfmt="%.1E", color=slidercolor)
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
@@ -100,9 +114,18 @@ def spectral_plot(file_list, location, type):
     # ax.yaxis.set_minor_locator(MultipleLocator(top/5))
     ax.tick_params(which='major', direction='in', length=8, width=1, labelsize=12)
     ax.tick_params(which='minor', direction='in', length=4, width=1, labelsize=12)
-    plt.legend()
-    plt.savefig('test_fig', dpi=100, format='png', bbox_inches='tight')
+    ax.legend()
+
+    # This function updates all the values of the function and draws the plot again.
+    def update(val):
+        fig.canvas.draw_idle()
+        ax.set_ylim(-10**(y_slider.val), 10**(y_slider.val))
+
+    y_slider.on_changed(update)
+
+    fig1 = plt.gcf()
     plt.show()
+    fig1.savefig('test_fig', dpi=100, format='png', bbox_inches='tight')
     # raw_input("Press Enter for continue")
     plt.close()
 
