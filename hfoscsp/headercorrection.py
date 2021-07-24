@@ -122,7 +122,7 @@ def updateheader_k(data, location=''):
         # Check for HFOSC2
 
         list_keywords = ['object_name', 'GRISM', 'APERTURE']
-        data_header = {'object_name': object_name, ' GRISM': GRISM,
+        data_header = {'object_name': object_name, 'GRISM': GRISM,
                        'APERTURE': aperture}
 
         for key in list_keywords:
