@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------------------------- #
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.1.1'
+__version__ = '1.0.0'
 # -------------------------------------------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -44,6 +44,7 @@ from hfoscsp.cosmicray import cosmic_correction_batch
 from hfoscsp.cosmicray import cosmic_correction
 
 from hfoscsp.headercorrection import headercorr
+from hfoscsp.headercorrection import headercorr_k
 from hfoscsp.interactive import options
 from hfoscsp.interactive import multioptions
 from hfoscsp.plotspec import spectral_plot
@@ -75,14 +76,13 @@ def batch_q():
 ###############################################################################
                           HFOSC Spectroscopic Pipeline
                                Batch processing
-                                Version: 0.1.1
+                                Version: 1.0.0
 ###############################################################################
 ###############################################################################
-1) Bias correction          2) Cosmic-ray correction    3)Flat correction
-
-2) Wavelength calibration   3) Flux calibration         6)Backup
-
-7) Restore
+1) Bias correction          2) Cosmic-ray correction    3) Flat correction
+4) Wavelength calibration   5) Flux calibration         6) Plot tools
+6) Backup                   7) Restore                  8) Header correction
+10) Quit
 """
     print(logo)
 
@@ -304,15 +304,21 @@ def b_restore(pathloc):
             shutil.copy(f, pathloc)
 
 
+def b_headercorr(folder_name):
+    """Correcting the header term errors"""
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    headercorr_k(file_list=list_files, location=folder_name)
+
+
 def batch_fuc(CCD):
     """Main function of batch operations."""
     batch_q()
     default_path = os.getcwd()
     PATH = os.path.join(os.getcwd(), list_subdir()[0])
     folder_name = list_subdir()[0]
-    print("default_path :", default_path)
+    # print("default_path :", default_path)
     print("folder_name :", folder_name)
-    print("PATH :", PATH)
+    # print("PATH :", PATH)
 
     A = True
 
@@ -321,7 +327,7 @@ def batch_fuc(CCD):
         choices = ['Bias correction', 'Cosmic-ray correction',
                    'Flat correction', 'Wavelength calibration',
                    'Flux calibration',  'Plot tools', 'Backup',
-                   'Restore', 'Quit']
+                   'Restore', 'Header correction', 'Quit']
         input = options(message, choices)
 
         if input == 'Bias correction':
@@ -340,5 +346,7 @@ def batch_fuc(CCD):
             b_backup(pathloc=PATH)
         elif input == 'Restore':
             b_restore(pathloc=PATH)
+        elif input == 'Header correction':
+            b_headercorr(folder_name)
         elif input == 'Quit':
             A = False
