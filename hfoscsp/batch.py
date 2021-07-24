@@ -1,14 +1,14 @@
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
 __version__ = '1.0.0'
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 # Import required libraries
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 import os
-import sys
+# import sys
 import shutil
 
 try:
@@ -16,9 +16,9 @@ try:
 except ImportError as error:
     print(error + "Please install pyraf and iraf")
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 # Import required modules
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 # from hfoscsp.file_management import Backup
 from hfoscsp.file_management import search_files
 from hfoscsp.file_management import list_subdir
@@ -30,7 +30,7 @@ from hfoscsp.file_management import list_flat
 from hfoscsp.file_management import list_lamp
 from hfoscsp.file_management import list_object
 # from hfoscsp.file_management import setccd
-from hfoscsp.file_management import SetCCD
+# from hfoscsp.file_management import SetCCD
 
 from hfoscsp.reduction import ccdsec_removal
 from hfoscsp.reduction import bias_correction
@@ -49,9 +49,9 @@ from hfoscsp.interactive import options
 from hfoscsp.interactive import multioptions
 from hfoscsp.plotspec import spectral_plot
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 # Load IRAF Packages
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 iraf.noao(_doprint=0)
 iraf.imred(_doprint=0)
 iraf.specred(_doprint=0)
@@ -64,9 +64,9 @@ iraf.apextract(_doprint=0)
 iraf.onedspec(_doprint=0)
 iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 
 
 def batch_q():
@@ -86,7 +86,8 @@ def batch_q():
 """
     print(logo)
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+
 
 def list_sub(location=''):
     """
@@ -121,7 +122,8 @@ def b_bias(folder_name, PATH, CCD):
     """Batch-wise bias correction"""
 
     list_files = search_files(location=folder_name, keyword='*.fits')
-    speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')  # Check [Errno 17] File exists
+    speclist, photlist = spec_or_phot(list_files, PATH, CCD, 'spec')
+    # Check [Errno 17] File exists
     bias_list, passing_list = list_bias(speclist, PATH)
     print(bias_list, passing_list)
 
@@ -137,28 +139,33 @@ def b_cosmic(folder_name, PATH, CCD):
     list_files = search_files(location=folder_name, keyword='*.fits')
     # print list_files
 
-    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
-    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files, PATH)
-    # cosmic_curr_list = list(set(obj_list).union(flat_list))  # file which needed to correct for cosmic ray
+    obj_list, obj_l_gr7, obj_l_gr8, pas_list = list_object(list_files, PATH)
+    flat_list, f_l_gr7, flat_l_gr8, pas_list = list_flat(list_files, PATH)
+    # cosmic_curr_list = list(set(obj_list).union(flat_list))
+    # file which needed to correct for cosmic ray
 
     cosmic_curr_list = obj_list  # file which needed to correct for cosmic ray
     cosmic_curr_list_flats = flat_list
     print(len(cosmic_curr_list))
-    write_list(file_list=cosmic_curr_list, file_name='cosmic_curr_list', location=PATH)
+    write_list(file_list=cosmic_curr_list, file_name='cosmic_curr_list',
+               location=PATH)
 
     cr_check_list = cosmic_correction(cosmic_curr_list_flats, location=PATH)
     for file in cr_check_list:
         remove_file(str(file))
 
-    # cosmic-ray correction manually for individual files or all files automatically
+    # cosmic-ray correction manually for individual files
+    # or all files automatically
     message = "How do you like to proceed Cosmic ray correction?"
     choices = ['Default', 'Manually']
     input = options(message, choices)
 
     if input.lower() == 'manually':
-        cr_check_list = cosmic_correction_individual(cosmic_curr_list, CCD=CCD, location=PATH)
+        cr_check_list = cosmic_correction_individual(cosmic_curr_list,
+                                                     CCD=CCD, location=PATH)
     else:
-        cr_check_list = cosmic_correction_batch(cosmic_curr_list, CCD=CCD, location=PATH)
+        cr_check_list = cosmic_correction_batch(cosmic_curr_list, CCD=CCD,
+                                                location=PATH)
 
     # Stop running code for checking the cosmic ray corrected files
     print("Cosmic ray correction is done. Please check chk files then continue")
@@ -178,35 +185,39 @@ def b_flat(folder_name, PATH, CCD):
     # Making file list for flat-correction
     list_files = search_files(location=folder_name, keyword='*.fits')
 
-    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
-    flat_list, flat_list_gr7, flat_list_gr8, passing_list = list_flat(list_files, PATH)
+    obj_lst, obj_list_gr7, obj_list_gr8, pas_lst = list_object(list_files, PATH)
+    flt_lst, flat_list_gr7, flat_list_gr8, pas_lst = list_flat(list_files, PATH)
 
     # Flat correction using file lists made.
-    flat_curr_list = flat_correction(flat_list=flat_list_gr8, file_list=obj_list_gr8, grism='gr8', CCD=CCD,
-                                        location=PATH, prefix_string='f')
-    print("Flat correction grism 8 is done.", flat_curr_list)
-    flat_curr_list = flat_correction(flat_list=flat_list_gr7, file_list=obj_list_gr7, grism='gr7', CCD=CCD,
-                                        location=PATH, prefix_string='f')
-    print("Flat correction grism 7 is done.", flat_curr_list)
+    flat_curr_list = flat_correction(flat_list=flat_list_gr8,
+                                     file_list=obj_list_gr8, grism='gr8',
+                                     CCD=CCD, location=PATH, prefix_string='f')
 
+    print("Flat correction grism 8 is done.", flat_curr_list)
+
+    flat_curr_list = flat_correction(flat_list=flat_list_gr7,
+                                     file_list=obj_list_gr7, grism='gr7',
+                                     CCD=CCD, location=PATH, prefix_string='f')
+    print("Flat correction grism 7 is done.", flat_curr_list)
 
 
 def b_wave(folder_name, PATH, CCD, default_path):
 
-     # making list for spectral extraction and wavelength calibration
+    # making list for spectral extraction and wavelength calibration
     list_files = search_files(location=folder_name, keyword='*.fits')
-    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
+    obj_lst, obj_list_gr7, obj_list_gr8, pas_lst = list_object(list_files, PATH)
     lamp_list_gr7, lamp_list_gr8, passing_list = list_lamp(list_files, PATH)
 
-    # raw_input("Press Enter for spectral_extraction and wavelength calibration...") #Python 2
-
-    message = "Press Enter for spectral_extraction and wavelength calibration..."
+    message = "Press Enter for spectral_extraction and wavelength calibration.."
     choices = ['Yes']
     options(message, choices)
 
     # Running spectral_extraction function using file lists made
-    spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7, location=PATH, CCD=CCD, grism='gr7')
-    spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8, location=PATH, CCD=CCD, grism='gr8')
+    spectral_extraction(obj_list=obj_list_gr7, lamp_list=lamp_list_gr7,
+                        location=PATH, CCD=CCD, grism='gr7')
+
+    spectral_extraction(obj_list=obj_list_gr8, lamp_list=lamp_list_gr8,
+                        location=PATH, CCD=CCD, grism='gr8')
 
     print("Wavelength calibration of spectra is done")
     os.chdir(default_path)
@@ -227,10 +238,12 @@ def b_flux(folder_name, PATH, CCD, default_path):
     list_files = search_files(location=folder_name, keyword='*.fits')
     print(list_files)
 
-    obj_list, obj_list_gr7, obj_list_gr8, passing_list = list_object(list_files, PATH)
+    obj_lst, obj_list_gr7, obj_list_gr8, pas_lst = list_object(list_files, PATH)
     print(obj_list_gr7)
-    flux_calibrate(obj_list=obj_list_gr8, location=PATH, default_path=default_path, CCD=CCD)
-    flux_calibrate(obj_list=obj_list_gr7, location=PATH, default_path=default_path, CCD=CCD)
+    flux_calibrate(obj_list=obj_list_gr8, location=PATH,
+                   default_path=default_path, CCD=CCD)
+    flux_calibrate(obj_list=obj_list_gr7, location=PATH,
+                   default_path=default_path, CCD=CCD)
     print("OK")
 
 
