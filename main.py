@@ -33,7 +33,7 @@ HFOSC2
 # -------------------------------------------------------------------------------------------------------------------- #
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.10'
+__version__ = '1.0.0'
 # -------------------------------------------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -79,6 +79,7 @@ from hfoscsp.interactive import options
 from hfoscsp.interactive import multioptions
 from hfoscsp.plotspec import spectral_plot
 from hfoscsp.batch import batch_fuc
+from hfoscsp.headercorrection import headercorr_k
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Load IRAF Packages
@@ -243,6 +244,12 @@ def part2(folder_name, PATH, CCD):
     flux_calibrate(obj_list=obj_list_gr7, location=PATH, default_path=default_path, CCD=CCD)
 
 
+def b_headercorr(folder_name):
+    """Correcting the header term errors"""
+    list_files = search_files(location=folder_name, keyword='*.fits')
+    headercorr_k(file_list=list_files, location=folder_name)
+
+
 def main():
     """Run the HFOSC Spectroscopic Pipeline."""
     working_dir_path = os.getcwd()
@@ -251,7 +258,7 @@ def main():
 ###############################################################################
 ###############################################################################
                           HFOSC Spectroscopic Pipeline
-                                Version: 0.1.0
+                                Version: 1.0.0
 ###############################################################################
 ###############################################################################
 """
@@ -265,27 +272,41 @@ def main():
 
     CCD = SetCCD(file_list=list_files_ccdcheck, location=PATH)
 
-    message = "Select the mode of running the Pipeline"
-    choices = ['Complete Code', 'Only Flux Calibration', 'Plot spectra', 'Batch']
-    input = options(message, choices)
+    A = True
+    while A is True:
 
-    if input == 'Complete Code':
-        part1(CCD=CCD)
-        os.chdir(working_dir_path)
-        part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
-    elif input == 'Only Flux Calibration':
-        part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
-        os.chdir(working_dir_path)
-    elif input == 'Plot spectra':
-        os.chdir(working_dir_path)
-        list_files = search_files(location=folder_name, keyword='*ms.fits')
+        message = "Select the mode of running the Pipeline"
+        choices = ['Batch-wise operation', 'Complete Code', 'Only Flux Calibration',
+                   'Plot spectra', 'Header correction', 'Quit']
+        input = options(message, choices)
 
-        message = "Select the files to plot"
-        choices = list_files
-        input_files = multioptions(message, choices)
-        spectral_plot(file_list=input_files, location=PATH, type='flux')
-    elif input == 'Batch':
-        batch_fuc(CCD=CCD)
+
+        if input == 'Batch-wise operation':
+            batch_fuc(CCD=CCD)
+
+        elif input == 'Complete Code':
+            part1(CCD=CCD)
+            os.chdir(working_dir_path)
+            part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
+
+        elif input == 'Only Flux Calibration':
+            part2(folder_name=folder_name, PATH=PATH, CCD=CCD)
+            os.chdir(working_dir_path)
+
+        elif input == 'Plot spectra':
+            os.chdir(working_dir_path)
+            list_files = search_files(location=folder_name, keyword='*ms.fits')
+
+            message = "Select the files to plot"
+            choices = list_files
+            input_files = multioptions(message, choices)
+            spectral_plot(file_list=input_files, location=PATH, type='flux')
+
+        elif input == 'Header correction':
+            b_headercorr(folder_name)
+
+        elif input == 'Quit':
+            A = False
 
 
 if __name__ == "__main__":
