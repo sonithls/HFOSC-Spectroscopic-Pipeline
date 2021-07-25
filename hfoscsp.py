@@ -196,7 +196,7 @@ def part1(CCD):
     # ---------------------------flat-correction----------------------------- #
     if str(flat_flag).lower() == 'no':
         print("flat_flag :", flat_flag)
-        print("No flatfielding")
+        print("No flat fielding")
     elif str(flat_flag).lower() == 'yes':
         # Making file list for flat-correction
         list_files = search_files(location=folder_name, keyword='*.fits')
