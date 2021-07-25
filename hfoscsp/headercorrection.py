@@ -158,23 +158,6 @@ def read_info_k(location=''):
         data.append([filename, object_name, GRISM, APERTURE, EXPTIME])
     # print(data)
 
-    # Write table in to a csv file.
-    if len(data) != 0:
-        with open(loc_object_info, 'w') as f:
-            f.write('FILENAME'+','+'OBJECT'+','+'GRISM'+',' +
-                    'APERTURE'+','+'EXPTIME'+'\n')
-            for i in range(0, len(data)):
-                f.write(data[i][0]+','+data[i][1]+','+data[i][2]+','+data[i][3]
-                        + ','+str(data[i][4])+'\n')
-                # print(data[i][1]+','+data[i][2]+','+data[i][3]+','+data[i][0]+'\n')
-        with open(textfile, 'w') as f:
-            f.write('{:<28s}{:<20s}{:<12s}{:<12s}{:<12s}'.format('FILENAME','OBJECT','GRISM', 
-                                                                 'APERTURE','EXPTIME'))
-            for i in range(0, len(data)):
-                f.write('{:<28s}{:<20s}{:<12s}{:<12s}{:<12}'.format(data[i][0], data[i][1],
-                                                                    data[i][2], data[i][3],
-                                                                    str(data[i][4])))
-
     print("")
     print(tabulate(data, headers=['FILENAME', 'OBJECT',
                                   'GRISM', 'APERTURE', 'EXPTIME']))
