@@ -366,7 +366,7 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
     cr_currection_method = options(message, choices)
 
     message = "Do you need to keep verification files for cosmic-ray correction ?"
-    choices = ['No', 'Yes']
+    choices = ['Yes', 'No']
     verify = options(message, choices)
 
     # cosmicray correction task default parameters
@@ -411,8 +411,6 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
         cr_currected_list.append(output_file_name)
 
         if verify == 'No':
-            pass
-        elif verify == 'Yes':
             cr_check_file_name = str('chk_') + output_file_name
             cr_check_file_name2 = os.path.join(location, 'CR_Check', cr_check_file_name)
             cr_check_folder = os.path.join(location, 'CR_Check')
@@ -429,8 +427,82 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
 
             print(cr_check_file_name)
             cr_check_list.append(cr_check_file_name)
+            # it will not remove files
+
+        elif verify == 'Yes':
+            cr_check_file_name = str('chk_') + output_file_name
+            cr_check_file_name2 = os.path.join(location, cr_check_file_name)
+
+            remove_file(cr_check_file_name2)
+
+            iraf.images.imutil.imarith.unlearn()
+            iraf.images.imutil.imarith(operand1=str(file_name), op='-',
+                                       operand2=str(output_file_name2),
+                                       result=str(cr_check_file_name2))
+
+            print(cr_check_file_name)
+            cr_check_list.append(cr_check_file_name2)  # it will remove files
 
         remove_file(str(file_name))
         # remove_file(cr_check_file_name2)
-
     return cr_check_list
+
+
+def display_co(image_list, location='', prefix_string='c'):
+    """Function for displaying the image files in ds9"""
+
+    # opening ds9 for manually inspecting images
+    subprocess.Popen('ds9')
+    # process_ds9open.wait()
+    ds9_time_delay = 3  # Depends upon how fast your system opens up ds9
+    # time.sleep(4)
+    ds9_waiting = threading.Thread(time.sleep(ds9_time_delay))
+    ds9_waiting.start()
+    ds9_waiting.join()
+    # Create guaranteed unique sentinel
+    # (can't use None since iterator might produce None)
+    sentinel = object()
+    iterobj = iter(image_list)   # Explicitly get iterator from iterable
+    # (for does this implicitly)
+    x = next(iterobj, sentinel)  # Get next object or sentinel
+    while x is not sentinel:     # Keep going until we exhaust iterator
+
+        file_name = x
+        print(file_name)
+
+        output_file_name = str(prefix_string) + str(file_name)
+        output_file_name2 = os.path.join(location, output_file_name)
+
+        cr_check_file_name = str('chk_') + output_file_name
+        cr_check_file_name2 = os.path.join(location, cr_check_file_name)
+
+        # file_name = os.path.join(location, file_name)
+
+        print(output_file_name)
+        print(cr_check_file_name)
+
+        try:
+            iraf.display(output_file_name2, 1)
+            iraf.display(cr_check_file_name2, 2)
+        except:
+            time.sleep(2)
+            iraf.display(output_file_name2, 1)
+            iraf.display(cr_check_file_name2, 2)
+        # iraf.display(file_name, 3)
+        print(bar)
+        print("Try ds9>>>Frame>>>Blink to check how good is the cosmic ray correction")
+        print(bar)
+        # except iraf.IrafError as error:
+        #     # ds9 might not be open, hence open it and try again
+        #     print('DS9 window is not active. Opening a DS9 window please wait')
+        #     subprocess.Popen('ds9')
+
+        check = ''
+        message = "Continue to next image"
+        choices = ['Yes']
+        check = options(message, choices)
+
+        if check == 'Yes':  # Should continue
+            x = next(iterobj, sentinel)
+            #  Explicitly advance loop for continue case
+            continue
