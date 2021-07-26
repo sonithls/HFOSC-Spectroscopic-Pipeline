@@ -431,7 +431,12 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
 
         elif verify == 'Yes':
             cr_check_file_name = str('chk_') + output_file_name
-            cr_check_file_name2 = os.path.join(location, cr_check_file_name)
+            cr_check_file_name2 = os.path.join(location, 'CR_Check', cr_check_file_name)
+            cr_check_folder = os.path.join(location, 'CR_Check')
+            try:
+                os.makedirs(cr_check_folder)
+            except OSError:
+                pass
 
             remove_file(cr_check_file_name2)
 

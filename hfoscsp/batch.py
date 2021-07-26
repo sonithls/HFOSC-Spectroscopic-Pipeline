@@ -176,11 +176,12 @@ Do you want to check chk files then continue?"""
 
         if value == "Yes":
             display_co(image_list=cosmic_curr_list, location=PATH)
-            for file in cr_check_list:
-                remove_file(str(file))
+            # for file in cr_check_list:
+            #     remove_file(str(file))
         elif value == "No":
-            for file in cr_check_list:
-                remove_file(str(file))
+            pass
+            # for file in cr_check_list:
+            #     remove_file(str(file))
 
 
 def b_flat(folder_name, PATH, CCD):
