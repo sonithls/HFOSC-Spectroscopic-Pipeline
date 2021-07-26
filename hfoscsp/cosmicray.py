@@ -6,7 +6,7 @@ HFOSC spectroscopic-Pipeline.
 """
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.9'
+__version__ = '1.0.0'
 
 # Warning : Please check any variable depends on CCD
 

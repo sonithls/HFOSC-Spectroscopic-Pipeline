@@ -8,7 +8,7 @@ __version__ = '1.0.0'
 # Import required libraries
 # --------------------------------------------------------------------------- #
 import os
-# import sys
+import sys
 import shutil
 
 try:
@@ -42,6 +42,7 @@ from hfoscsp.reduction import flux_calibrate
 from hfoscsp.cosmicray import cosmic_correction_individual
 from hfoscsp.cosmicray import cosmic_correction_batch
 from hfoscsp.cosmicray import cosmic_correction
+from hfoscsp.cosmicray import display_co
 
 from hfoscsp.headercorrection import headercorr
 from hfoscsp.headercorrection import headercorr_k
@@ -166,17 +167,20 @@ def b_cosmic(folder_name, PATH, CCD):
     else:
         cr_check_list = cosmic_correction_batch(cosmic_curr_list, CCD=CCD,
                                                 location=PATH)
+        print(len(cr_check_list))
+        # Stop running code for checking the cosmic ray corrected files
+        message = """Cosmic ray correction is done.
+Do you want to check chk files then continue?"""
+        choices = ['Yes', 'No']
+        value = options(message, choices)
 
-    # Stop running code for checking the cosmic ray corrected files
-    print("Cosmic ray correction is done. Please check chk files then continue")
-
-    # raw_input("Press Enter to continue...")  # Python 2
-    message = "Do you want to continue ?"
-    choices = ['Yes']
-    options(message, choices)
-
-    for file in cr_check_list:
-        remove_file(str(file))
+        if value == "Yes":
+            display_co(image_list=cosmic_curr_list, location=PATH)
+            for file in cr_check_list:
+                remove_file(str(file))
+        elif value == "No":
+            for file in cr_check_list:
+                remove_file(str(file))
 
 
 def b_flat(folder_name, PATH, CCD):
@@ -363,3 +367,4 @@ def batch_fuc(CCD):
             b_headercorr(folder_name)
         elif input == 'Quit':
             A = False
+            sys.exit()
