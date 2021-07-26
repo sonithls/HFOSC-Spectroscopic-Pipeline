@@ -1,0 +1,8 @@
+astroquery 0.3.9 
+astropy 2.0.9
+matplotlib 2.2.3
+inquirer 2.6.3
+pyraf 2.1.15
+tabulate 0.8.9 
+http://ssb.stsci.edu/astroconda
+https://datacenter.iers.org/data/9/finals2000A.all

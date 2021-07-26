@@ -6,7 +6,7 @@ HFOSC spectroscopic-Pipeline.
 """
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.9'
+__version__ = '1.0.0'
 
 # Warning : Please check any variable depends on CCD
 
@@ -152,8 +152,7 @@ def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_stri
     ds9_waiting = threading.Thread(time.sleep(ds9_time_delay))
     ds9_waiting.start()
 
-    # Default method for cr currection curresponds to cosmicray task in IRAF
-    # cr_currection_method = raw_input("Enter new cosmic-ray correction method (1/2/3) :")
+    # Default method for cr correction corresponds to cosmic-ray task in IRAF
     message = "Select the cosmic ray correction module"
     choices = ['irafcrmedian', 'irafcosmicrays', 'la_cosmic']
     cr_currection_method = options(message, choices)
@@ -174,6 +173,12 @@ def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_stri
     data_max = CCD.max_count  # 700000  # Depend up on CCD
     read_noise = CCD.read_noise  # 5.75  # Depend up on CCD
 
+    cr_check_folder = os.path.join(location, 'CR_Check')
+    try:
+        os.makedirs(cr_check_folder)
+    except OSError:
+        pass
+
     # Create guaranteed unique sentinel (can't use None since iterator might produce None)
     sentinel = object()
     iterobj = iter(cosmic_curr_list)    # Explicitly get iterator from iterable (for does this implicitly)
@@ -186,7 +191,8 @@ def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_stri
         output_file_name2 = os.path.join(location, output_file_name)
 
         cr_check_file_name = str('chk_') + output_file_name
-        cr_check_file_name2 = os.path.join(location, cr_check_file_name)
+        cr_check_file_name2 = os.path.join(location, 'CR_Check',
+                                           cr_check_file_name)
 
         file_name = os.path.join(location, file_name)
 
@@ -197,18 +203,25 @@ def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_stri
         remove_file(cr_check_file_name2)
 
         if cr_currection_method == 'irafcosmicrays':
-            irafcosmicrays(input=file_name, output=output_file_name2, threshold=threshold, fluxrate=fluxrate,
+            irafcosmicrays(input=file_name, output=output_file_name2,
+                           threshold=threshold, fluxrate=fluxrate,
                            npasses=npasses, window=window)
+
         elif cr_currection_method == 'irafcrmedian':
-            irafcrmedian(input=file_name, output=output_file_name2, lsigma=lsigma, hsigma=3, ncmed=5, nlmed=5,
+            irafcrmedian(input=file_name, output=output_file_name2,
+                         lsigma=lsigma, hsigma=3, ncmed=5, nlmed=5,
                          ncsig=ncsig, nlsig=25)
+
         elif cr_currection_method == 'la_cosmic':
-            la_cosmic(input=file_name, output=output_file_name2, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim,
+            la_cosmic(input=file_name, output=output_file_name2,
+                      sigclip=sigclip, sigfrac=sigfrac, objlim=objlim,
                       read_noise=read_noise, data_max=data_max)
 
         iraf.images.imutil.imarith.unlearn()
-        iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
+        iraf.images.imutil.imarith(operand1=str(file_name), op='-',
+                                   operand2=str(output_file_name2),
                                    result=str(cr_check_file_name2))
+
         # time.sleep(3)
         ds9_waiting.join()
         # try:
@@ -258,12 +271,14 @@ def cosmic_correction_individual(cosmic_curr_list, CCD, location='', prefix_stri
 
         if check == 'Yes':  # Should continue
             print(x)
-            x = next(iterobj, sentinel)  # Explicitly advance loop for continue case
+            x = next(iterobj, sentinel)
+            # Explicitly advance loop for continue case
             cr_check_list.append(cr_check_file_name)
             cr_currected_list.append(output_file_name)
             remove_file(str(file_name))
-            remove_file(cr_check_file_name2)
-            # remove_file(str(file_name))   # removing the older files which is needed to bias correct.
+            # remove_file(cr_check_file_name2)
+            # remove_file(str(file_name))
+            # removing the older files which is needed to bias correct.
             continue
 
         if check == 'b':  # Should break
@@ -366,7 +381,7 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
     cr_currection_method = options(message, choices)
 
     message = "Do you need to keep verification files for cosmic-ray correction ?"
-    choices = ['No', 'Yes']
+    choices = ['Yes', 'No']
     verify = options(message, choices)
 
     # cosmicray correction task default parameters
@@ -385,6 +400,12 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
     objlim = 5.0
     data_max = CCD.max_count  # 700000  # Depend up on CCD
     read_noise = CCD.read_noise  # 5.75  # Depend up on CCD
+
+    cr_check_folder = os.path.join(location, 'CR_Check')
+    try:
+        os.makedirs(cr_check_folder)
+    except OSError:
+        pass
 
     # Cosmic ray correction loop
     for file_name in cosmic_curr_list:
@@ -411,7 +432,19 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
         cr_currected_list.append(output_file_name)
 
         if verify == 'No':
-            pass
+            cr_check_file_name = str('chk_') + output_file_name
+            cr_check_file_name2 = os.path.join(location, 'CR_Check', cr_check_file_name)
+
+            remove_file(cr_check_file_name2)
+
+            iraf.images.imutil.imarith.unlearn()
+            iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
+                                       result=str(cr_check_file_name2))
+
+            print(cr_check_file_name)
+            cr_check_list.append(cr_check_file_name)
+            # it will not remove files
+
         elif verify == 'Yes':
             cr_check_file_name = str('chk_') + output_file_name
             cr_check_file_name2 = os.path.join(location, 'CR_Check', cr_check_file_name)
@@ -424,13 +457,73 @@ def cosmic_correction_batch(cosmic_curr_list, CCD, location='',  prefix_string='
             remove_file(cr_check_file_name2)
 
             iraf.images.imutil.imarith.unlearn()
-            iraf.images.imutil.imarith(operand1=str(file_name), op='-', operand2=str(output_file_name2),
+            iraf.images.imutil.imarith(operand1=str(file_name), op='-',
+                                       operand2=str(output_file_name2),
                                        result=str(cr_check_file_name2))
 
             print(cr_check_file_name)
-            cr_check_list.append(cr_check_file_name)
+            cr_check_list.append(cr_check_file_name2)  # it will remove files
 
         remove_file(str(file_name))
         # remove_file(cr_check_file_name2)
-
     return cr_check_list
+
+
+def display_co(image_list, location='', prefix_string='c'):
+    """Function for displaying the image files in ds9"""
+
+    # opening ds9 for manually inspecting images
+    subprocess.Popen('ds9')
+    # process_ds9open.wait()
+    ds9_time_delay = 3  # Depends upon how fast your system opens up ds9
+    # time.sleep(4)
+    ds9_waiting = threading.Thread(time.sleep(ds9_time_delay))
+    ds9_waiting.start()
+    ds9_waiting.join()
+    # Create guaranteed unique sentinel
+    # (can't use None since iterator might produce None)
+    sentinel = object()
+    iterobj = iter(image_list)   # Explicitly get iterator from iterable
+    # (for does this implicitly)
+    x = next(iterobj, sentinel)  # Get next object or sentinel
+    while x is not sentinel:     # Keep going until we exhaust iterator
+
+        file_name = x
+        print(file_name)
+
+        output_file_name = str(prefix_string) + str(file_name)
+        output_file_name2 = os.path.join(location, output_file_name)
+
+        cr_check_file_name = str('chk_') + output_file_name
+        cr_check_file_name2 = os.path.join(location, cr_check_file_name)
+
+        # file_name = os.path.join(location, file_name)
+
+        print(output_file_name)
+        print(cr_check_file_name)
+
+        try:
+            iraf.display(output_file_name2, 1)
+            iraf.display(cr_check_file_name2, 2)
+        except:
+            time.sleep(2)
+            iraf.display(output_file_name2, 1)
+            iraf.display(cr_check_file_name2, 2)
+        # iraf.display(file_name, 3)
+        print(bar)
+        print("Try ds9>>>Frame>>>Blink to check how good is the cosmic ray correction")
+        print(bar)
+        # except iraf.IrafError as error:
+        #     # ds9 might not be open, hence open it and try again
+        #     print('DS9 window is not active. Opening a DS9 window please wait')
+        #     subprocess.Popen('ds9')
+
+        check = ''
+        message = "Continue to next image"
+        choices = ['Yes']
+        check = options(message, choices)
+
+        if check == 'Yes':  # Should continue
+            x = next(iterobj, sentinel)
+            #  Explicitly advance loop for continue case
+            continue

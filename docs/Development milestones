@@ -49,20 +49,13 @@ version 0.0.10
 > Restructure the code
 > Plotting tools
 
-version 0.1.1
-=============
-Batch-wise reduction for single day.
-
 version 1.0.0
+=============
+> Batch-wise reduction for single day.
+> Header correction module 
+
+version 1.1.0
 =============
 > Packaging
 > setup.py
 > documentation
-
-Version 2.0.0
-=============
-> Photometry pipeline
-
-Version 3.0.0
-=============
-> File identifier using ML
