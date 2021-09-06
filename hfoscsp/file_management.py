@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 """
 This script is written for HFOSC spectroscopic-Pipeline.
 
@@ -7,23 +7,23 @@ HFOSC spectroscopic-Pipeline.
 """
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.9'
-# -------------------------------------------------------------------------------------------------------------------- #
+__version__ = '1.0.1'
+# --------------------------------------------------------------------------- #
 import os
 import glob
 import shutil
 # import re
 from astropy.io import fits
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 
 default_path = os.getcwd()
 BACKUP = "HFOSC_PIPELINE_DataBackup"
 
-# Kept every keywords in small letters in the list
+# Keep every keywords in small letters in the list
 KEYWORDS = {'BIAS': ["bias_snspec", "bias_sn", "bias", "bias snspec",
                      "bias-snspec"],
-            'FLAT': ["flat", "halogen", "spectral flat"],
+            'FLAT': ["flat", "halogen", "spectral flat", "spectral flats"],
             'LAMP': ["lamp", "fear", "fe-ar", "fene", "fe-ne"],
             'FEAR': ["fear", "fe-ar"],
             'FENE': ["fene", "fe-ne"],
