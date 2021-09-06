@@ -57,6 +57,8 @@ def load_fits(file_name, location=''):
         for i in range(spectrum[0].header['NAXIS1']):
             wave[i] = spectrum[0].header['CRVAL1'] + i*spectrum[0].header['CDELT1']
             # for Himalayan Chandra telescope after combining the Grism7 and Grism8 spectra
+        telluric = 'NaN'
+        uncert = 'NaN'
 
     return flux, wave, telluric, uncert
 
