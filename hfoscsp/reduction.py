@@ -6,7 +6,7 @@ HFOSC spectroscopic-Pipeline.
 """
 __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
-__version__ = '0.0.10'
+__version__ = '1.0.1'
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Import required libraries
@@ -163,7 +163,12 @@ def bias_correction(bias_list, list_file, CCD, location='',
 
     # Backup the master_bias
     pathloc = os.path.join(location, 'Backup')
-    os.makedirs(pathloc)
+    try:
+        os.makedirs(pathloc)
+    except OSError:
+        if not os.path.isdir(pathloc):
+            raise
+
     print("copying master-bias to "+location+"/Backup")
     shutil.move(location+'/'+'master-bias.fits', pathloc)
 
@@ -561,6 +566,8 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
                 if aperture == '2 1340 l':
                     std_stars.append(file_name)
                 elif aperture == '8 167 l':
+                    obj_stars.append(file_name)
+                elif aperture == '6 67 l':
                     obj_stars.append(file_name)
                 else:
                     print("Header error for "+str(file_name)+" Please check header term aperture")
