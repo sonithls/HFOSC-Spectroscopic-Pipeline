@@ -8,9 +8,9 @@ __author__ = 'Sonith L.S'
 __contact__ = 'sonith.ls@iiap.res.in'
 __version__ = '1.0.1'
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 # Import required libraries
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 import os
 import shutil
 from astropy.io import fits
@@ -22,9 +22,9 @@ try:
 except ImportError as error:
     print(error + "Please install pyraf and iraf")
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 # Load IRAF Packages
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 iraf.noao(_doprint=0)
 iraf.imred(_doprint=0)
 iraf.specred(_doprint=0)
@@ -37,7 +37,7 @@ iraf.apextract(_doprint=0)
 iraf.onedspec(_doprint=0)
 iraf.ccdred.instrument = "ccddb$kpno/camera.dat"
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 """
 >>>CCD Information provided for running of IRAF module
 
@@ -53,7 +53,7 @@ HFOSC2
 # ccd_gain = 0.28
 # max_count = 700000
 """
-# -------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 
 
 def remove_file(file_name):
@@ -611,7 +611,8 @@ def flux_calibrate(obj_list, location, default_path, CCD, prefix_string='F_'):
            'feige66': 'onedstds$spec50cal/',
            'feige110': 'onedstds$spec50cal/',
            'bd284211': 'onedstds$spec50cal/',
-           'hz44': 'onedstds$spec50cal/'}
+           'hz44': 'onedstds$spec50cal/',
+           'g191b2b': 'onedstds$spec50cal/'}
 
     # standard_star_name = raw_input("Type standard star name to continue :")
     message = "Select standard star and 'Enter' to continue"
